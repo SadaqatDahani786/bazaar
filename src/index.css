@@ -1,0 +1,186 @@
+/*
+** ** 
+** ** ** Font [Playfair Display]
+** **
+*/
+@font-face {
+  font-family: "Playfair Display";
+  src: url("./assets/fonts/PlayfairDisplay-VariableFont_wght.ttf") format("truetype");  
+  font-style: normal;    
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("./assets/fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf") format("truetype");  
+  font-style: italic;    
+  font-weight: normal;
+}
+
+
+
+/*
+** ** 
+** ** ** Font [Lato]
+** **
+*/
+@font-face {
+  font-family: "Lato";
+  src: url("./assets/fonts/Lato-Regular.ttf") format("truetype");  
+  font-style: normal;    
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./assets/fonts/Lato-Italic.ttf") format("truetype");  
+  font-style: italic;    
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./assets/fonts/Lato-Thin.ttf") format("truetype");  
+  font-style: normal;    
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "Lato Thin";
+  src: url("./assets/fonts/Lato-ThinItalic.ttf") format("truetype");  
+  font-style: italic;    
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./assets/fonts/Lato-Light.ttf") format("truetype");  
+  font-style: normal;    
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Lato Light Italic";
+  src: url("./assets/fonts/Lato-LightItalic.ttf") format("truetype");  
+  font-style: italic;    
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./assets/fonts/Lato-Bold.ttf") format("truetype");  
+  font-style: normal;    
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("./assets/fonts/Lato-BoldItalic.ttf") format("truetype");  
+  font-style: italic;    
+  font-weight: 600;
+}
+
+
+
+/*
+** **
+** ** ** Use A More Intuitive Box Model
+** **
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+/*
+** **
+** ** ** Remove Default Margin
+** **
+*/
+* {
+  margin: 0;
+}
+
+/*
+** **
+** ** ** Allow Percentage Based Heights 
+** **
+*/
+html,
+body {
+  height: 100%;
+}
+
+/*
+** **
+** ** ** Accessible Line Height And Improve Text Rendering
+** **
+*/
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+** **
+** ** ** Improve Media Defaults
+** **
+*/
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  width: 100%;
+}
+
+/*
+** **
+** ** ** Fonts for code element
+** **
+*/
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+/*
+** **
+** ** ** Remove Default Typography From Form Inputs
+** **
+*/
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/*
+** **
+** ** ** Avoid Text Overflows
+** **
+*/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  overflow-wrap: break-word;
+}
+
+/*
+** **
+** ** ** Create A Seperate Context For Root Element
+** **
+*/
+#root {
+  isolation: isolate;
+}
