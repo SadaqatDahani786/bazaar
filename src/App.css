@@ -5,6 +5,11 @@
 */
 .App {
   font-size: 62.5%;
-  font-family: 'Lato', sans-serif ;  
+  font-family: 'Lato', sans-serif ;    
   text-align: center;  
+}
+
+/* Anchor Link */
+.App a{
+  cursor: pointer;
 }
