@@ -127,8 +127,8 @@ interface ICarouselProps {
  ** ======================================================
  */
 interface ICarouselInner {
-    numSlides: number
-    currSlide: number
+    $numSlides: number
+    $currSlide: number
 }
 
 /**
@@ -184,12 +184,12 @@ const Carousel = ({
                     velocity: 50,
                     stiffness: 7,
                 }}
-                currSlide={currSlide}
-                numSlides={slides.length}
+                $currSlide={currSlide}
+                $numSlides={slides.length}
             >
-                {slides.map((slide) =>
+                {slides.map((slide, ind) =>
                     Array.isArray(slide) && slide.length === 3 ? (
-                        <Slide>
+                        <Slide key={ind}>
                             <Overlay />
                             <SlideLeft>
                                 <CarouselSlide
@@ -217,7 +217,7 @@ const Carousel = ({
                             </SlideRight>
                         </Slide>
                     ) : Array.isArray(slide) && slide.length === 2 ? (
-                        <Slide>
+                        <Slide key={ind}>
                             <Overlay />
                             <SlideLeft style={{ flex: 1 }}>
                                 <CarouselSlide
@@ -237,7 +237,7 @@ const Carousel = ({
                             </SlideRight>
                         </Slide>
                     ) : Array.isArray(slide) && slide.length === 1 ? (
-                        <Slide>
+                        <Slide key={ind}>
                             <Overlay />
                             <SlideLeft>
                                 <CarouselSlide

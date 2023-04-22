@@ -100,9 +100,11 @@ const CarouselSlide = ({
                         {new String(title)
                             ?.replace(/\*\*(.+?)\*\*/g, '<span>**$1<span>')
                             .split('<span>')
-                            .map((word) =>
+                            .map((word, i) =>
                                 word.startsWith('**') ? (
-                                    <span>{word.replace('**', '')}</span>
+                                    <span key={i}>
+                                        {word.replace('**', '')}
+                                    </span>
                                 ) : (
                                     word
                                 )

@@ -907,7 +907,11 @@ const Header = () => {
                                                                     cat.slug
                                                             )
                                                             .map((catsub) => (
-                                                                <li>
+                                                                <li
+                                                                    key={
+                                                                        catsub.slug
+                                                                    }
+                                                                >
                                                                     <DrawerNavLink underline="none">
                                                                         {
                                                                             catsub.name
