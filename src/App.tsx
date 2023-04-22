@@ -7,6 +7,7 @@ import './App.css'
 // Components
 import Header from './layouts/Header'
 import Carousel from './components/Carousel'
+import ProductCardList from './components/Product Card List'
 
 /**
  ** ======================================================
@@ -112,6 +113,88 @@ function App() {
                                         image: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8ZnJhZ3JhbmNlc3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60',
                                     },
                                 ],
+                            ]}
+                        />
+                        <ProductCardList
+                            title="Discover the latest fashion trends made for you."
+                            subtitle="Latest"
+                            slides={[
+                                {
+                                    title: "London Men's Tall Lhotse II  Trench Coat",
+                                    image: 'https://images.unsplash.com/photo-1553143820-6bb68bc34679?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=674&q=80',
+                                    prices: {
+                                        price: 160.45,
+                                        sale_price: 149.99,
+                                    },
+                                    isStaffPicked: false,
+                                    colors: ['#dfbf57', 'black'],
+                                },
+                                {
+                                    title: "Alex Evenings Women's Cold Shoulder Popover Dress",
+                                    image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mjh8fHdvbWVuJTIwZHJlc3N8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
+                                    prices: {
+                                        price: 696.66,
+                                    },
+                                    isStaffPicked: false,
+                                    colors: ['white'],
+                                },
+                                {
+                                    title: "J.M. Haggar Men's Premium Stretch Tailored Fit Suit ",
+                                    image: 'https://images.unsplash.com/photo-1593030103066-0093718efeb9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80',
+                                    prices: {
+                                        price: 2000.0,
+                                        sale_price: 1899.99,
+                                    },
+                                    isStaffPicked: false,
+                                    colors: ['darkblue', 'black'],
+                                },
+                                {
+                                    title: 'Hanes Sport Performance Fleece Pullover Hoodie',
+                                    image: 'https://images.unsplash.com/photo-1633292750937-120a94f5c2bb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
+                                    prices: {
+                                        price: 864.44,
+                                    },
+                                    isStaffPicked: false,
+                                    colors: ['black', 'white', 'gray'],
+                                },
+                                {
+                                    title: "London Men's Tall Lhotse II  Trench Coat",
+                                    image: 'https://images.unsplash.com/photo-1553143820-6bb68bc34679?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=674&q=80',
+                                    prices: {
+                                        price: 160.45,
+                                        sale_price: 149.99,
+                                    },
+                                    isStaffPicked: false,
+                                    colors: ['#dfbf57', 'black'],
+                                },
+                                {
+                                    title: "Alex Evenings Women's Cold Shoulder Popover Dress",
+                                    image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mjh8fHdvbWVuJTIwZHJlc3N8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
+                                    prices: {
+                                        price: 696.66,
+                                    },
+                                    isStaffPicked: false,
+                                    colors: ['white'],
+                                },
+                                {
+                                    title: "J.M. Haggar Men's Premium Stretch Tailored Fit Suit ",
+                                    image: 'https://images.unsplash.com/photo-1593030103066-0093718efeb9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80',
+                                    prices: {
+                                        price: 2000.0,
+                                        sale_price: 1899.99,
+                                    },
+                                    isStaffPicked: false,
+                                    colors: ['darkblue', 'black'],
+                                },
+                                {
+                                    title: 'Hanes Sport Performance Fleece Pullover Hoodie',
+                                    image: 'https://images.unsplash.com/photo-1633292750937-120a94f5c2bb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
+                                    prices: {
+                                        price: 864.44,
+                                    },
+                                    isStaffPicked: false,
+                                    colors: ['black', 'white', 'gray'],
+                                },
                             ]}
                         />
                     </div>
