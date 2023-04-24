@@ -9,6 +9,7 @@ import Header from './layouts/Header'
 import Carousel from './components/Carousel'
 import ProductCardList from './components/Product Card List'
 import Grid from './components/Grid'
+import Footer from './layouts/Footer'
 
 /**
  ** ======================================================
@@ -262,6 +263,7 @@ function App() {
                                 },
                             ]}
                         />
+                        <Footer />
                     </div>
                 </StyleThemeProvider>
             </ThemeProvider>
