@@ -8,6 +8,7 @@ import './App.css'
 import Header from './layouts/Header'
 import Carousel from './components/Carousel'
 import ProductCardList from './components/Product Card List'
+import Grid from './components/Grid'
 
 /**
  ** ======================================================
@@ -194,6 +195,70 @@ function App() {
                                     },
                                     isStaffPicked: false,
                                     colors: ['black', 'white', 'gray'],
+                                },
+                            ]}
+                        />
+                        <Grid
+                            items={[
+                                {
+                                    name: 'Home Decoration',
+                                    slug: 'home-decoration',
+                                    image: 'https://images.unsplash.com/photo-1618220048045-10a6dbdf83e0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8aG9tZSUyMGRlY29yYXRpb258ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
+                                },
+                                {
+                                    name: 'Fragrances',
+                                    slug: 'fragrances',
+                                    image: 'https://images.unsplash.com/photo-1587017539504-67cfbddac569?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjZ8fGZyYWdyYW5jZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60',
+                                },
+                                {
+                                    name: 'Toys & Games',
+                                    slug: 'toys-and-games',
+                                    image: 'https://images.unsplash.com/photo-1596068587619-e4b11c7a3488?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fHRveXN8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
+                                },
+                                {
+                                    name: 'Gaming',
+                                    slug: 'gaming',
+                                    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8Z2FtaW5nfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+                                },
+                                {
+                                    name: 'Shampoos & Conditioners',
+                                    slug: 'shampoo-and-conditioner',
+                                    image: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+                                },
+                                {
+                                    name: 'Smartphones',
+                                    slug: 'smartphones',
+                                    image: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mzh8fHNtYXJ0cGhvbmVzfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+                                },
+                                {
+                                    name: 'Makeup',
+                                    slug: 'makeup',
+                                    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bWFrZSUyMHVwfGVufDB8MHwwfHw%3D&auto=format&fit=crop&w=500&q=60',
+                                },
+                                {
+                                    name: 'Health & Beauty',
+                                    slug: 'health-and-beauty',
+                                    image: 'https://images.unsplash.com/photo-1606570109843-5c1ff8e7cc1a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+                                },
+                                {
+                                    name: 'Sports & Outdoors',
+                                    slug: 'sports-and-outdoors',
+                                    image: 'https://images.unsplash.com/photo-1587314021014-efb61d5925bd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8c3BvcnRzJTIwYW5kJTIwb3V0ZG9vcnN8ZW58MHwwfDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+                                },
+                                {
+                                    name: 'Groceries',
+                                    slug: 'groceries',
+                                    image: 'https://images.unsplash.com/photo-1543168256-418811576931?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fGdyb2Nlcmllc3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60',
+                                },
+                                {
+                                    name: 'Kitchen Appliances',
+                                    slug: 'kitchen-appliances',
+                                    image: 'https://images.unsplash.com/photo-1591924450983-b8f7587ea332?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+                                },
+                                {
+                                    name: 'Mother & Baby',
+                                    slug: 'mother-and-baby',
+                                    image: 'https://images.unsplash.com/photo-1601512310580-da458161fcab?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mzh8fG1vdGhlciUyMGFuZCUyMGJhYnl8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
                                 },
                             ]}
                         />
