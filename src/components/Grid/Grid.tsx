@@ -9,9 +9,8 @@ import styled from 'styled-components'
 //Grid
 const GridStyled = styled.div`
     display: grid;
-    padding: 24px;
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: repeat(6, 248px);
+    grid-template-rows: repeat(5, 248px);
     grid-auto-rows: repeat(3, 300px);
     gap: 16px;
 

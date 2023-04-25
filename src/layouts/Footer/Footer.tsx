@@ -27,12 +27,16 @@ const FooterStyled = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    ${(props) => props.theme.breakpoints.down('sm')} {
+        padding: 48px 8px;
+    }
 `
 
 //Footer Row
 const Row = styled.div`
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     flex-direction: row;
     gap: 16px;
@@ -285,6 +289,7 @@ const Footer = () => {
                                 ? '8px'
                                 : '24px',
                         textTransform: 'uppercase',
+                        textAlign: 'left',
                     }}
                 >
                     <NavListItem>

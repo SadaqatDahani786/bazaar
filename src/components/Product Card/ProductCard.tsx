@@ -9,7 +9,7 @@ import styled from 'styled-components'
 //Product Card
 const ProductCardStyled = styled.div`
     width: 100%;
-    height: 44rem;
+    height: 100%;
     display: flex;
     flex-direction: column;
 `
@@ -31,9 +31,9 @@ const ProductCardImage = styled.div`
 //Price Card Details
 const ProductCardDetails = styled.div`
     width: 100%;
-    flex: 0 0 25%;
+    flex: 0 0 140px;
     text-align: left;
-    padding: 16px 8px;
+    padding: 16px 0px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -104,7 +104,7 @@ const StaffPickedTag = styled.div`
  ** ======================================================
  */
 export interface IProductCardProps {
-    title: string
+    title?: string
     image: string
     prices?: {
         price: number
@@ -126,7 +126,9 @@ const ProductCard = ({
     isStaffPicked = false,
     colors = [],
 }: IProductCardProps) => {
+    //Hooks
     const theme = useTheme()
+
     return (
         <ProductCardStyled>
             <ProductCardImage>
@@ -142,50 +144,59 @@ const ProductCard = ({
                     {prices?.sale_price ? <Tag>Sale</Tag> : ''}
                 </TagWrapper>
             </ProductCardImage>
-            <ProductCardDetails>
-                <Typography
-                    style={{
-                        lineHeight: '1.2em',
-                        maxHeight: '2.4em',
-                        display: '-webkit-box',
-                        WebkitBoxOrient: 'vertical',
-                        WebkitLineClamp: 2,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                    }}
-                    fontWeight={600}
-                    variant="h5"
-                >
-                    {title}
-                </Typography>
-                <Wrapper>
+            {title ? (
+                <ProductCardDetails>
                     <Typography
-                        style={{ display: 'flex', alignItems: 'center' }}
+                        style={{
+                            lineHeight: '1.2em',
+                            maxHeight: '2.4em',
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 2,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                        }}
+                        fontWeight={600}
                         variant="h5"
                     >
-                        $
-                        {prices?.sale_price ? prices.sale_price : prices?.price}
+                        {title}
                     </Typography>
-                    {prices?.sale_price ? (
+                    <Wrapper>
                         <Typography
-                            style={{
-                                textDecoration: 'line-through',
-                                color: theme.palette.grey[600],
-                            }}
-                            variant="h6"
+                            style={{ display: 'flex', alignItems: 'center' }}
+                            variant="h5"
                         >
-                            ${prices?.price}
+                            $
+                            {prices?.sale_price
+                                ? prices.sale_price
+                                : prices?.price}
                         </Typography>
-                    ) : (
-                        ''
-                    )}
-                </Wrapper>
-                <Wrapper>
-                    {colors.map((color, ind) => (
-                        <ColorCircle key={ind} style={{ background: color }} />
-                    ))}
-                </Wrapper>
-            </ProductCardDetails>
+                        {prices?.sale_price ? (
+                            <Typography
+                                style={{
+                                    textDecoration: 'line-through',
+                                    color: theme.palette.grey[600],
+                                }}
+                                variant="h6"
+                            >
+                                ${prices?.price}
+                            </Typography>
+                        ) : (
+                            ''
+                        )}
+                    </Wrapper>
+                    <Wrapper>
+                        {colors.map((color, ind) => (
+                            <ColorCircle
+                                key={ind}
+                                style={{ background: color }}
+                            />
+                        ))}
+                    </Wrapper>
+                </ProductCardDetails>
+            ) : (
+                ''
+            )}
         </ProductCardStyled>
     )
 }

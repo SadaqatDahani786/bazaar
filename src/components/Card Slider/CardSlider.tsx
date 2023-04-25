@@ -18,8 +18,6 @@ import { IProductCardProps } from '../Product Card/ProductCard'
 //Card Slider
 const CardSiderStyled = styled.div`
     width: 100%;
-    min-height: 400px;
-    width: 100%;
     height: 100%;
     position: relative;
     overflow: hidden;
@@ -90,6 +88,7 @@ interface ISlide {
  ** ======================================================
  */
 interface ICardSliderProps {
+    size?: 'sm' | 'md' | 'lg'
     showNextPreview?: boolean
     slides: Array<IProductCardProps>
     slidesToShow?: number
@@ -101,6 +100,7 @@ interface ICardSliderProps {
  ** ======================================================
  */
 const CardSlider = ({
+    size = 'md',
     slides,
     showNextPreview = true,
     slidesToShow = 3,
@@ -135,6 +135,10 @@ const CardSlider = ({
         <CardSiderStyled
             onMouseEnter={() => setIsMouseOverOnSlider(true)}
             onMouseLeave={() => setIsMouseOverOnSlider(false)}
+            style={{
+                height:
+                    size === 'sm' ? '300px' : size === 'lg' ? '100vh' : '660px',
+            }}
         >
             <CardSliderInner
                 $showNextPreview={showNextPreview}

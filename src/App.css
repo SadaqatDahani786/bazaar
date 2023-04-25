@@ -3,13 +3,20 @@
 ** ** ** App
 ** **
 */
-.App {
-  font-size: 62.5%;
+.App {  
   font-family: 'Lato', sans-serif ;    
-  text-align: center;  
+  text-align: center;    
 }
 
 /* Anchor Link */
 .App a{
   cursor: pointer;
+  
+}
+
+/* Media Queries */
+@media screen and (max-width: 900px) {  
+  html{  
+   font-size: 62.5%;  
+  }
 }

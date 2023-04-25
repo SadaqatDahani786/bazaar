@@ -1,6 +1,7 @@
-import { Button, Link, Typography } from '@mui/material'
+import { Button, Link, Typography, useTheme } from '@mui/material'
 import { ArrowForwardOutlined, AddOutlined } from '@mui/icons-material'
 import styled from 'styled-components'
+import useWindowDimensions from '../../hooks/useWindowDimensions'
 
 /*
  ** **
@@ -13,6 +14,13 @@ const SlideTextWrapper = styled.div<ICarouselSlideProps>`
     z-index: 50;
     display: flex;
     flex-direction: column;
+    left: ${(props) => (props.variant === 'small' ? '50%' : '48px')};
+
+    ${(props) => props.theme.breakpoints.down('md')} {
+        left: 8px;
+        bottom: 8px !important;
+        transform: none !important;
+    }
 `
 
 //Wrapper
@@ -66,13 +74,15 @@ const CarouselSlide = ({
     subtitle,
     image,
 }: ICarouselSlideProps) => {
+    const { width } = useWindowDimensions()
+    const theme = useTheme()
+
     return (
         <>
             <img src={image} />
             <SlideTextWrapper
                 variant={variant}
                 style={{
-                    left: variant === 'small' ? '50%' : '50px',
                     bottom: variant === 'small' ? '50%' : '140px',
                     transform: `translate(${
                         variant === 'small' ? '-50%, 50%' : '0, 0'

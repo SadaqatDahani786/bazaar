@@ -22,16 +22,22 @@ const ProductCardListStyled = styled.section`
     align-items: center;
     gap: 8px;
     min-height: 100vh;
+    border-top: 1px solid ${(props) => props.theme.palette.grey['300']};
+    padding: 160px 48px;
 
     ${(props) => props.theme.breakpoints.down('md')} {
         flex-direction: column;
+        padding: 48px;
+        gap: 32px;
+    }
+
+    ${(props) => props.theme.breakpoints.down('sm')} {
+        padding: 80px 16px;
     }
 `
 
 //Column
 const Column = styled.div`
-    flex: 1;
-    height: 700px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -39,15 +45,8 @@ const Column = styled.div`
     text-align: left;
 
     &:nth-child(1) {
-        padding: 0 48px;
         ${(props) => props.theme.breakpoints.down('md')} {
             width: 100%;
-            padding: 48px;
-            padding-bottom: 0;
-        }
-
-        ${(props) => props.theme.breakpoints.down('sm')} {
-            padding: 48px 24px 0 24px;
         }
     }
 
@@ -55,11 +54,6 @@ const Column = styled.div`
         width: 70%;
         ${(props) => props.theme.breakpoints.down('md')} {
             width: 100%;
-            padding: 48px;
-        }
-
-        ${(props) => props.theme.breakpoints.down('sm')} {
-            padding: 48px 24px;
         }
     }
 `
@@ -86,7 +80,11 @@ interface IProductCardList {
  ** ======================================================
  */
 const ProductCardList = ({ title, subtitle, slides }: IProductCardList) => {
-    //State & Hooks
+    /*
+     ** **
+     ** ** ** State & Hooks
+     ** **
+     */
     const [numSlidesToShow, setNumSlidesToShow] = useState(3)
 
     const theme = useTheme()
