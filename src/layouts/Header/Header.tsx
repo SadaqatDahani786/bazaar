@@ -1118,17 +1118,20 @@ const Header = () => {
                 </Logo>
                 <Nav style={{ justifyContent: 'flex-end' }}>
                     <NavList>
-                        <NavListItem>
-                            <Icon>
-                                <SearchSharp />
-                            </Icon>
+                        <NavListItem style={{ padding: '16px 0' }}>
+                            <IconButton style={{ cursor: 'pointer' }}>
+                                <SearchSharp fontSize="large" />
+                            </IconButton>
                         </NavListItem>
-                        <NavListItem>
-                            <Icon>
-                                <PersonOutlineSharp />
-                            </Icon>
+                        <NavListItem style={{ padding: '16px 0' }}>
+                            <IconButton style={{ cursor: 'pointer' }}>
+                                <PersonOutlineSharp fontSize="large" />
+                            </IconButton>
                         </NavListItem>
-                        <NavListItem onClick={() => setIsCartDrawerOpen(true)}>
+                        <NavListItem
+                            style={{ padding: '16px 0' }}
+                            onClick={() => setIsCartDrawerOpen(true)}
+                        >
                             <Badge
                                 badgeContent={cartItems.reduce(
                                     (acc, currItem) =>
@@ -1137,9 +1140,9 @@ const Header = () => {
                                 )}
                                 color="primary"
                             >
-                                <Icon>
-                                    <ShoppingBagOutlined />
-                                </Icon>
+                                <IconButton style={{ cursor: 'pointer' }}>
+                                    <ShoppingBagOutlined fontSize="large" />
+                                </IconButton>
                             </Badge>
                         </NavListItem>
                     </NavList>
