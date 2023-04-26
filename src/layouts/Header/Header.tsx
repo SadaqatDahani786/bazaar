@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { SyntheticEvent, useState } from 'react'
 
 import {
     Badge,
@@ -10,6 +10,11 @@ import {
     Typography,
     InputAdornment,
     Divider,
+    IconButton,
+    Box,
+    CardContent,
+    CardMedia,
+    Button,
 } from '@mui/material'
 import {
     SearchSharp,
@@ -22,6 +27,11 @@ import {
     KeyboardArrowRightOutlined,
     KeyboardArrowUpOutlined,
     ArrowBack,
+    CloseOutlined,
+    DeleteOutline,
+    AddOutlined,
+    RemoveOutlined,
+    ArrowForward,
 } from '@mui/icons-material'
 
 import styled from 'styled-components'
@@ -164,6 +174,7 @@ const NavSubMenu = styled.div`
     padding: 48px;
     display: flex;
     justify-content: space-between;
+    z-index: 100;
     display: none;
 
     ${(props) => props.theme.breakpoints.down('lg')} {
@@ -359,6 +370,49 @@ const BackToMenuButton = styled.button`
     }
 `
 
+//TextField Quantity
+const TextFieldQuantity = styled(TextField)`
+    width: 40px;
+
+    & input {
+        padding: 0px;
+        text-align: center;
+    }
+`
+
+//Drawer Cart
+const DrawerCart = styled.div`
+    width: 380px;
+    height: 100%;
+    background: white;
+    padding: 48px;
+`
+
+//Drawer Cart Header
+const DrawerCartHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 48px 0;
+    padding-top: 0;
+    border-bottom: 1px solid black;
+`
+
+//Drawer Cart Body
+const DrawerCartBody = styled.div`
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    height: 75%;
+    overflow: auto;
+    padding: 48px 0;
+`
+
+//Drawer Cart Footer
+const DrawerCartFooter = styled.div``
+
 //Logo
 const Logo = styled.div`
     font-size: 4.2rem;
@@ -439,19 +493,66 @@ const Header = () => {
         },
     ]
 
+    const defaultCartItems = [
+        {
+            id: 1,
+            title: 'Product 1',
+            image: 'https://images.unsplash.com/photo-1507680434567-5739c80be1ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+            price: 999.99,
+            quantity: 2,
+            variations: [
+                {
+                    name: 'Color',
+                    value: 'Red',
+                },
+                {
+                    name: 'Size',
+                    value: 'L',
+                },
+            ],
+        },
+        {
+            id: 2,
+            title: 'Product 2',
+            image: 'https://images.unsplash.com/photo-1507680434567-5739c80be1ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+            price: 699.99,
+            quantity: 1,
+            variations: [
+                {
+                    name: 'Color',
+                    value: 'White',
+                },
+                {
+                    name: 'Size',
+                    value: 'XL',
+                },
+            ],
+        },
+    ]
+
     /**
      ** **
      ** ** ** State & Hooks
      ** **
      */
-    const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [cartItems, setCartItems] = useState(defaultCartItems)
+    const [quantityInputsDefaultValues, setQuantityInputsDefaultValues] =
+        useState(
+            defaultCartItems.map((item) => ({
+                value: item.quantity,
+                id: item.id,
+            }))
+        )
+
+    const [drawerSelectedMenu, setDrawerSelectedMenu] = useState('')
     const [selectedMenu, setSelectedMenu] = useState([
         'men-fashion',
         'men-apparels',
         'men-jeans',
     ])
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-    const [drawerSelectedMenu, setDrawerSelectedMenu] = useState('')
+    const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
 
     /**
      ** **
@@ -490,6 +591,90 @@ const Header = () => {
 
         //4) update the state
         setSelectedMenu((state) => [state[0], slug, childCat])
+    }
+
+    //Remove item from cart handler
+    const removeItemFromCartHandler = (
+        e: SyntheticEvent<HTMLButtonElement>
+    ) => {
+        //1) Get Id
+        const id = e.currentTarget.dataset.id
+
+        //2) Validate
+        if (!id) return
+
+        //3) Update cart items by removing the item to be delete
+        const updItems = cartItems.filter((item) => item.id !== parseInt(id))
+        setCartItems(updItems)
+    }
+
+    //Quantity input fields handler
+    const quantityInputfieldHandler = (
+        e: SyntheticEvent<HTMLButtonElement>
+    ) => {
+        //1) Get id and type
+        const id = e.currentTarget.dataset.id
+        const type = e.currentTarget.dataset.type as 'INC' | 'DEC'
+
+        //2) Validate
+        if (!id || !type) return
+
+        //3) Update quantity by increasing or decreasing
+        const updItems = quantityInputsDefaultValues.map((item) => {
+            if (
+                (item.id === parseInt(id) &&
+                    type === 'DEC' &&
+                    item.value - 1 > 0) ||
+                (type === 'INC' && item.value + 1 <= 100)
+            ) {
+                return {
+                    ...item,
+                    value:
+                        type === 'INC' ? (item.value += 1) : (item.value -= 1),
+                }
+            }
+            return item
+        })
+
+        //4)
+        setQuantityInputsDefaultValues(updItems)
+    }
+
+    //OnChange handler
+    const onQuantityChangeHandler = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        //1) Get Id
+        const id = e.currentTarget.parentElement?.parentElement?.dataset.id
+        let val = parseInt(e.currentTarget.value)
+
+        //2) Validate
+        if (!id) return
+
+        //3) Set zero for invalid values
+        if (!val || val < 0 || val > 100 || Number.isNaN(val)) {
+            val = 0
+        }
+
+        //4) Update state
+        const updQuantityValues = quantityInputsDefaultValues.map((qValue) => {
+            if (qValue.id === parseInt(id)) return { ...qValue, value: val }
+            return qValue
+        })
+        setQuantityInputsDefaultValues(updQuantityValues)
+    }
+
+    //OnBlur handler
+    const onQuantityBlurHandler = () => {
+        //1) Find items to remove with quantity <= 0
+        const updateItems = cartItems.filter((item) =>
+            quantityInputsDefaultValues.some(
+                (qtItem) => qtItem.id === item.id && qtItem.value > 0
+            )
+        )
+
+        //2) Update state
+        setCartItems(updateItems)
     }
 
     return (
@@ -943,14 +1128,226 @@ const Header = () => {
                                 <PersonOutlineSharp />
                             </Icon>
                         </NavListItem>
-                        <NavListItem>
-                            <Badge badgeContent={3} color="primary">
+                        <NavListItem onClick={() => setIsCartDrawerOpen(true)}>
+                            <Badge
+                                badgeContent={cartItems.reduce(
+                                    (acc, currItem) =>
+                                        (acc += currItem.quantity),
+                                    0
+                                )}
+                                color="primary"
+                            >
                                 <Icon>
                                     <ShoppingBagOutlined />
                                 </Icon>
                             </Badge>
                         </NavListItem>
                     </NavList>
+                    <Drawer
+                        anchor="right"
+                        open={isCartDrawerOpen}
+                        onClose={() => setIsCartDrawerOpen(false)}
+                    >
+                        <DrawerCart>
+                            <DrawerCartHeader>
+                                <Typography variant="h5" fontWeight="bold">
+                                    Cart (
+                                    {cartItems.reduce(
+                                        (acc, currItem) =>
+                                            (acc += currItem.quantity),
+                                        0
+                                    )}
+                                    )
+                                </Typography>
+                                <div>
+                                    <IconButton
+                                        onClick={() =>
+                                            setIsCartDrawerOpen(false)
+                                        }
+                                        color="primary"
+                                    >
+                                        <CloseOutlined fontSize="small" />
+                                    </IconButton>
+                                </div>
+                            </DrawerCartHeader>
+                            <DrawerCartBody>
+                                {cartItems.map((item, i) => (
+                                    <Card key={i} sx={{ display: 'flex' }}>
+                                        <CardMedia
+                                            component="img"
+                                            sx={{ width: 150, height: 180 }}
+                                            image={item.image}
+                                        />
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                            }}
+                                        >
+                                            <CardContent
+                                                sx={{
+                                                    flex: '1 0 auto',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: '8px',
+                                                }}
+                                            >
+                                                <Typography
+                                                    variant="body1"
+                                                    fontWeight="bold"
+                                                >
+                                                    {item.title}
+                                                </Typography>
+                                                <Typography
+                                                    variant="subtitle2"
+                                                    color="text.secondary"
+                                                >
+                                                    $
+                                                    {item.price * item.quantity}
+                                                </Typography>
+                                                <Box>
+                                                    {item.variations.map(
+                                                        (variation, i) => (
+                                                            <Box
+                                                                key={i}
+                                                                sx={{
+                                                                    display:
+                                                                        'flex',
+                                                                    gap: '8px',
+                                                                }}
+                                                            >
+                                                                <Typography variant="subtitle2">
+                                                                    {
+                                                                        variation.name
+                                                                    }
+                                                                    :
+                                                                </Typography>
+                                                                <Typography
+                                                                    variant="subtitle2"
+                                                                    fontWeight={
+                                                                        'bold'
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        variation.value
+                                                                    }
+                                                                </Typography>
+                                                            </Box>
+                                                        )
+                                                    )}
+                                                </Box>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent:
+                                                            'space-between',
+                                                    }}
+                                                >
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems:
+                                                                'center',
+                                                        }}
+                                                    >
+                                                        <Button
+                                                            onClick={
+                                                                quantityInputfieldHandler
+                                                            }
+                                                            data-id={item.id}
+                                                            data-type={'INC'}
+                                                            sx={{
+                                                                padding: 0,
+                                                                minWidth:
+                                                                    'max-content',
+                                                            }}
+                                                            size="small"
+                                                        >
+                                                            <AddOutlined fontSize="small" />
+                                                        </Button>
+                                                        <TextFieldQuantity
+                                                            onChange={
+                                                                onQuantityChangeHandler
+                                                            }
+                                                            onBlur={
+                                                                onQuantityBlurHandler
+                                                            }
+                                                            data-id={item.id}
+                                                            value={
+                                                                quantityInputsDefaultValues.find(
+                                                                    (qItem) =>
+                                                                        qItem.id ===
+                                                                        item.id
+                                                                )?.value
+                                                            }
+                                                            variant="outlined"
+                                                        />
+                                                        <Button
+                                                            onClick={
+                                                                quantityInputfieldHandler
+                                                            }
+                                                            data-id={item.id}
+                                                            data-type={'DEC'}
+                                                            sx={{
+                                                                padding: 0,
+                                                                minWidth:
+                                                                    'max-content',
+                                                            }}
+                                                            size="small"
+                                                        >
+                                                            <RemoveOutlined fontSize="small" />
+                                                        </Button>
+                                                    </Box>
+                                                    <IconButton
+                                                        onClick={
+                                                            removeItemFromCartHandler
+                                                        }
+                                                        data-id={item.id}
+                                                    >
+                                                        <DeleteOutline />
+                                                    </IconButton>
+                                                </Box>
+                                            </CardContent>
+                                        </Box>
+                                    </Card>
+                                ))}
+                            </DrawerCartBody>
+                            <DrawerCartFooter>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        padding: '24px 0',
+                                    }}
+                                >
+                                    <Typography variant="h5" fontWeight="bold">
+                                        Subtotal
+                                    </Typography>
+                                    <Typography variant="h6" fontWeight="bold">
+                                        $
+                                        {cartItems
+                                            .reduce(
+                                                (acc, currItem) =>
+                                                    (acc +=
+                                                        currItem.price *
+                                                        currItem.quantity),
+                                                0
+                                            )
+                                            .toFixed(2)}
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    fullWidth={true}
+                                    variant="contained"
+                                    style={{ borderRadius: '0' }}
+                                    size="large"
+                                    endIcon={<ArrowForward />}
+                                >
+                                    View My Cart
+                                </Button>
+                            </DrawerCartFooter>
+                        </DrawerCart>
+                    </Drawer>
                 </Nav>
             </NavBar>
         </HeaderStyled>
