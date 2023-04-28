@@ -6,6 +6,7 @@ import './App.css'
 
 //Pages
 import Home from './pages/Home'
+import Dashboard from './pages/Dashboard'
 
 /**
  ** ======================================================
@@ -67,7 +68,8 @@ function App() {
             <ThemeProvider theme={theme}>
                 <StyleThemeProvider theme={theme}>
                     <div className="App">
-                        <Home />
+                        {/* <Home /> */}
+                        <Dashboard />
                     </div>
                 </StyleThemeProvider>
             </ThemeProvider>
