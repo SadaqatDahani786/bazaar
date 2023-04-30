@@ -17,6 +17,7 @@ import styled from 'styled-components'
 //Components
 import Header from './Header'
 import Overview from './Overview'
+import Media from './Media'
 
 /*
  ** **
@@ -321,7 +322,7 @@ const Dashboard = () => {
                 <SidebarNav>
                     <NavList>
                         {navLinks.map((item) => (
-                            <>
+                            <Box key={item.slug}>
                                 <NavListItem
                                     data-slug={item.slug}
                                     onClick={clickHandler}
@@ -365,6 +366,7 @@ const Dashboard = () => {
                                     >
                                         {item.sublinks.map((subItem) => (
                                             <NavListItem
+                                                key={subItem.slug}
                                                 data-slug={subItem.slug}
                                                 onClick={clickHandler}
                                             >
@@ -392,7 +394,7 @@ const Dashboard = () => {
                                         ))}
                                     </NavSubList>
                                 )}
-                            </>
+                            </Box>
                         ))}
                     </NavList>
                 </SidebarNav>
@@ -419,7 +421,7 @@ const Dashboard = () => {
                     <SidebarNav>
                         <NavList>
                             {navLinks.map((item) => (
-                                <>
+                                <Box key={item.slug}>
                                     <NavListItem
                                         data-slug={item.slug}
                                         onClick={clickHandler}
@@ -464,6 +466,7 @@ const Dashboard = () => {
                                         >
                                             {item.sublinks.map((subItem) => (
                                                 <NavListItem
+                                                    key={subItem.slug}
                                                     data-slug={subItem.slug}
                                                     onClick={clickHandler}
                                                 >
@@ -492,14 +495,15 @@ const Dashboard = () => {
                                             ))}
                                         </NavSubList>
                                     )}
-                                </>
+                                </Box>
                             ))}
                         </NavList>
                     </SidebarNav>
                 </Box>
             </Drawer>
             <PanelContainer>
-                <Overview />
+                {/* <Overview /> */}
+                <Media />
             </PanelContainer>
         </DashbaordStyled>
     )

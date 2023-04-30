@@ -1,5 +1,6 @@
 import { createTheme, StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { ThemeProvider as StyleThemeProvider } from 'styled-components'
+import { Provider } from 'react-redux'
 
 //CSS
 import './App.css'
@@ -7,6 +8,7 @@ import './App.css'
 //Pages
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
+import store from './store/store'
 
 /**
  ** ======================================================
@@ -67,10 +69,12 @@ function App() {
         <StyledEngineProvider injectFirst>
             <ThemeProvider theme={theme}>
                 <StyleThemeProvider theme={theme}>
-                    <div className="App">
-                        {/* <Home /> */}
-                        <Dashboard />
-                    </div>
+                    <Provider store={store}>
+                        <div className="App">
+                            {/* <Home /> */}
+                            <Dashboard />
+                        </div>
+                    </Provider>
                 </StyleThemeProvider>
             </ThemeProvider>
         </StyledEngineProvider>
