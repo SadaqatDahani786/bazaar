@@ -1,3 +1,5 @@
+import { GenericFormData } from 'axios'
+
 const API_ENDPOINT = 'http://localhost:5000/api/v1'
 
 /** ======================================================
@@ -10,6 +12,20 @@ export const getMedia = () => {
         options: {
             credentials: 'include',
         },
+    }
+}
+
+/** ======================================================
+ ** uploadMedia = Upload one or more media files
+ ** ======================================================
+ */
+export const uploadMedia = (data: GenericFormData) => {
+    return {
+        url: `${API_ENDPOINT}/media/upload`,
+        method: 'POST',
+        headers: { 'Content-Type': 'multipart/form-data' },
+        credentials: 'include',
+        data,
     }
 }
 

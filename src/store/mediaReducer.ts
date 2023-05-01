@@ -1,8 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import axios from 'axios'
+import axios, { GenericFormData } from 'axios'
 
 //Apis
-import { deleteMedia, getMedia, searchMedia, updateMedia } from '../api/media'
+import {
+    deleteMedia,
+    getMedia,
+    searchMedia,
+    updateMedia,
+    uploadMedia,
+} from '../api/media'
 
 /*
  ** **
@@ -85,6 +91,7 @@ export const updateMediaAsync = createAsyncThunk(
     async ({
         id,
         data,
+        cb,
     }: {
         id: string
         data: {
@@ -92,11 +99,15 @@ export const updateMediaAsync = createAsyncThunk(
             description: string
             caption: string
         }
+        cb: () => void
     }) => {
         //1) Send http request
         const response = await axios(updateMedia({ id, data }))
 
-        //2) Return response
+        //2) Callback
+        cb()
+
+        //3) Return response
         return response.data.data
     }
 )
@@ -112,10 +123,7 @@ export const deleteMediaAsync = createAsyncThunk(
         const deleteRequests = ids.map((id) => axios(deleteMedia(id)))
 
         //2) Consume promise to delete
-        Promise.all(deleteRequests)
-
-        //3) Return ids of delete objects
-        return ids
+        return Promise.all(deleteRequests).then(() => ids)
     }
 )
 
@@ -134,13 +142,56 @@ export const searchMediaAsync = createAsyncThunk(
     }
 )
 
+/** ======================================================
+ ** Thunk [uploadMediaAsync]
+ ** ======================================================
+ */
+export const uploadMediaAsync = createAsyncThunk(
+    'upload/media',
+    async (data: GenericFormData) => {
+        //1) Send http request
+        const response = await axios(uploadMedia(data))
+
+        //2) Return response
+        return response.data.data
+    }
+)
+
 /*
  ** **
  ** ** ** REDUCER SLICE
  ** **
  */
 //Default state
-const defaultState: Array<IMedia> = []
+const defaultState: {
+    isLoading: {
+        fetch: boolean
+        delete: boolean
+        update: boolean
+        create: boolean
+    }
+    errors: {
+        fetch: ''
+        delete: ''
+        update: ''
+        create: ''
+    }
+    data: Array<IMedia>
+} = {
+    isLoading: {
+        fetch: false,
+        delete: false,
+        update: false,
+        create: false,
+    },
+    errors: {
+        fetch: '',
+        delete: '',
+        update: '',
+        create: '',
+    },
+    data: [],
+}
 
 //Slice media reducer
 const slice = createSlice({
@@ -155,7 +206,7 @@ const slice = createSlice({
             const id = action.payload.id
 
             //2) Make changes
-            const updatedState = state.map((media) => {
+            const updatedData = state.data.map((media) => {
                 if (media._id === id) {
                     return {
                         ...media,
@@ -167,25 +218,7 @@ const slice = createSlice({
             })
 
             //3) Update state
-            return updatedState
-        },
-        updateTitle: (
-            state,
-            action: { type: string; payload: { id: string; value: string } }
-        ) => {
-            //1) Get id from payload
-            const id = action.payload.id
-            const value = action.payload.value
-
-            //2) Make changes
-            const updatedState = state.map((media) => {
-                if (media._id === id)
-                    return { ...media, title: { ...media.title, value } }
-                return media
-            })
-
-            //3) Update State
-            return updatedState
+            return { ...state, data: updatedData }
         },
         editDescriptionStatus: (
             state,
@@ -195,7 +228,7 @@ const slice = createSlice({
             const id = action.payload.id
 
             //2) Make changes
-            const updatedState = state.map((media) => {
+            const updatedData = state.data.map((media) => {
                 if (media._id === id) {
                     return {
                         ...media,
@@ -210,30 +243,7 @@ const slice = createSlice({
             })
 
             //3) Update state
-            return updatedState
-        },
-        updateDescription: (
-            state,
-            action: { type: string; payload: { id: string; value: string } }
-        ) => {
-            //1) Get id from payload
-            const id = action.payload.id
-            const value = action.payload.value
-
-            console.log(id, value)
-
-            //2) Make changes
-            const updatedState = state.map((media) => {
-                if (media._id === id)
-                    return {
-                        ...media,
-                        description: { ...media.description, value },
-                    }
-                return media
-            })
-
-            //3) Update State
-            return updatedState
+            return { ...state, data: updatedData }
         },
         editCaptionStatus: (
             state,
@@ -243,7 +253,7 @@ const slice = createSlice({
             const id = action.payload.id
 
             //2) Make changes
-            const updatedState = state.map((media) => {
+            const updatedData = state.data.map((media) => {
                 if (media._id === id) {
                     return {
                         ...media,
@@ -258,25 +268,7 @@ const slice = createSlice({
             })
 
             //3) Update state
-            return updatedState
-        },
-        updateCaption: (
-            state,
-            action: { type: string; payload: { id: string; value: string } }
-        ) => {
-            //1) Get id from payload
-            const id = action.payload.id
-            const value = action.payload.value
-
-            //2) Make changes
-            const updatedState = state.map((media) => {
-                if (media._id === id)
-                    return { ...media, caption: { ...media.caption, value } }
-                return media
-            })
-
-            //3) Update State
-            return updatedState
+            return { ...state, data: updatedData }
         },
         editSelectedStatus: (
             state,
@@ -289,11 +281,13 @@ const slice = createSlice({
                 }
             }
         ) => {
+            //Get data
             const id = action.payload.id
             const bulkSelectActive = action.payload.bulkSelectActive
             const edit = action.payload.edit
 
-            const updatedState = state.map((media) => {
+            //Make changes
+            const updatedData = state.data.map((media) => {
                 if (media._id === id) {
                     return {
                         ...media,
@@ -310,13 +304,23 @@ const slice = createSlice({
                 }
             })
 
-            return updatedState
+            //Update state
+            return { ...state, data: updatedData }
         },
         clearSelection: (state) => {
-            return state.map((media) => ({ ...media, isSelected: false }))
+            return {
+                ...state,
+                data: state.data.map((media) => ({
+                    ...media,
+                    isSelected: false,
+                })),
+            }
         },
         deleteSelection: (state) => {
-            return state.filter((media) => !media.isSelected)
+            return {
+                ...state,
+                data: state.data.filter((media) => !media.isSelected),
+            }
         },
     },
     extraReducers: (builder) => {
@@ -344,28 +348,62 @@ const slice = createSlice({
                     }))
 
                     //2) Save it
-                    return items
+                    return {
+                        isLoading: { ...state.isLoading, fetch: false },
+                        errors: { ...state.errors, fetch: '' },
+                        data: items,
+                    }
                 }
             )
+            .addCase(getMediaAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: true },
+                }
+            })
             .addCase(
                 updateMediaAsync.fulfilled,
                 (state, action: { payload: IMediaDatabase }) => {
                     //1) Find index by id
-                    const ind = state.findIndex(
-                        (media) => media._id === action.payload._id
-                    )
+                    const id = action.payload._id
 
-                    //2) Set new values
-                    state[ind].title.value = action.payload.title
-                    state[ind].description.value = action.payload.description
-                    state[ind].caption.value = action.payload.caption
+                    //2) Make changes
+                    const updatedData = state.data.map((media) => {
+                        if (media._id === id) {
+                            return {
+                                ...media,
+                                title: {
+                                    value: action.payload.title,
+                                    edit: false,
+                                },
+                                description: {
+                                    value: action.payload.description,
+                                    edit: false,
+                                },
+                                caption: {
+                                    value: action.payload.caption,
+                                    edit: false,
+                                },
+                            }
+                        }
 
-                    //3) Make editable false
-                    state[ind].title.edit = false
-                    state[ind].description.edit = false
-                    state[ind].caption.edit = false
+                        return media
+                    })
+
+                    //3) Update state
+                    return {
+                        isLoading: { ...state.isLoading, update: false },
+                        errors: { ...state.errors, update: '' },
+                        data: updatedData,
+                    }
                 }
             )
+            .addCase(updateMediaAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, update: true },
+                }
+            })
             .addCase(
                 deleteMediaAsync.fulfilled,
                 (state, action: { payload: Array<string> }) => {
@@ -373,9 +411,21 @@ const slice = createSlice({
                     const ids = action.payload
 
                     //2) Filter out deleted media files
-                    return state.filter((media) => !ids.includes(media._id))
+                    return {
+                        isLoading: { ...state.isLoading, delete: false },
+                        errors: { ...state.errors, delete: '' },
+                        data: state.data.filter(
+                            (media) => !ids.includes(media._id)
+                        ),
+                    }
                 }
             )
+            .addCase(deleteMediaAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, delete: true },
+                }
+            })
             .addCase(
                 searchMediaAsync.fulfilled,
                 (state, action: { payload: Array<IMediaDatabase> }) => {
@@ -399,9 +449,55 @@ const slice = createSlice({
                     }))
 
                     //2) Save it
-                    return items
+                    return {
+                        isLoading: { ...state.isLoading, fetch: false },
+                        errors: { ...state.errors, fetch: '' },
+                        data: items,
+                    }
                 }
             )
+            .addCase(searchMediaAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: true },
+                }
+            })
+            .addCase(
+                uploadMediaAsync.fulfilled,
+                (state, action: { payload: Array<IMediaDatabase> }) => {
+                    //1) Transform response
+                    const items = action.payload.map((media) => ({
+                        ...media,
+                        uploaded_at: media.created_at,
+                        title: {
+                            value: media.title,
+                            edit: false,
+                        },
+                        description: {
+                            value: media.description,
+                            edit: false,
+                        },
+                        caption: {
+                            value: media.caption,
+                            edit: false,
+                        },
+                        isSelected: false,
+                    }))
+
+                    //2) Save it
+                    return {
+                        isLoading: { ...state.isLoading, create: false },
+                        errors: { ...state.errors, create: '' },
+                        data: items,
+                    }
+                }
+            )
+            .addCase(uploadMediaAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, create: true },
+                }
+            })
     },
 })
 
@@ -416,11 +512,8 @@ const { actions, reducer } = slice
 //Export actions
 export const {
     editTitleStatus,
-    updateTitle,
     editDescriptionStatus,
-    updateDescription,
     editCaptionStatus,
-    updateCaption,
     editSelectedStatus,
     clearSelection,
     deleteSelection,
