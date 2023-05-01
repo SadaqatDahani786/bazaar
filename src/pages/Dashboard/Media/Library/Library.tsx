@@ -5,6 +5,7 @@ import {
     Button,
     ButtonGroup,
     Checkbox,
+    CircularProgress,
     Grid,
     InputAdornment,
     Modal,
@@ -28,14 +29,14 @@ import {
 import styled from 'styled-components'
 
 //Redux Store & Reducers
-import { useAppDispatch, useAppSelector } from '../../../store/store'
+import { useAppDispatch, useAppSelector } from '../../../../store/store'
 import {
     clearSelection,
     deleteMediaAsync,
     editSelectedStatus,
     getMediaAsync,
     searchMediaAsync,
-} from '../../../store/mediaReducer'
+} from '../../../../store/mediaReducer'
 
 //Components
 import EditMediaView from './EditMediaView'
@@ -46,7 +47,7 @@ import EditMediaView from './EditMediaView'
  ** **
  */
 //Media
-const MediaStyled = styled.div`
+const LibraryStyled = styled.div`
     display: flex;
     flex-direction: column;
     gap: 80px;
@@ -114,10 +115,10 @@ const ImageWrapper = styled.div`
 
 /**
  ** ======================================================
- ** Component [Media]
+ ** Component [Library]
  ** ======================================================
  */
-const Media = () => {
+const Library = () => {
     /**
      ** **
      ** ** ** State & Hooks
@@ -125,7 +126,8 @@ const Media = () => {
      */
     const [isBulkSelectActive, setIsBulkSelectActive] = useState(false)
     const [isGridviewActive, setIsGridviewActive] = useState(true)
-    const mediaFiles = useAppSelector((state) => state.media)
+    const mediaFiles = useAppSelector((state) => state.media.data)
+    const isLoading = useAppSelector((state) => state.media.isLoading)
     const dispatch = useAppDispatch()
     const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
         id: null,
@@ -232,7 +234,7 @@ const Media = () => {
     }
 
     return (
-        <MediaStyled>
+        <LibraryStyled>
             <ControlBar>
                 <Box>
                     <TextField
@@ -313,37 +315,57 @@ const Media = () => {
             {isGridviewActive ? (
                 <WidgetWrapper>
                     <Widget>
-                        <Grid container spacing={1}>
-                            {mediaFiles.map((file) => (
-                                <Grid
-                                    onClick={selectImageHandler}
-                                    key={file._id}
-                                    item
-                                    lg={3}
-                                    md={4}
-                                    sm={6}
-                                    xs={12}
-                                    data-id={file._id}
-                                >
-                                    <ImageWrapper
-                                        style={{
-                                            opacity: isBulkSelectActive
-                                                ? '.8'
-                                                : '1',
-                                            border: file.isSelected
-                                                ? '5px solid #39c'
-                                                : 'none',
-                                        }}
+                        {isLoading.fetch || mediaFiles.length <= 0 ? (
+                            <Box
+                                sx={{
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                {isLoading.fetch ? (
+                                    <CircularProgress size={80} />
+                                ) : (
+                                    <Typography variant="h6">
+                                        Uh oh, no images found.
+                                    </Typography>
+                                )}
+                            </Box>
+                        ) : (
+                            <Grid container spacing={1}>
+                                {mediaFiles.map((file) => (
+                                    <Grid
+                                        onClick={selectImageHandler}
+                                        key={file._id}
+                                        item
+                                        lg={3}
+                                        md={4}
+                                        sm={6}
+                                        xs={12}
+                                        data-id={file._id}
                                     >
-                                        <img
-                                            src={file.url}
-                                            crossOrigin="anonymous"
-                                            alt={file.description.value}
-                                        />
-                                    </ImageWrapper>
-                                </Grid>
-                            ))}
-                        </Grid>
+                                        <ImageWrapper
+                                            style={{
+                                                opacity: isBulkSelectActive
+                                                    ? '.8'
+                                                    : '1',
+                                                border: file.isSelected
+                                                    ? '5px solid #39c'
+                                                    : 'none',
+                                            }}
+                                        >
+                                            <img
+                                                src={file.url}
+                                                crossOrigin="anonymous"
+                                                alt={file.description.value}
+                                            />
+                                        </ImageWrapper>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        )}
                     </Widget>
                     <Widget>
                         {isBulkSelectActive ? (
@@ -473,116 +495,147 @@ const Media = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {mediaFiles.map((media) => (
-                                    <TableRow
-                                        sx={{
-                                            '&:last-child td, &:last-child th':
-                                                {
-                                                    border: 0,
-                                                },
-                                        }}
-                                    >
-                                        <TableCell padding="checkbox">
-                                            <Checkbox
-                                                onChange={() =>
-                                                    dispatch(
-                                                        editSelectedStatus({
-                                                            id: media._id,
-                                                            bulkSelectActive:
-                                                                true,
-                                                        })
-                                                    )
-                                                }
-                                                color="primary"
-                                                checked={media.isSelected}
-                                                inputProps={{
-                                                    'aria-labelledby': `select media file ${media._id}`,
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell component="th" scope="row">
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    gap: '8px',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                <ImageWrapper
-                                                    style={{
-                                                        width: '48px',
-                                                        height: '48px',
+                                {mediaFiles.length <= 0 ? (
+                                    <TableCell colSpan={6}>
+                                        <Typography variant="h6">
+                                            Uh oh, no images found.
+                                        </Typography>
+                                    </TableCell>
+                                ) : (
+                                    mediaFiles.map((media) => (
+                                        <TableRow
+                                            sx={{
+                                                '&:last-child td, &:last-child th':
+                                                    {
+                                                        border: 0,
+                                                    },
+                                            }}
+                                        >
+                                            <TableCell padding="checkbox">
+                                                <Checkbox
+                                                    onChange={() =>
+                                                        dispatch(
+                                                            editSelectedStatus({
+                                                                id: media._id,
+                                                                bulkSelectActive:
+                                                                    true,
+                                                            })
+                                                        )
+                                                    }
+                                                    color="primary"
+                                                    checked={media.isSelected}
+                                                    inputProps={{
+                                                        'aria-labelledby': `select media file ${media._id}`,
                                                     }}
-                                                >
-                                                    <img
-                                                        crossOrigin="anonymous"
-                                                        src={media.url}
-                                                        alt={
-                                                            media.description
-                                                                .value
-                                                        }
-                                                    />
-                                                </ImageWrapper>
-
+                                                />
+                                            </TableCell>
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                            >
                                                 <Box
                                                     sx={{
                                                         display: 'flex',
-                                                        flexDirection: 'column',
-                                                        gap: '4px',
+                                                        gap: '8px',
+                                                        alignItems: 'center',
                                                     }}
                                                 >
-                                                    <Typography variant="body1">
-                                                        {media.filename}
-                                                    </Typography>
-                                                    <ButtonGroup
-                                                        variant="text"
-                                                        size="small"
+                                                    <ImageWrapper
                                                         style={{
-                                                            width: '100%',
+                                                            width: '48px',
+                                                            height: '48px',
                                                         }}
                                                     >
-                                                        <Button
-                                                            data-id={media._id}
-                                                            onClick={
-                                                                clickEditHandler
+                                                        <img
+                                                            crossOrigin="anonymous"
+                                                            src={media.url}
+                                                            alt={
+                                                                media
+                                                                    .description
+                                                                    .value
                                                             }
+                                                        />
+                                                    </ImageWrapper>
+
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                                'column',
+                                                            gap: '4px',
+                                                        }}
+                                                    >
+                                                        <Typography variant="body1">
+                                                            {media.filename}
+                                                        </Typography>
+                                                        <ButtonGroup
+                                                            variant="text"
+                                                            size="small"
+                                                            style={{
+                                                                width: '100%',
+                                                            }}
                                                         >
-                                                            Edit
-                                                        </Button>
-                                                        <Button
-                                                            data-id={media._id}
-                                                            onClick={
-                                                                clickDeleteSingleHandler
-                                                            }
-                                                        >
-                                                            Delete
-                                                        </Button>
-                                                    </ButtonGroup>
+                                                            <Button
+                                                                data-id={
+                                                                    media._id
+                                                                }
+                                                                onClick={
+                                                                    clickEditHandler
+                                                                }
+                                                            >
+                                                                Edit
+                                                            </Button>
+                                                            <Button
+                                                                data-id={
+                                                                    media._id
+                                                                }
+                                                                disabled={
+                                                                    isLoading.delete
+                                                                }
+                                                                onClick={
+                                                                    clickDeleteSingleHandler
+                                                                }
+                                                            >
+                                                                {isLoading.delete ? (
+                                                                    <CircularProgress
+                                                                        size={
+                                                                            16
+                                                                        }
+                                                                    />
+                                                                ) : (
+                                                                    'Delete'
+                                                                )}
+                                                            </Button>
+                                                        </ButtonGroup>
+                                                    </Box>
                                                 </Box>
-                                            </Box>
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {media.title.value || '-- --'}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {media.dimensions.width}x
-                                            {media.dimensions.height}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {media.uploaded_by.name}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {new Date(
-                                                media.created_at
-                                            ).toDateString()}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {media.title.value || '-- --'}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {media.dimensions.width}x
+                                                {media.dimensions.height}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {media.uploaded_by.name}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {new Date(
+                                                    media.created_at
+                                                ).toDateString()}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
                             </TableBody>
                         </Table>
                     </Widget>
                     {selectedMediaId && (
-                        <Modal open={showModal}>
+                        <Modal
+                            onClose={() => setShowModal(false)}
+                            open={showModal}
+                        >
                             <Box
                                 sx={{
                                     marginTop: '5%',
@@ -605,8 +658,8 @@ const Media = () => {
                     )}
                 </WidgetWrapper>
             )}
-        </MediaStyled>
+        </LibraryStyled>
     )
 }
 
-export default Media
+export default Library

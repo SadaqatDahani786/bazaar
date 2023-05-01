@@ -148,11 +148,20 @@ export const searchMediaAsync = createAsyncThunk(
  */
 export const uploadMediaAsync = createAsyncThunk(
     'upload/media',
-    async (data: GenericFormData) => {
+    async ({
+        data,
+        cb,
+    }: {
+        data: GenericFormData
+        cb: (uploadedFiles: Array<IMediaDatabase>) => void
+    }) => {
         //1) Send http request
         const response = await axios(uploadMedia(data))
 
-        //2) Return response
+        //2) Callback
+        cb(response.data.data)
+
+        //3) Return response
         return response.data.data
     }
 )

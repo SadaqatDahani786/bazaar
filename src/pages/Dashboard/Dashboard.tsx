@@ -17,7 +17,7 @@ import styled from 'styled-components'
 //Components
 import Header from './Header'
 import Overview from './Overview'
-import Media from './Media'
+import { MediaLibrary, AddNewMedia } from './Media'
 
 /*
  ** **
@@ -503,7 +503,8 @@ const Dashboard = () => {
             </Drawer>
             <PanelContainer>
                 {/* <Overview /> */}
-                <Media />
+                {/* <MediaLibrary /> */}
+                <AddNewMedia />
             </PanelContainer>
         </DashbaordStyled>
     )

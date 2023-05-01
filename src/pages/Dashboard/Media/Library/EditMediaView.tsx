@@ -1,7 +1,14 @@
 import { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react'
 
-import { DeleteOutline, EditOutlined } from '@mui/icons-material'
-import { Box, Button, IconButton, TextField, Typography } from '@mui/material'
+import { DeleteOutline, EditOutlined, SaveOutlined } from '@mui/icons-material'
+import {
+    Box,
+    Button,
+    CircularProgress,
+    IconButton,
+    TextField,
+    Typography,
+} from '@mui/material'
 
 import styled from 'styled-components'
 
@@ -12,8 +19,8 @@ import {
     editDescriptionStatus,
     editTitleStatus,
     updateMediaAsync,
-} from '../../../store/mediaReducer'
-import { useAppDispatch, useAppSelector } from '../../../store/store'
+} from '../../../../store/mediaReducer'
+import { useAppDispatch, useAppSelector } from '../../../../store/store'
 
 /**
  ** **
@@ -78,7 +85,8 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
      ** **
      */
     //Redux
-    const mediaFiles = useAppSelector((state) => state.media)
+    const mediaFiles = useAppSelector((state) => state.media.data)
+    const isLoading = useAppSelector((state) => state.media.isLoading)
     const dispatch = useAppDispatch()
 
     const selectedMedia = mediaFiles.find((media) => media._id === id)
@@ -146,13 +154,7 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
     //Click save handler
     const clickSaveHandler = () => {
         //1) Validate
-        if (
-            !selectedMedia ||
-            !inputFields.title ||
-            !inputFields.description ||
-            !inputFields.caption
-        )
-            return
+        if (!selectedMedia) return
 
         //2) Dispatch action
         dispatch(
@@ -163,6 +165,7 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
                     description: inputFields.description,
                     caption: inputFields.caption,
                 },
+                cb: () => onClose && onClose(),
             })
         )
     }
@@ -284,7 +287,7 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
                                     <>
                                         <TextField
                                             fullWidth={true}
-                                            value={inputFields.title}
+                                            value={inputFields.title || ''}
                                             data-id={selectedMedia?._id}
                                             data-field="title"
                                             onChange={onChangeHandler}
@@ -297,9 +300,18 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
                                                 }}
                                             >
                                                 <Button
+                                                    disabled={isLoading.update}
+                                                    data-type="title"
+                                                    data-id={selectedMedia?._id}
                                                     onClick={clickSaveHandler}
                                                 >
-                                                    Save
+                                                    {isLoading.update ? (
+                                                        <CircularProgress
+                                                            size={24}
+                                                        />
+                                                    ) : (
+                                                        'Save'
+                                                    )}
                                                 </Button>
                                                 <Button
                                                     onClick={(e) => {
@@ -374,9 +386,18 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
                                                 }}
                                             >
                                                 <Button
+                                                    disabled={isLoading.update}
+                                                    data-type="description"
+                                                    data-id={selectedMedia?._id}
                                                     onClick={clickSaveHandler}
                                                 >
-                                                    Save
+                                                    {isLoading.update ? (
+                                                        <CircularProgress
+                                                            size={24}
+                                                        />
+                                                    ) : (
+                                                        'Save'
+                                                    )}
                                                 </Button>
                                                 <Button
                                                     onClick={(e) => {
@@ -452,9 +473,18 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
                                                 }}
                                             >
                                                 <Button
+                                                    disabled={isLoading.update}
+                                                    data-type="caption"
+                                                    data-id={selectedMedia?._id}
                                                     onClick={clickSaveHandler}
                                                 >
-                                                    Save
+                                                    {isLoading.update ? (
+                                                        <CircularProgress
+                                                            size={24}
+                                                        />
+                                                    ) : (
+                                                        'Save'
+                                                    )}
                                                 </Button>
                                                 <Button
                                                     data-id={selectedMedia?._id}
@@ -512,31 +542,40 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
                             color="error"
                             disableElevation={true}
                             size="large"
-                            startIcon={<DeleteOutline />}
+                            disabled={isLoading.delete}
+                            startIcon={!isLoading.delete && <DeleteOutline />}
                             onClick={clickDeleteHandler}
                         >
-                            Delete
+                            {isLoading.delete ? (
+                                <CircularProgress size={24} />
+                            ) : (
+                                'Delete'
+                            )}
                         </Button>
                     ) : (
                         <Row style={{ marginTop: 'auto' }}>
                             <Button
+                                disabled={isLoading.update}
                                 fullWidth={true}
                                 variant="contained"
                                 disableElevation={true}
                                 size="large"
-                                startIcon={<DeleteOutline />}
-                                onClick={() => {
-                                    clickSaveHandler()
-                                    onClose && onClose()
-                                }}
+                                startIcon={
+                                    !isLoading.update && <SaveOutlined />
+                                }
+                                onClick={clickSaveHandler}
                             >
-                                Save
+                                {isLoading.update ? (
+                                    <CircularProgress size={24} />
+                                ) : (
+                                    'Save'
+                                )}
                             </Button>
                             <Button
                                 fullWidth={true}
                                 variant="outlined"
                                 size="large"
-                                onClick={onClose}
+                                onClick={() => onClose && onClose()}
                             >
                                 Cancel
                             </Button>
