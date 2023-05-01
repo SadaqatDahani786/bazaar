@@ -522,7 +522,6 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
                             <Button
                                 fullWidth={true}
                                 variant="contained"
-                                color="error"
                                 disableElevation={true}
                                 size="large"
                                 startIcon={<DeleteOutline />}

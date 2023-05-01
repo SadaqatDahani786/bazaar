@@ -113,6 +113,9 @@ export const deleteMediaAsync = createAsyncThunk(
 
         //2) Consume promise to delete
         Promise.all(deleteRequests)
+
+        //3) Return ids of delete objects
+        return ids
     }
 )
 
@@ -363,10 +366,16 @@ const slice = createSlice({
                     state[ind].caption.edit = false
                 }
             )
-            .addCase(deleteMediaAsync.fulfilled, (state) => {
-                // Filter out deleted media files
-                return state.filter((media) => !media.isSelected)
-            })
+            .addCase(
+                deleteMediaAsync.fulfilled,
+                (state, action: { payload: Array<string> }) => {
+                    //1) Get ids of deleted files
+                    const ids = action.payload
+
+                    //2) Filter out deleted media files
+                    return state.filter((media) => !ids.includes(media._id))
+                }
+            )
             .addCase(
                 searchMediaAsync.fulfilled,
                 (state, action: { payload: Array<IMediaDatabase> }) => {

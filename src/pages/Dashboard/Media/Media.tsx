@@ -82,6 +82,12 @@ const Widget = styled.div`
 
     &:nth-child(2) {
         flex: 0 0 30%;
+
+        & > div {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
     }
 `
 
@@ -137,6 +143,12 @@ const Media = () => {
     useEffect(() => {
         dispatch(getMediaAsync())
     }, [])
+
+    //Clear selection when gridview to listview or vice-versa
+    useEffect(() => {
+        dispatch(clearSelection())
+        setSelectedMediaId(undefined)
+    }, [isGridviewActive])
 
     //Select image handler
     const selectImageHandler = (e: SyntheticEvent<HTMLDivElement>) => {
@@ -403,8 +415,11 @@ const Media = () => {
                 </WidgetWrapper>
             ) : (
                 <WidgetWrapper>
-                    <Widget>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <Widget style={{ minHeight: 'max-content' }}>
+                        <Table
+                            sx={{ minWidth: 650, overflowY: 'scroll' }}
+                            aria-label="simple table"
+                        >
                             <TableHead>
                                 <TableRow>
                                     <TableCell padding="checkbox">
