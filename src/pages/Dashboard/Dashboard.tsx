@@ -1,6 +1,6 @@
-import { SyntheticEvent, useState } from 'react'
+import { SyntheticEvent, useEffect, useState } from 'react'
 
-import { Box, Drawer, Link, Typography } from '@mui/material'
+import { Box, Drawer, Typography } from '@mui/material'
 import {
     ExpandLess,
     ExpandMore,
@@ -13,10 +13,13 @@ import {
 } from '@mui/icons-material/'
 
 import styled from 'styled-components'
+import { useParams, Link } from 'react-router-dom'
 
 //Components
 import Header from './Header'
 import Overview from './Overview'
+
+//Pages
 import { MediaLibrary, AddNewMedia } from './Media'
 
 /*
@@ -91,6 +94,8 @@ const NavLink = styled(Link)`
     align-items: center;
     padding: 16px 0;
     font-size: 1.4rem;
+    text-decoration: none;
+    color: ${(props) => props.theme.palette.primary.main};
 
     &:hover {
         color: ${(props) => props.theme.palette.primary.light};
@@ -134,9 +139,12 @@ const PanelContainer = styled.div`
 const Dashboard = () => {
     /*
      ** **
-     ** ** ** State
+     ** ** ** State & Hooks
      ** **
      */
+    const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
+    const [Panel, setActivePanel] = useState(<Overview />)
+    const [heading, setHeading] = useState({ title: '', subtitle: '' })
     const [navLinks, setNavLinks] = useState([
         {
             title: 'Overview',
@@ -251,7 +259,8 @@ const Dashboard = () => {
             icon: <ImageOutlined />,
         },
     ])
-    const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
+
+    const params = useParams()
 
     /*
      ** **
@@ -309,13 +318,59 @@ const Dashboard = () => {
         setIsSideMenuOpen(true)
     }
 
+    //Set active panel based on paths
+    useEffect(() => {
+        //1)Validate
+        if (!params) return
+
+        //2) Paths
+        type paths = 'overview' | 'add-new-media' | 'library'
+
+        //3) Test paths and set active pane;
+        switch (params.path as paths) {
+            case 'overview':
+                setHeading({
+                    title: 'Welcome, Sadaqat Dahani',
+                    subtitle:
+                        "Here you can see overview of what's happening in your store",
+                })
+                return setActivePanel(<Overview />)
+            case 'library':
+                setHeading({
+                    title: 'Meda Library',
+                    subtitle: '',
+                })
+                return setActivePanel(<MediaLibrary />)
+            case 'add-new-media':
+                setHeading({
+                    title: 'Add New Media',
+                    subtitle: '',
+                })
+                return setActivePanel(<AddNewMedia />)
+        }
+    }, [params.path])
+
     return (
         <DashbaordStyled>
-            <Header onMenuClick={onClickMenuHandler} />
+            <Header
+                title={heading.title}
+                subtitle={heading.subtitle}
+                onMenuClick={onClickMenuHandler}
+            />
             <Sidebar>
                 <SidebarHeader>
                     <Typography fontFamily="Playfair Display" variant="h6">
-                        Bazaar's
+                        <NavLink
+                            style={{
+                                display: 'inline-block',
+                                width: 'max-content',
+                                padding: '0',
+                            }}
+                            to="/"
+                        >
+                            Bazaar
+                        </NavLink>
+                        's
                     </Typography>
                     <Typography variant="h4">Dashboard</Typography>
                 </SidebarHeader>
@@ -328,7 +383,11 @@ const Dashboard = () => {
                                     onClick={clickHandler}
                                 >
                                     <NavLink
-                                        underline="none"
+                                        to={`/dashboard/${
+                                            item.sublinks.length > 0
+                                                ? item.sublinks[0].slug
+                                                : item.slug
+                                        }`}
                                         style={{
                                             fontWeight: item.isActive
                                                 ? 'normal'
@@ -371,7 +430,7 @@ const Dashboard = () => {
                                                 onClick={clickHandler}
                                             >
                                                 <NavLink
-                                                    underline="none"
+                                                    to={`/dashboard/${subItem.slug}`}
                                                     style={{
                                                         fontWeight:
                                                             subItem.isActive
@@ -427,7 +486,11 @@ const Dashboard = () => {
                                         onClick={clickHandler}
                                     >
                                         <NavLink
-                                            underline="none"
+                                            to={`/dashboard/${
+                                                item.sublinks.length > 0
+                                                    ? item.sublinks[0].slug
+                                                    : item.slug
+                                            }`}
                                             style={{
                                                 cursor: 'pointer',
                                                 fontWeight: item.isActive
@@ -471,7 +534,7 @@ const Dashboard = () => {
                                                     onClick={clickHandler}
                                                 >
                                                     <NavLink
-                                                        underline="none"
+                                                        to={`/dashboard/${subItem.slug}`}
                                                         style={{
                                                             cursor: 'pointer',
                                                             fontWeight:
@@ -501,11 +564,7 @@ const Dashboard = () => {
                     </SidebarNav>
                 </Box>
             </Drawer>
-            <PanelContainer>
-                {/* <Overview /> */}
-                {/* <MediaLibrary /> */}
-                <AddNewMedia />
-            </PanelContainer>
+            <PanelContainer>{Panel}</PanelContainer>
         </DashbaordStyled>
     )
 }

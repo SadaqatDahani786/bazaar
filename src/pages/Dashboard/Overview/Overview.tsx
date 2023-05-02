@@ -521,7 +521,7 @@ const Overview = () => {
 
                         <Box>
                             {salesInCategories.map((cat) => (
-                                <Row>
+                                <Row key={cat.title}>
                                     <Row>
                                         <ColorCircle
                                             style={{

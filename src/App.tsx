@@ -1,14 +1,18 @@
 import { createTheme, StyledEngineProvider, ThemeProvider } from '@mui/material'
-import { ThemeProvider as StyleThemeProvider } from 'styled-components'
-import { Provider } from 'react-redux'
 
-//CSS
-import './App.css'
+import { ThemeProvider as StyleThemeProvider } from 'styled-components'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+
+//Redux
+import { Provider } from 'react-redux'
+import store from './store/store'
 
 //Pages
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
-import store from './store/store'
+
+//CSS
+import './App.css'
 
 /**
  ** ======================================================
@@ -66,18 +70,34 @@ function App() {
     })
 
     return (
-        <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={theme}>
-                <StyleThemeProvider theme={theme}>
-                    <Provider store={store}>
-                        <div className="App">
-                            {/* <Home /> */}
-                            <Dashboard />
-                        </div>
-                    </Provider>
-                </StyleThemeProvider>
-            </ThemeProvider>
-        </StyledEngineProvider>
+        <BrowserRouter>
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                    <StyleThemeProvider theme={theme}>
+                        <Provider store={store}>
+                            <div className="App">
+                                <Routes>
+                                    <Route
+                                        path="/dashboard/"
+                                        element={
+                                            <Navigate
+                                                to="/dashboard/overview"
+                                                replace={true}
+                                            />
+                                        }
+                                    />
+                                    <Route
+                                        path="/dashboard/:path"
+                                        element={<Dashboard />}
+                                    />
+                                    <Route path="/" element={<Home />} />
+                                </Routes>
+                            </div>
+                        </Provider>
+                    </StyleThemeProvider>
+                </ThemeProvider>
+            </StyledEngineProvider>
+        </BrowserRouter>
     )
 }
 

@@ -102,7 +102,11 @@ const Details = styled.div`
  ** ======================================================
  */
 const Home = () => {
-    //State & Hooks
+    /*
+     ** **
+     ** ** ** State & Hooks
+     ** **
+     */
     const [numSlidesHistory, setNumSlidesHistory] = useState(6)
     const [numSlidesStaffPicked, setNumSlidesStaffPicked] = useState(3)
 

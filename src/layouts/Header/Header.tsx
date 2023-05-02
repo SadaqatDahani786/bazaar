@@ -36,6 +36,7 @@ import {
 
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 /**
  ** **
@@ -411,7 +412,9 @@ const DrawerCartBody = styled.div`
 `
 
 //Drawer Cart Footer
-const DrawerCartFooter = styled.div``
+const DrawerCartFooter = styled.div`
+    width: 100%;
+`
 
 //Logo
 const Logo = styled.div`
@@ -553,6 +556,8 @@ const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
+
+    const navigate = useNavigate()
 
     /**
      ** **
@@ -1124,7 +1129,10 @@ const Header = () => {
                             </IconButton>
                         </NavListItem>
                         <NavListItem style={{ padding: '16px 0' }}>
-                            <IconButton style={{ cursor: 'pointer' }}>
+                            <IconButton
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate('/dashboard')}
+                            >
                                 <PersonOutlineSharp fontSize="large" />
                             </IconButton>
                         </NavListItem>

@@ -337,6 +337,7 @@ const Library = () => {
                             <Grid container spacing={1}>
                                 {mediaFiles.map((file) => (
                                     <Grid
+                                        sx={{ cursor: 'pointer ' }}
                                         onClick={selectImageHandler}
                                         key={file._id}
                                         item
@@ -504,6 +505,7 @@ const Library = () => {
                                 ) : (
                                     mediaFiles.map((media) => (
                                         <TableRow
+                                            key={media._id}
                                             sx={{
                                                 '&:last-child td, &:last-child th':
                                                     {

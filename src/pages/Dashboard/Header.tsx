@@ -49,7 +49,15 @@ const MenuButton = styled.div`
  ** Component [Header]
  ** ======================================================
  */
-const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
+const Header = ({
+    title,
+    subtitle,
+    onMenuClick,
+}: {
+    title: string
+    subtitle: string
+    onMenuClick: () => void
+}) => {
     /**
      ** **
      ** ** ** Hooks
@@ -76,10 +84,10 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
                 }}
             >
                 <Typography variant="h5" fontWeight="bold">
-                    Welcome, Sadaqat Dahani
+                    {title}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                    Here you can see overview of what's happening in your store
+                    {subtitle}
                 </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
