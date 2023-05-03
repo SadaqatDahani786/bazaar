@@ -1,6 +1,8 @@
 import { GenericFormData } from 'axios'
+import { BASE_URL } from '../utils/consts'
 
-const API_ENDPOINT = 'http://localhost:5000/api/v1'
+//API ENDPOINT URL
+const API_ENDPOINT = `${BASE_URL}/media`
 
 /** ======================================================
  ** getMedia = Fetch media files
@@ -8,7 +10,7 @@ const API_ENDPOINT = 'http://localhost:5000/api/v1'
  */
 export const getMedia = () => {
     return {
-        url: `${API_ENDPOINT}/media`,
+        url: API_ENDPOINT,
         options: {
             credentials: 'include',
         },
@@ -21,7 +23,7 @@ export const getMedia = () => {
  */
 export const uploadMedia = (data: GenericFormData) => {
     return {
-        url: `${API_ENDPOINT}/media/upload`,
+        url: `${API_ENDPOINT}/upload`,
         method: 'POST',
         headers: { 'Content-Type': 'multipart/form-data' },
         credentials: 'include',
@@ -45,7 +47,7 @@ export const updateMedia = ({
     }
 }) => {
     return {
-        url: `${API_ENDPOINT}/media/${id}`,
+        url: `${API_ENDPOINT}/${id}`,
         method: 'PUT',
         credentials: 'include',
         data,
@@ -58,7 +60,7 @@ export const updateMedia = ({
  */
 export const deleteMedia = (id: string) => {
     return {
-        url: `${API_ENDPOINT}/media/${id}`,
+        url: `${API_ENDPOINT}/${id}`,
         method: 'DELETE',
         credentials: 'include',
     }
@@ -70,7 +72,7 @@ export const deleteMedia = (id: string) => {
  */
 export const searchMedia = (query: string) => {
     return {
-        url: `${API_ENDPOINT}/media/search/${query}`,
+        url: `${API_ENDPOINT}/search/${query}`,
         method: 'GET',
         credentials: 'include',
     }
