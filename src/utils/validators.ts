@@ -118,6 +118,40 @@ export const IsDecimal = (val: string) => {
 
 /**
  ** ======================================================
+ ** Validator [isPhoneNumber]
+ ** ======================================================
+ */
+export const isPhoneNumber = (val: string) => {
+    //1) Regex pattern to test for valid phone number
+    const pattern = `^[0-9]{10}$`
+
+    //2) Test value against regex pattern, if matched, return
+    const regex = RegExp(pattern)
+    if (regex.test(val)) return false
+
+    //3) Matched failed, return true to indicate error
+    return true
+}
+
+/**
+ ** ======================================================
+ ** Validator [isZipCode]
+ ** ======================================================
+ */
+export const isZipCode = (val: string) => {
+    //1) Regex pattern to test for valid zip code
+    const pattern = `^([0-9]{5}|[0-9]{5}-[0-9]{4})$`
+
+    //2) Test value against regex pattern, if matched, return
+    const regex = RegExp(pattern)
+    if (regex.test(val)) return false
+
+    //3) Matched failed, return true to indicate error
+    return true
+}
+
+/**
+ ** ======================================================
  ** Validator [isMin]
  ** ======================================================
  */
@@ -162,6 +196,23 @@ export const isDate = (val: string) => {
     const regex = /^[a-z0-9\-_\s]+$/i
 
     //2) Test value against regex pattern, if matched, return
+    if (regex.test(val)) return false
+
+    //3) Matched failed, return true to indicate error
+    return true
+}
+
+/**
+ ** ======================================================
+ ** Validator [isPassStrong]
+ ** ======================================================
+ */
+export const isPassStrong = (val: string) => {
+    //1) Regex pattern to test for strong password
+    const pattern = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$&*]).{8,}$/g
+
+    //2) Test value against regex pattern, if matched, return
+    const regex = RegExp(pattern)
     if (regex.test(val)) return false
 
     //3) Matched failed, return true to indicate error
@@ -229,10 +280,10 @@ export const isEmpty = (val: string) => {
 
 /**
  ** ======================================================
- ** Validator Creator
+ ** Combine Validators
  ** ======================================================
  */
-export const createValidator = (
+export const combineValidators = (
     validators: Array<{
         validator: (val: string, options: IValidatorOptions) => boolean
         message: string
