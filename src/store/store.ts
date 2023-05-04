@@ -1,19 +1,35 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import mediaReducer from './mediaReducer'
 
-//Redux Store
+//Reducers
+import mediaReducer from './mediaReducer'
+import locationReducer from './locationReducer'
+
+/**
+ ** ======================================================
+ ** Redux store
+ ** ======================================================
+ */
 const store = configureStore({
     reducer: combineReducers({
         media: mediaReducer,
+        location: locationReducer,
     }),
 })
 
-//export redux hooks
+/**
+ ** ======================================================
+ ** Expose custom hooks with correct types
+ ** ======================================================
+ */
 export const useAppDispatch: () => typeof store.dispatch = useDispatch
 export const useAppSelector: TypedUseSelectorHook<
     ReturnType<typeof store.getState>
 > = useSelector
 
-//exprot redux store
+/**
+ ** ======================================================
+ ** Export [store]
+ ** ======================================================
+ */
 export default store
