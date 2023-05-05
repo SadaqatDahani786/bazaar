@@ -77,6 +77,7 @@ const useInput = ({ default_value, validation }: useInputProps) => {
             setInput('')
             setInputError(false)
             setInputTouched(false)
+            setInputErrorMessage('')
         }
     }
 
