@@ -206,13 +206,13 @@ const Library = () => {
         //1) Get query
         const query = e.currentTarget.value
 
-        //2) Refetch media when query empty again
+        //2) Clear previously set timeout if there's any
+        if (timeOutID.current.id) clearTimeout(timeOutID.current.id)
+
+        //3) Refetch media when query empty again
         if (!query || query.length <= 0) {
             return dispatch(getMediaAsync())
         }
-
-        //3) Clear previously set timeout if there's any
-        if (timeOutID.current.id) clearTimeout(timeOutID.current.id)
 
         //4) Set timeout to fetch media via search query
         timeOutID.current.id = setTimeout(() => {
