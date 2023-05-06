@@ -28,13 +28,19 @@ export interface ILocation {
  ** Thunk [getCountriesAsync]
  ** ======================================================
  */
-export const getCountriesAsync = createAsyncThunk('get/countries', async () => {
-    //1) Send http request
-    const response = await axios(getCountries())
+export const getCountriesAsync = createAsyncThunk(
+    'get/countries',
+    async (cb: () => void = () => '') => {
+        //1) Send http request
+        const response = await axios(getCountries())
 
-    //2) Return response
-    return response.data.data
-})
+        //2) Callback
+        cb()
+
+        //3) Return response
+        return response.data.data
+    }
+)
 
 /**
  ** ======================================================
@@ -43,9 +49,18 @@ export const getCountriesAsync = createAsyncThunk('get/countries', async () => {
  */
 export const getStatesInCountryAsync = createAsyncThunk(
     'get/states',
-    async (country: string) => {
+    async ({
+        country,
+        cb = () => '',
+    }: {
+        country: string
+        cb?: () => void
+    }) => {
         //1) Send http request
         const response = await axios(getStatesInCountry(country))
+
+        //2) Callback
+        cb()
 
         //3) Return response
         return { country, states: response.data.data }
@@ -59,11 +74,22 @@ export const getStatesInCountryAsync = createAsyncThunk(
  */
 export const getCitiesInStateAsync = createAsyncThunk(
     'get/cities',
-    async ({ country, state }: { country: string; state: string }) => {
+    async ({
+        country,
+        state,
+        cb = () => '',
+    }: {
+        country: string
+        state: string
+        cb?: () => void
+    }) => {
         //1) Send http request
         const response = await axios(getCitiesInState(state))
 
-        //2) Return response
+        //2) Callback
+        cb()
+
+        //3) Return response
         return { country, state, cities: response.data.data }
     }
 )
