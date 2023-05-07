@@ -17,10 +17,11 @@ import { useParams, Link } from 'react-router-dom'
 
 //Components
 import Header from './Header'
-import Overview from './Overview'
 
 //Pages
+import Overview from './Overview'
 import { MediaLibrary, AddNewMedia } from './Media'
+import { AllCustomers, AddNewCustomer, EditCustomer, Profile } from './Customer'
 
 /*
  ** **
@@ -205,7 +206,7 @@ const Dashboard = () => {
                 {
                     title: 'All Customers',
                     isActive: false,
-                    slug: 'all-products',
+                    slug: 'all-customers',
                 },
                 {
                     title: 'Add New Customer',
@@ -324,9 +325,16 @@ const Dashboard = () => {
         if (!params) return
 
         //2) Paths
-        type paths = 'overview' | 'add-new-media' | 'library'
+        type paths =
+            | 'overview'
+            | 'add-new-media'
+            | 'library'
+            | 'all-customers'
+            | 'add-new-customer'
+            | 'profile'
+            | 'edit-customer'
 
-        //3) Test paths and set active pane;
+        //3) Test paths and set active panel
         switch (params.path as paths) {
             case 'overview':
                 setHeading({
@@ -347,6 +355,30 @@ const Dashboard = () => {
                     subtitle: '',
                 })
                 return setActivePanel(<AddNewMedia />)
+            case 'all-customers':
+                setHeading({
+                    title: 'All Customers',
+                    subtitle: '',
+                })
+                return setActivePanel(<AllCustomers />)
+            case 'add-new-customer':
+                setHeading({
+                    title: 'Add New Customer',
+                    subtitle: '',
+                })
+                return setActivePanel(<AddNewCustomer />)
+            case 'profile':
+                setHeading({
+                    title: 'My Profile',
+                    subtitle: '',
+                })
+                return setActivePanel(<Profile />)
+            case 'edit-customer':
+                setHeading({
+                    title: 'Edit Customer',
+                    subtitle: '',
+                })
+                return setActivePanel(<EditCustomer />)
         }
     }, [params.path])
 

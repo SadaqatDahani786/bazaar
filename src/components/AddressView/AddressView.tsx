@@ -1,6 +1,7 @@
 import { SyntheticEvent, useEffect, useRef, useState } from 'react'
 
 import {
+    AddOutlined,
     ApartmentOutlined,
     CreditCardOutlined,
     EditOutlined,
@@ -13,10 +14,12 @@ import {
     Store,
 } from '@mui/icons-material'
 import {
+    Box,
     Button,
     ButtonGroup,
     Checkbox,
     FormControlLabel,
+    IconButton,
     MenuItem,
     Modal,
     Stack,
@@ -58,6 +61,11 @@ import Pill from '../Pill'
  */
 //Address View
 const AddressViewStyled = styled.div`
+    width: 100%;
+    height: max-content;
+`
+
+const AddressViewInnerWrapper = styled.div`
     width: 100%;
     height: max-content;
     padding: 16px;
@@ -119,8 +127,10 @@ interface IAddress {
  ** Interace [AddressViewProps]
  ** ======================================================
  */
-interface AddressViewProps extends IAddress {
+interface AddressViewProps {
+    address?: IAddress
     onSave?: (address: IAddress) => void
+    mode?: 'EDIT' | 'ADD_NEW'
 }
 
 /**
@@ -129,17 +139,20 @@ interface AddressViewProps extends IAddress {
  ** ======================================================
  */
 const AddressView = ({
-    full_name,
-    phone_no,
-    country,
-    state,
-    city,
-    address,
-    zip_code,
-    property_type,
-    default_billing_address,
-    default_shipping_address,
+    address = {
+        address: '',
+        city: 'select',
+        country: 'select',
+        state: 'select',
+        full_name: '',
+        default_billing_address: false,
+        default_shipping_address: false,
+        phone_no: '',
+        property_type: 'house',
+        zip_code: '',
+    },
     onSave = () => '',
+    mode = 'ADD_NEW',
 }: AddressViewProps) => {
     /*
      ** **
@@ -159,14 +172,14 @@ const AddressView = ({
     const [selectedState, setSelectedState] = useState('select')
     const [selectedCity, setSelectedCity] = useState('select')
     const [selectedPropertyType, setSelectedPropertyType] =
-        useState<PropertyType>(property_type)
+        useState<PropertyType>(address.property_type)
 
     //Defaults Address
     const [isDefaultShippingAddress, setIsDefaultShippingAddress] = useState(
-        default_shipping_address
+        address.default_shipping_address
     )
     const [isDefaultBillingAddress, setIsDefaultBillingAddress] = useState(
-        default_billing_address
+        address.default_billing_address
     )
 
     //Theme
@@ -191,7 +204,7 @@ const AddressView = ({
      */
     //Full Name
     const inputFullName = useInput({
-        default_value: full_name,
+        default_value: address.full_name,
         validation: combineValidators([
             {
                 validator: isEmpty,
@@ -211,7 +224,7 @@ const AddressView = ({
 
     //Phone number
     const inputPhoneNumber = useInput({
-        default_value: splitNumberByCode(phone_no).number,
+        default_value: splitNumberByCode(address.phone_no).number,
         validation: combineValidators([
             {
                 validator: isEmpty,
@@ -226,7 +239,7 @@ const AddressView = ({
 
     //Zip code
     const inputZipCode = useInput({
-        default_value: zip_code,
+        default_value: address.zip_code,
         validation: combineValidators([
             {
                 validator: isEmpty,
@@ -241,7 +254,7 @@ const AddressView = ({
 
     //Address
     const inputAddress = useInput({
-        default_value: address,
+        default_value: address.address,
         validation: combineValidators([
             {
                 validator: isEmpty,
@@ -288,27 +301,29 @@ const AddressView = ({
         dispatch(
             getCountriesAsync(() => {
                 setSelectedCountryCode(
-                    splitNumberByCode(phone_no).country_code.substring(1)
+                    splitNumberByCode(address.phone_no).country_code.substring(
+                        1
+                    )
                 )
                 //=> set country
-                setSelectedCountry(country)
+                setSelectedCountry(address.country)
 
                 //=> dispatch states
                 dispatch(
                     getStatesInCountryAsync({
-                        country: country,
+                        country: address.country,
                         cb: () => {
                             //=> set state
-                            setSelectedState(state)
+                            setSelectedState(address.state)
 
                             //=> dispatch cities
                             dispatch(
                                 getCitiesInStateAsync({
-                                    country: country,
-                                    state: state,
+                                    country: address.country,
+                                    state: address.state,
                                     cb() {
                                         //=> set citiy
-                                        setSelectedCity(city)
+                                        setSelectedCity(address.city)
                                     },
                                 })
                             )
@@ -436,20 +451,25 @@ const AddressView = ({
             default_billing_address: isDefaultBillingAddress,
             default_shipping_address: isDefaultShippingAddress,
         })
+
+        //4) Close modal
+        setShowModal(false)
     }
 
     //Click cancel handler
     const clickCancelHandler = () => {
+        const isModeEdit = mode === 'EDIT'
+
         //1) Reset all inputs
-        inputFullName.reset(true)
-        inputPhoneNumber.reset(true)
-        inputAddress.reset(true)
-        inputZipCode.reset(true)
+        inputFullName.reset(isModeEdit)
+        inputPhoneNumber.reset(isModeEdit)
+        inputAddress.reset(isModeEdit)
+        inputZipCode.reset(isModeEdit)
 
         //2) Reset all select inputs
-        setSelectedPropertyType(property_type)
-        setIsDefaultBillingAddress(default_billing_address)
-        setIsDefaultShippingAddress(default_shipping_address)
+        setSelectedPropertyType(address.property_type)
+        setIsDefaultBillingAddress(address.default_billing_address)
+        setIsDefaultShippingAddress(address.default_shipping_address)
 
         //3) Hide modal
         setShowModal(false)
@@ -457,89 +477,112 @@ const AddressView = ({
 
     return (
         <AddressViewStyled>
-            <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="flex-start"
-                spacing={1}
-            >
-                <Typography
-                    color="text.secondary"
-                    fontWeight="bold"
-                    variant="h6"
-                >
-                    {full_name}
-                </Typography>
-                <Button
-                    onClick={() => setShowModal(true)}
-                    endIcon={<EditOutlined />}
-                >
-                    Edit
-                </Button>
-            </Stack>
-            <Stack
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="flex-start"
-                spacing={1}
-            >
-                <SmartphoneOutlined
-                    sx={{ color: theme.palette.grey[800] }}
-                    fontSize="small"
-                />
-                <Typography color="GrayText">{phone_no}</Typography>
-            </Stack>
-            <Stack
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="flex-start"
-                spacing={1}
-            >
-                <LocationOnOutlined
-                    sx={{ color: theme.palette.grey[800] }}
-                    fontSize="small"
-                />
-                <Typography color="GrayText">{address}</Typography>
-            </Stack>
-            <Stack
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="flex-start"
-                spacing={1}
-            >
-                <Pill
-                    startIcon={
-                        property_type === 'house' ? (
-                            <HouseOutlined />
-                        ) : property_type === 'apartment' ? (
-                            <ApartmentOutlined />
-                        ) : property_type === 'business' ? (
-                            <Store />
-                        ) : (
-                            <NotListedLocation />
-                        )
-                    }
-                    color="info"
-                    text={
-                        property_type.substring(0, 1).toUpperCase() +
-                        property_type.substring(1)
-                    }
-                />
-                {default_billing_address && (
-                    <Pill
-                        startIcon={<CreditCardOutlined />}
-                        color="success"
-                        text="Default Billing Address"
-                    />
-                )}
-                {default_shipping_address && (
-                    <Pill
-                        startIcon={<HomeOutlined />}
-                        color="error"
-                        text="Default Shipping Address"
-                    />
-                )}
-            </Stack>
+            {mode === 'ADD_NEW' ? (
+                <Box sx={{ alignSelf: 'flex-end' }}>
+                    <Tooltip title="Add new address">
+                        <IconButton
+                            onClick={() => setShowModal(true)}
+                            size="large"
+                        >
+                            <AddOutlined />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            ) : (
+                <AddressViewInnerWrapper>
+                    <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                        spacing={1}
+                    >
+                        <Typography
+                            color="text.secondary"
+                            fontWeight="bold"
+                            variant="h6"
+                        >
+                            {address.full_name}
+                        </Typography>
+                        <Tooltip title="Edit the address">
+                            <Button
+                                onClick={() => setShowModal(true)}
+                                endIcon={<EditOutlined />}
+                            >
+                                Edit
+                            </Button>
+                        </Tooltip>
+                    </Stack>
+                    <Stack
+                        direction="row"
+                        justifyContent="flex-start"
+                        alignItems="flex-start"
+                        spacing={1}
+                    >
+                        <SmartphoneOutlined
+                            sx={{ color: theme.palette.grey[800] }}
+                            fontSize="small"
+                        />
+                        <Typography color="GrayText">
+                            {address.phone_no}
+                        </Typography>
+                    </Stack>
+                    <Stack
+                        direction="row"
+                        justifyContent="flex-start"
+                        alignItems="flex-start"
+                        spacing={1}
+                    >
+                        <LocationOnOutlined
+                            sx={{ color: theme.palette.grey[800] }}
+                            fontSize="small"
+                        />
+                        <Typography color="GrayText">
+                            {address.address}
+                        </Typography>
+                    </Stack>
+                    <Stack
+                        direction="row"
+                        justifyContent="flex-start"
+                        alignItems="flex-start"
+                        spacing={1}
+                    >
+                        <Pill
+                            startIcon={
+                                address.property_type === 'house' ? (
+                                    <HouseOutlined />
+                                ) : address.property_type === 'apartment' ? (
+                                    <ApartmentOutlined />
+                                ) : address.property_type === 'business' ? (
+                                    <Store />
+                                ) : (
+                                    <NotListedLocation />
+                                )
+                            }
+                            color="info"
+                            text={
+                                address.property_type
+                                    .substring(0, 1)
+                                    .toUpperCase() +
+                                address.property_type.substring(1)
+                            }
+                        />
+                        {address.default_billing_address && (
+                            <Pill
+                                startIcon={<CreditCardOutlined />}
+                                color="success"
+                                text="Default Billing Address"
+                            />
+                        )}
+                        {address.default_shipping_address && (
+                            <Pill
+                                startIcon={<HomeOutlined />}
+                                color="error"
+                                text="Default Shipping Address"
+                            />
+                        )}
+                    </Stack>
+                </AddressViewInnerWrapper>
+            )}
             <Modal
                 sx={{
                     display: 'flex',
@@ -550,7 +593,9 @@ const AddressView = ({
                 onClose={() => setShowModal(false)}
             >
                 <EditView>
-                    <Typography variant="h5">Edit Address</Typography>
+                    <Typography variant="h5">
+                        {mode === 'ADD_NEW' ? 'Add New' : 'Edit'} Address
+                    </Typography>
                     <Stack gap="16px">
                         <Stack>
                             <TextField
@@ -773,7 +818,7 @@ const AddressView = ({
                                 gap="8px"
                             >
                                 <FormControlLabel
-                                    disabled={default_shipping_address}
+                                    disabled={address.default_shipping_address}
                                     sx={{ width: 'max-content' }}
                                     control={
                                         <Checkbox
@@ -787,7 +832,7 @@ const AddressView = ({
                                     }
                                     label="Default Shipping Address"
                                 />
-                                {default_shipping_address && (
+                                {address.default_shipping_address && (
                                     <Tooltip title="To turn off default address, please set another address to default.">
                                         <Help fontSize="small" />
                                     </Tooltip>
@@ -799,7 +844,7 @@ const AddressView = ({
                                 gap="8px"
                             >
                                 <FormControlLabel
-                                    disabled={default_billing_address}
+                                    disabled={address.default_billing_address}
                                     sx={{ width: 'max-content' }}
                                     control={
                                         <Checkbox
@@ -813,7 +858,7 @@ const AddressView = ({
                                     }
                                     label="Default Billing Address"
                                 />
-                                {default_billing_address && (
+                                {address.default_billing_address && (
                                     <Tooltip title="To turn off default address, please set another address to default.">
                                         <Help fontSize="small" />
                                     </Tooltip>

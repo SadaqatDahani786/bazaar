@@ -4,6 +4,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 //Reducers
 import mediaReducer from './mediaReducer'
 import locationReducer from './locationReducer'
+import userReducer from './userReducer'
 
 /**
  ** ======================================================
@@ -14,6 +15,7 @@ const store = configureStore({
     reducer: combineReducers({
         media: mediaReducer,
         location: locationReducer,
+        user: userReducer,
     }),
 })
 

@@ -13,13 +13,13 @@ type file = { name: string; url: string; file?: File }
  ** ======================================================
  */
 interface useUploadProps {
-    default_value: Array<file>
+    default_value?: Array<file>
     min?: number
 }
 
 /**
  ** ======================================================
- ** Custom Hook [useUpload]
+ ** Custom Hook [useUpload]s
  ** ======================================================
  */
 const useUpload = ({ default_value = [], min = 1 }: useUploadProps) => {
@@ -40,6 +40,7 @@ const useUpload = ({ default_value = [], min = 1 }: useUploadProps) => {
     //validate default value
     useEffect(() => {
         if (default_value.length <= 0) return
+
         validate(default_value)
     }, [default_value, validate])
 
