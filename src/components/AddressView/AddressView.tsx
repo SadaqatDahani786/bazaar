@@ -39,6 +39,9 @@ import {
     getStatesInCountryAsync,
 } from '../../store/locationReducer'
 
+//Components
+import Pill from '../Pill'
+
 //Hooks & Func
 import useInput from '../../hooks/useInput'
 import { splitNumberByCode } from '../../utils/splitNumberByCode'
@@ -50,9 +53,8 @@ import {
     isPhoneNumber,
     isZipCode,
 } from '../../utils/validators'
-
-//Components
-import Pill from '../Pill'
+import isCountryHasStates from '../../utils/isCountryHasStates'
+import isStateHasCities from '../../utils/isStateHasCities'
 
 /**
  ** **
@@ -369,35 +371,6 @@ const AddressView = ({
      ** ** ** Methods
      ** **
      */
-    //checks if selected country has any states
-    const isCountryHasStates = () => {
-        //1) Get selected country
-        const selCountry = countries.find(
-            (country) => country.name === selectedCountry
-        )
-        if (!selCountry) return false
-
-        //3) Return true if selected country has any state
-        return selCountry.states.length > 0
-    }
-
-    //Checks if selected state has any cities
-    const isStateHasCities = () => {
-        //1) Get selected country
-        const selCountry = countries.find(
-            (country) => country.name === selectedCountry
-        )
-        if (!selCountry) return false
-
-        //2) Get selected state
-        const selState = selCountry.states.find(
-            (state) => state.name === selectedState
-        )
-        if (!selState) return false
-
-        //3) Return true if selected state has any city
-        return selState.cities.length > 0
-    }
 
     //Click save handler
     const clickSaveHandler = () => {
@@ -420,11 +393,17 @@ const AddressView = ({
             !inputPhoneNumber.validation.touched
         ) {
             return refInputPhoneNumber.current?.focus()
-        } else if (selectedCountry === 'select') {
+        } else if (!selectedCountry || selectedCountry === 'select') {
             return refInputCountry.current?.focus()
-        } else if (isCountryHasStates() && selectedState === 'select') {
+        } else if (
+            isCountryHasStates(countries, selectedCountry) &&
+            (!selectedState || selectedState === 'select')
+        ) {
             return refInputState.current?.focus()
-        } else if (isStateHasCities() && selectedCity === 'select') {
+        } else if (
+            isStateHasCities(countries, selectedCountry, selectedState) &&
+            (!selectedCity || selectedCity === 'select')
+        ) {
             return refInputCity.current?.focus()
         } else if (
             inputAddress.validation.error ||

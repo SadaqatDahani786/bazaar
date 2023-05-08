@@ -46,6 +46,8 @@ import {
     isPhoneNumber,
     isZipCode,
 } from '../../../../utils/validators'
+import isCountryHasStates from '../../../../utils/isCountryHasStates'
+import isStateHasCities from '../../../../utils/isStateHasCities'
 
 /*
  ** **
@@ -349,36 +351,6 @@ const AddNewCustomer = () => {
      ** ** ** Methods
      ** **
      */
-    //checks if selected country has any states
-    const isCountryHasStates = () => {
-        //1) Get selected country
-        const selCountry = countries.find(
-            (country) => country.name === selectedCountry
-        )
-        if (!selCountry) return false
-
-        //3) Return true if selected country has any state
-        return selCountry.states.length > 0
-    }
-
-    //Checks if selected state has any cities
-    const isStateHasCities = () => {
-        //1) Get selected country
-        const selCountry = countries.find(
-            (country) => country.name === selectedCountry
-        )
-        if (!selCountry) return false
-
-        //2) Get selected state
-        const selState = selCountry.states.find(
-            (state) => state.name === selectedState
-        )
-        if (!selState) return false
-
-        //3) Return true if selected state has any city
-        return selState.cities.length > 0
-    }
-
     //Resets inputs
     const resetAllInputsHandler = () => {
         inputName.reset(false)
@@ -445,13 +417,19 @@ const AddNewCustomer = () => {
         ) {
             refInputAddress.current?.focus()
             return refInputAddress.current?.scrollIntoView(scrollOptions)
-        } else if (selectedCountry === 'select') {
+        } else if (!selectedCountry || selectedCountry === 'select') {
             refInputCountry.current?.focus()
             return refCountry.current?.scrollIntoView(scrollOptions)
-        } else if (isCountryHasStates() && selectedState === 'select') {
+        } else if (
+            isCountryHasStates(countries, selectedCountry) &&
+            (!selectedState || selectedState === 'select')
+        ) {
             refInputState.current?.focus()
             return refState.current?.scrollIntoView(scrollOptions)
-        } else if (isStateHasCities() && selectedCity === 'select') {
+        } else if (
+            isStateHasCities(countries, selectedCountry, selectedState) &&
+            (!selectedCity || selectedCity === 'select')
+        ) {
             refInputCity.current?.focus()
             return refCity.current?.scrollIntoView(scrollOptions)
         } else if (inputBio.validation.error || !inputBio.validation.touched) {

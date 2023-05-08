@@ -10,3 +10,5 @@ export const splitNumberByCode = (phoneNumber = '') => {
         number: phoneNumber.substring(len),
     }
 }
+
+export default splitNumberByCode
