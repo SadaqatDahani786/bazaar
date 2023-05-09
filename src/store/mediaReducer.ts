@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import axios, { GenericFormData } from 'axios'
+import axios, { AxiosError, GenericFormData } from 'axios'
 
 //Apis
 import {
@@ -74,13 +74,21 @@ export interface IMediaDatabase extends IMediaSuper {
  ** Thunk [getMediaAsync]
  ** ======================================================
  */
-export const getMediaAsync = createAsyncThunk('get/media', async () => {
-    //1) Send http request
-    const response = await axios(getMedia())
+export const getMediaAsync = createAsyncThunk(
+    'get/media',
+    async (_, { rejectWithValue }) => {
+        try {
+            //1) Send http request
+            const response = await axios(getMedia())
 
-    //2) Return response
-    return response.data.data
-})
+            //2) Return response
+            return response.data.data
+        } catch (err) {
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data.message)
+        }
+    }
+)
 
 /** ======================================================
  ** Thunk [updateMediaAsync]
@@ -180,10 +188,10 @@ const defaultState: {
         create: boolean
     }
     errors: {
-        fetch: ''
-        delete: ''
-        update: ''
-        create: ''
+        fetch: string
+        delete: string
+        update: string
+        create: string
     }
     data: Array<IMedia>
 } = {
@@ -368,6 +376,16 @@ const slice = createSlice({
                 return {
                     ...state,
                     isLoading: { ...state.isLoading, fetch: true },
+                }
+            })
+            .addCase(getMediaAsync.rejected, (state, action) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: {
+                        ...state.errors,
+                        fetch: action.payload as string,
+                    },
                 }
             })
             .addCase(

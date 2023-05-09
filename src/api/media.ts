@@ -1,4 +1,4 @@
-import { GenericFormData } from 'axios'
+import { AxiosRequestConfig, GenericFormData } from 'axios'
 import { BASE_URL } from '../utils/consts'
 
 //API ENDPOINT URL
@@ -9,12 +9,15 @@ const API_ENDPOINT = `${BASE_URL}/media`
  ** ======================================================
  */
 export const getMedia = () => {
-    return {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
         url: API_ENDPOINT,
-        options: {
-            credentials: 'include',
-        },
+        method: 'GET',
+        withCredentials: true,
     }
+
+    //2) Return options
+    return options
 }
 
 /** ======================================================
@@ -22,13 +25,17 @@ export const getMedia = () => {
  ** ======================================================
  */
 export const uploadMedia = (data: GenericFormData) => {
-    return {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
         url: `${API_ENDPOINT}/upload`,
         method: 'POST',
         headers: { 'Content-Type': 'multipart/form-data' },
-        credentials: 'include',
         data,
+        withCredentials: true,
     }
+
+    //2) Return options
+    return options
 }
 
 /** ======================================================
@@ -46,12 +53,16 @@ export const updateMedia = ({
         caption: string
     }
 }) => {
-    return {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
         url: `${API_ENDPOINT}/${id}`,
         method: 'PUT',
-        credentials: 'include',
         data,
+        withCredentials: true,
     }
+
+    //2) Run options
+    return options
 }
 
 /** ======================================================
@@ -59,11 +70,15 @@ export const updateMedia = ({
  ** ======================================================
  */
 export const deleteMedia = (id: string) => {
-    return {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
         url: `${API_ENDPOINT}/${id}`,
         method: 'DELETE',
-        credentials: 'include',
+        withCredentials: true,
     }
+
+    //2) Return options
+    return options
 }
 
 /** ======================================================
@@ -71,9 +86,13 @@ export const deleteMedia = (id: string) => {
  ** ======================================================
  */
 export const searchMedia = (query: string) => {
-    return {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
         url: `${API_ENDPOINT}/search/${query}`,
         method: 'GET',
-        credentials: 'include',
+        withCredentials: true,
     }
+
+    //2) Return options
+    return options
 }

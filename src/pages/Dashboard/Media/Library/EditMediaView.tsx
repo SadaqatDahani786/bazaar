@@ -251,7 +251,7 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
                                 Uploaded by
                             </Typography>
                             <Typography variant="subtitle2" fontWeight="bold">
-                                {selectedMedia?.uploaded_by.email}
+                                {selectedMedia?.uploaded_by?.email}
                             </Typography>
                         </RowInfo>
                         <RowInfo>

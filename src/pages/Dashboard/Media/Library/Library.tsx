@@ -620,7 +620,7 @@ const Library = () => {
                                                 {media.dimensions.height}
                                             </TableCell>
                                             <TableCell align="right">
-                                                {media.uploaded_by.name}
+                                                {media.uploaded_by?.name}
                                             </TableCell>
                                             <TableCell align="right">
                                                 {new Date(
