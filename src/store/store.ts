@@ -5,6 +5,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import mediaReducer from './mediaReducer'
 import locationReducer from './locationReducer'
 import userReducer from './userReducer'
+import authReducer from './authReducer'
 
 /**
  ** ======================================================
@@ -16,6 +17,7 @@ const store = configureStore({
         media: mediaReducer,
         location: locationReducer,
         user: userReducer,
+        auth: authReducer,
     }),
 })
 

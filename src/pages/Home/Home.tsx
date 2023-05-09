@@ -115,10 +115,9 @@ const Home = () => {
 
     /*
      ** **
-     ** ** ** Methods
+     ** ** ** Side effects
      ** **
      */
-
     //Set no of slides to show on window resize
     useEffect(() => {
         //History

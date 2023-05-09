@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useState } from 'react'
+import React, { SyntheticEvent, useEffect, useState } from 'react'
 
 import {
     Badge,
@@ -15,6 +15,13 @@ import {
     CardContent,
     CardMedia,
     Button,
+    Avatar,
+    Stack,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
 } from '@mui/material'
 import {
     SearchSharp,
@@ -32,11 +39,18 @@ import {
     AddOutlined,
     RemoveOutlined,
     ArrowForward,
+    ExpandMoreOutlined,
+    Dashboard,
 } from '@mui/icons-material'
 
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+
+//Redux
+import { useAppDispatch, useAppSelector } from '../../store/store'
+import { getUserAsync } from '../../store/userReducer'
+import { setUser, logoutAsync } from '../../store/authReducer'
 
 /**
  ** **
@@ -422,6 +436,22 @@ const Logo = styled.div`
     font-family: 'Playfair Display';
 `
 
+//Stack Styled
+const StackStyled = styled(Stack)`
+    & > nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 1000;
+        background: white;
+    }
+
+    &:hover > nav {
+        display: block;
+    }
+`
+
 /**
  ** ======================================================
  ** Component [Header]
@@ -538,6 +568,11 @@ const Header = () => {
      ** ** ** State & Hooks
      ** **
      */
+    //Redux
+    const user = useAppSelector((state) => state.auth.data)
+    const dispatch = useAppDispatch()
+
+    //Cart
     const [cartItems, setCartItems] = useState(defaultCartItems)
     const [quantityInputsDefaultValues, setQuantityInputsDefaultValues] =
         useState(
@@ -547,6 +582,7 @@ const Header = () => {
             }))
         )
 
+    //State
     const [drawerSelectedMenu, setDrawerSelectedMenu] = useState('')
     const [selectedMenu, setSelectedMenu] = useState([
         'men-fashion',
@@ -557,7 +593,32 @@ const Header = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
 
+    //Navigation
     const navigate = useNavigate()
+
+    /*
+     ** **
+     ** ** ** Side effects
+     ** **
+     */
+    //Set user
+    useEffect(() => {
+        //1) Get user id and validate
+        const id = localStorage.getItem('user_id')
+
+        //2) Validate
+        if (!id || user) return
+
+        //2) Fetch and set logged in user details
+        dispatch(
+            getUserAsync({
+                id,
+                cb: (user) => {
+                    dispatch(setUser(user))
+                },
+            })
+        )
+    }, [])
 
     /**
      ** **
@@ -680,6 +741,11 @@ const Header = () => {
 
         //2) Update state
         setCartItems(updateItems)
+    }
+
+    //Click logout handler
+    const clickLogoutHandler = () => {
+        dispatch(logoutAsync())
     }
 
     return (
@@ -1121,20 +1187,30 @@ const Header = () => {
                 <Logo>
                     <Link underline="none">Bazaar</Link>
                 </Logo>
-                <Nav style={{ justifyContent: 'flex-end' }}>
-                    <NavList>
+                <Nav
+                    style={{
+                        justifyContent: 'flex-end',
+                    }}
+                >
+                    <NavList
+                        style={{
+                            alignItems: 'center',
+                        }}
+                    >
                         <NavListItem style={{ padding: '16px 0' }}>
                             <IconButton style={{ cursor: 'pointer' }}>
                                 <SearchSharp fontSize="large" />
                             </IconButton>
                         </NavListItem>
                         <NavListItem style={{ padding: '16px 0' }}>
-                            <IconButton
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => navigate('/dashboard')}
-                            >
-                                <PersonOutlineSharp fontSize="large" />
-                            </IconButton>
+                            {!user && (
+                                <IconButton
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => navigate('/login')}
+                                >
+                                    <PersonOutlineSharp fontSize="large" />
+                                </IconButton>
+                            )}
                         </NavListItem>
                         <NavListItem
                             style={{ padding: '16px 0' }}
@@ -1152,6 +1228,93 @@ const Header = () => {
                                     <ShoppingBagOutlined fontSize="large" />
                                 </IconButton>
                             </Badge>
+                        </NavListItem>
+                        <NavListItem>
+                            {user && (
+                                <StackStyled
+                                    flexDirection="row"
+                                    alignItems="center"
+                                    gap="24px"
+                                    sx={{
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                    }}
+                                >
+                                    <Avatar
+                                        sx={{
+                                            width: '32px',
+                                            height: '32px',
+                                        }}
+                                    >
+                                        <img
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'contain',
+                                            }}
+                                            crossOrigin="anonymous"
+                                            src={user.photo.url}
+                                            alt={user.photo.title}
+                                        />
+                                    </Avatar>
+                                    <ExpandMoreOutlined />
+                                    <nav
+                                        style={{
+                                            minWidth: '180px',
+                                        }}
+                                    >
+                                        <List>
+                                            <ListItem disablePadding>
+                                                {user?.role === 'admin' && (
+                                                    <ListItemButton
+                                                        onClick={() =>
+                                                            navigate(
+                                                                '/dashboard'
+                                                            )
+                                                        }
+                                                    >
+                                                        <ListItemIcon>
+                                                            <Dashboard />
+                                                        </ListItemIcon>
+                                                        <ListItemText primary="Dashboard" />
+                                                    </ListItemButton>
+                                                )}
+                                            </ListItem>
+                                            <ListItem disablePadding>
+                                                <ListItemButton
+                                                    onClick={() =>
+                                                        navigate(
+                                                            user?.role ===
+                                                                'admin'
+                                                                ? '/dashboard/profile'
+                                                                : '/profile'
+                                                        )
+                                                    }
+                                                >
+                                                    <ListItemIcon>
+                                                        <PersonOutlineSharp />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary="My Profile" />
+                                                </ListItemButton>
+                                            </ListItem>
+                                        </List>
+                                        <Divider />
+                                        <List>
+                                            <ListItem
+                                                sx={{ textAlign: 'center' }}
+                                                disablePadding
+                                            >
+                                                <ListItemButton
+                                                    onClick={clickLogoutHandler}
+                                                    sx={{ textAlign: 'center' }}
+                                                >
+                                                    <ListItemText primary="Logout" />
+                                                </ListItemButton>
+                                            </ListItem>
+                                        </List>
+                                    </nav>
+                                </StackStyled>
+                            )}
                         </NavListItem>
                     </NavList>
                     <Drawer

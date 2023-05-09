@@ -10,9 +10,12 @@ import store from './store/store'
 //Pages
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
+import Login from './pages/Login'
 
 //CSS
 import './App.css'
+import Signup from './pages/Signuo/Signup'
+import ResetPassword from './pages/ResetPassword'
 
 /**
  ** ======================================================
@@ -43,25 +46,25 @@ function App() {
                 contrastText: '#000000',
             },
             error: {
-                light: '#f22e4535',
+                light: '#f22e4540',
                 main: '#F22E46',
-                dark: '#d8152b',
+                dark: '#c4051b',
                 contrastText: '#ffffff',
             },
             success: {
-                light: '#10EE8335',
+                light: '#10EE8340',
                 main: '#10EE83',
                 dark: '#05c96a',
                 contrastText: '#ffffff',
             },
             info: {
-                light: '#1698CF35',
+                light: '#1698CF40',
                 main: '#1698CF',
                 dark: '#0a81b4',
                 contrastText: '#ffffff',
             },
             warning: {
-                light: '#EEA12F35',
+                light: '#EEA12F40',
                 main: '#EEA12F',
                 dark: '#c77e11',
                 contrastText: '#000000',
@@ -77,6 +80,15 @@ function App() {
                         <Provider store={store}>
                             <div className="App">
                                 <Routes>
+                                    <Route path="/login" element={<Login />} />
+                                    <Route
+                                        path="/signup"
+                                        element={<Signup />}
+                                    />
+                                    <Route
+                                        path="/reset-password/:token"
+                                        element={<ResetPassword />}
+                                    />
                                     <Route
                                         path="/dashboard/"
                                         element={

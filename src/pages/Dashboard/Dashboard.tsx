@@ -13,7 +13,7 @@ import {
 } from '@mui/icons-material/'
 
 import styled from 'styled-components'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 
 //Components
 import Header from './Header'
@@ -22,6 +22,9 @@ import Header from './Header'
 import Overview from './Overview'
 import { MediaLibrary, AddNewMedia } from './Media'
 import { AllCustomers, AddNewCustomer, EditCustomer, Profile } from './Customer'
+import { useAppDispatch, useAppSelector } from '../../store/store'
+import { getUserAsync } from '../../store/userReducer'
+import { setUser } from '../../store/authReducer'
 
 /*
  ** **
@@ -143,9 +146,15 @@ const Dashboard = () => {
      ** ** ** State & Hooks
      ** **
      */
+    //Redux
+    const loggedInUser = useAppSelector((state) => state.auth.data)
+    const dispatch = useAppDispatch()
+
     const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
     const [Panel, setActivePanel] = useState(<Overview />)
     const [heading, setHeading] = useState({ title: '', subtitle: '' })
+
+    //Navigation
     const [navLinks, setNavLinks] = useState([
         {
             title: 'Overview',
@@ -260,64 +269,46 @@ const Dashboard = () => {
             icon: <ImageOutlined />,
         },
     ])
-
     const params = useParams()
+    const navigate = useNavigate()
 
     /*
      ** **
-     ** ** ** Methods
+     ** ** ** Side effects
      ** **
      */
-    //Clink Link Handler
-    const clickHandler = (e: SyntheticEvent<HTMLLIElement>) => {
-        const slug = e.currentTarget.dataset.slug
+    //Set user
+    useEffect(() => {
+        //1) Get user id and validate
+        const id = localStorage.getItem('user_id')
 
-        if (!slug) return
+        //2) Validate
+        if (!id || loggedInUser) return
 
-        const updatedState = navLinks.map((item) => {
-            const isInSubLink = item.sublinks.some(
-                (subitem) => subitem.slug === slug
-            )
+        //2) Fetch and set logged in user details
+        dispatch(
+            getUserAsync({
+                id,
+                cb: (user) => {
+                    dispatch(setUser(user))
+                },
+            })
+        )
+    }, [])
 
-            //1) Check itself
-            if (item.slug === slug)
-                return {
-                    ...item,
-                    isActive: true,
-                    sublinks: item.sublinks.map((subItem, i) => ({
-                        ...subItem,
-                        isActive: i === 0,
-                    })),
-                }
+    //Navigate to login if user not logged in
+    useEffect(() => {
+        //1) If user not logged in, redirect to login page
+        if (
+            !localStorage.getItem('user_id') ||
+            !localStorage.getItem('user_role')
+        )
+            return navigate('/login', { replace: true })
 
-            //2) Check if in chlidlren
-            if (isInSubLink)
-                return {
-                    ...item,
-                    sublinks: item.sublinks.map((subItem) => ({
-                        ...subItem,
-                        isActive: subItem.slug === slug,
-                    })),
-                }
-
-            //3) Neither children nor itself
-            return {
-                ...item,
-                isActive: false,
-                sublinks: item.sublinks.map((subItem) => ({
-                    ...subItem,
-                    isActive: false,
-                })),
-            }
-        })
-
-        setNavLinks(updatedState)
-    }
-
-    //Click Menu Button Handler
-    const onClickMenuHandler = () => {
-        setIsSideMenuOpen(true)
-    }
+        //2) If logged in user not admin, redirect to 404
+        if (localStorage.getItem('user_role') !== 'admin')
+            return navigate('/404', { replace: true })
+    }, [loggedInUser])
 
     //Set active panel based on paths
     useEffect(() => {
@@ -381,6 +372,62 @@ const Dashboard = () => {
                 return setActivePanel(<EditCustomer />)
         }
     }, [params.path])
+
+    /*
+     ** **
+     ** ** ** Methods
+     ** **
+     */
+    //Clink Link Handler
+    const clickHandler = (e: SyntheticEvent<HTMLLIElement>) => {
+        const slug = e.currentTarget.dataset.slug
+
+        if (!slug) return
+
+        const updatedState = navLinks.map((item) => {
+            const isInSubLink = item.sublinks.some(
+                (subitem) => subitem.slug === slug
+            )
+
+            //1) Check itself
+            if (item.slug === slug)
+                return {
+                    ...item,
+                    isActive: true,
+                    sublinks: item.sublinks.map((subItem, i) => ({
+                        ...subItem,
+                        isActive: i === 0,
+                    })),
+                }
+
+            //2) Check if in chlidlren
+            if (isInSubLink)
+                return {
+                    ...item,
+                    sublinks: item.sublinks.map((subItem) => ({
+                        ...subItem,
+                        isActive: subItem.slug === slug,
+                    })),
+                }
+
+            //3) Neither children nor itself
+            return {
+                ...item,
+                isActive: false,
+                sublinks: item.sublinks.map((subItem) => ({
+                    ...subItem,
+                    isActive: false,
+                })),
+            }
+        })
+
+        setNavLinks(updatedState)
+    }
+
+    //Click Menu Button Handler
+    const onClickMenuHandler = () => {
+        setIsSideMenuOpen(true)
+    }
 
     return (
         <DashbaordStyled>

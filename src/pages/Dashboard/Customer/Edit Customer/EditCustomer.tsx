@@ -333,13 +333,16 @@ const EditCustomer = () => {
     const clickUpdateHandler = () => {
         if (!user) return
 
-        //1) Define scroll options
+        //1) Hide alert before new request
+        setShowAlert(false)
+
+        //2) Define scroll options
         const scrollOptions: ScrollIntoViewOptions = {
             behavior: 'smooth',
             block: 'end',
         }
 
-        //2) Trigger validation of ipnuts
+        //3) Trigger validation of ipnuts
         inputName.validation.validate()
         inputPhoneNumber.validation.validate()
         inputBio.validation.validate()
@@ -348,7 +351,7 @@ const EditCustomer = () => {
         inputPassword.validation.validate()
         inputPasswordConfirm.validation.validate()
 
-        //3) Focus on invalid fiedls
+        //4) Focus on invalid fiedls
         if (inputName.validation.error || !inputName.validation.touched) {
             refInputName.current?.focus()
             return refInputName.current?.scrollIntoView(scrollOptions)
@@ -395,7 +398,7 @@ const EditCustomer = () => {
             )
         }
 
-        //4) No error, proceed with creating form data for update
+        //5) No error, proceed with creating form data for update
         const formData = new FormData()
 
         //=> Personal
@@ -439,7 +442,7 @@ const EditCustomer = () => {
             )
         })
 
-        //5) Dispatch update action
+        //6) Dispatch update action
         dispatch(
             updateUserAsync({
                 id: user._id,
