@@ -15,6 +15,11 @@ import {
 import styled from 'styled-components'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 
+//Redux
+import { useAppDispatch, useAppSelector } from '../../store/store'
+import { getUserAsync } from '../../store/userReducer'
+import { setUser } from '../../store/authReducer'
+
 //Components
 import Header from './Header'
 
@@ -22,9 +27,7 @@ import Header from './Header'
 import Overview from './Overview'
 import { MediaLibrary, AddNewMedia } from './Media'
 import { AllCustomers, AddNewCustomer, EditCustomer, Profile } from './Customer'
-import { useAppDispatch, useAppSelector } from '../../store/store'
-import { getUserAsync } from '../../store/userReducer'
-import { setUser } from '../../store/authReducer'
+import { Categories } from './Product'
 
 /*
  ** **
@@ -324,6 +327,11 @@ const Dashboard = () => {
             | 'add-new-customer'
             | 'profile'
             | 'edit-customer'
+            | 'all-products'
+            | 'add-new-product'
+            | 'edit-product'
+            | 'categories'
+            | 'reviews'
 
         //3) Test paths and set active panel
         switch (params.path as paths) {
@@ -370,6 +378,12 @@ const Dashboard = () => {
                     subtitle: '',
                 })
                 return setActivePanel(<EditCustomer />)
+            case 'categories':
+                setHeading({
+                    title: 'Product Categories',
+                    subtitle: '',
+                })
+                return setActivePanel(<Categories />)
         }
     }, [params.path])
 

@@ -11,11 +11,11 @@ import store from './store/store'
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
+import Signup from './pages/Signuo/Signup'
+import ResetPassword from './pages/ResetPassword'
 
 //CSS
 import './App.css'
-import Signup from './pages/Signuo/Signup'
-import ResetPassword from './pages/ResetPassword'
 
 /**
  ** ======================================================

@@ -10,7 +10,10 @@ import {
     uploadMedia,
 } from '../api/media'
 
-/*
+//Redux
+import { IUserDatabase } from './userReducer'
+
+/*s
  ** **
  ** ** ** INTERFACES
  ** **
@@ -24,10 +27,7 @@ interface IMediaSuper {
     filename: string
     url: string
     size: string
-    uploaded_by: {
-        name: string
-        email: string
-    }
+    uploaded_by: IUserDatabase
     created_at: string
     dimensions: {
         width: number

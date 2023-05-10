@@ -6,6 +6,7 @@ import mediaReducer from './mediaReducer'
 import locationReducer from './locationReducer'
 import userReducer from './userReducer'
 import authReducer from './authReducer'
+import categoryReducer from './categoryReducer'
 
 /**
  ** ======================================================
@@ -18,6 +19,7 @@ const store = configureStore({
         location: locationReducer,
         user: userReducer,
         auth: authReducer,
+        category: categoryReducer,
     }),
 })
 

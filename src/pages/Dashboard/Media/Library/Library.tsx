@@ -6,7 +6,6 @@ import {
     ButtonGroup,
     Checkbox,
     CircularProgress,
-    Grid,
     InputAdornment,
     Modal,
     Table,
@@ -39,7 +38,8 @@ import {
 } from '../../../../store/mediaReducer'
 
 //Components
-import EditMediaView from './EditMediaView'
+import { EditMediaView } from '../../../../components/MediaPicker'
+import MediaLibraryView from '../../../../components/MediaPicker/MediaLibraryView'
 
 /*
  ** **
@@ -92,15 +92,6 @@ const Widget = styled.div`
     }
 `
 
-//Row
-const Row = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 8px;
-    padding: 8px 0;
-`
-
 //Image Wrapper
 const ImageWrapper = styled.div`
     width: 100%;
@@ -140,37 +131,11 @@ const Library = () => {
      ** ** ** Methods
      ** **
      */
-
-    //Fetch media files
-    useEffect(() => {
-        dispatch(getMediaAsync())
-    }, [])
-
     //Clear selection when gridview to listview or vice-versa
     useEffect(() => {
         dispatch(clearSelection())
         setSelectedMediaId(undefined)
     }, [isGridviewActive])
-
-    //Select image handler
-    const selectImageHandler = (e: SyntheticEvent<HTMLDivElement>) => {
-        //1) Get id
-        const id = e.currentTarget.dataset.id
-
-        //2) Validate
-        if (!id) return
-
-        //3) Set id of selected media
-        setSelectedMediaId(id)
-
-        //4) Dispatch action
-        dispatch(
-            editSelectedStatus({
-                id: id,
-                bulkSelectActive: isBulkSelectActive,
-            })
-        )
-    }
 
     //Delete handler
     const clickDeleteHandler = () => {
@@ -314,127 +279,7 @@ const Library = () => {
             </ControlBar>
             {isGridviewActive ? (
                 <WidgetWrapper>
-                    <Widget>
-                        {isLoading.fetch || mediaFiles.length <= 0 ? (
-                            <Box
-                                sx={{
-                                    width: '100%',
-                                    height: '100%',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                {isLoading.fetch ? (
-                                    <CircularProgress size={80} />
-                                ) : (
-                                    <Typography variant="h6">
-                                        Uh oh, no images found.
-                                    </Typography>
-                                )}
-                            </Box>
-                        ) : (
-                            <Grid container spacing={1}>
-                                {mediaFiles.map((file) => (
-                                    <Grid
-                                        sx={{ cursor: 'pointer ' }}
-                                        onClick={selectImageHandler}
-                                        key={file._id}
-                                        item
-                                        lg={3}
-                                        md={4}
-                                        sm={6}
-                                        xs={12}
-                                        data-id={file._id}
-                                    >
-                                        <ImageWrapper
-                                            style={{
-                                                opacity: isBulkSelectActive
-                                                    ? '.8'
-                                                    : '1',
-                                                border: file.isSelected
-                                                    ? '5px solid #39c'
-                                                    : 'none',
-                                            }}
-                                        >
-                                            <img
-                                                src={file.url}
-                                                crossOrigin="anonymous"
-                                                alt={file.description.value}
-                                            />
-                                        </ImageWrapper>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        )}
-                    </Widget>
-                    <Widget>
-                        {isBulkSelectActive ? (
-                            <Box sx={{ height: '100%' }}>
-                                <Typography variant="h5">
-                                    (
-                                    {
-                                        mediaFiles.filter(
-                                            (media) => media.isSelected
-                                        ).length
-                                    }
-                                    ) Files Selected
-                                </Typography>
-                                {mediaFiles
-                                    .filter((media) => media.isSelected)
-                                    .map((media) => (
-                                        <Row
-                                            key={media._id}
-                                            style={{
-                                                padding: '8px',
-                                                border: '1px solid black',
-                                            }}
-                                        >
-                                            <ImageWrapper
-                                                style={{
-                                                    width: '50px',
-                                                    height: '50px',
-                                                }}
-                                            >
-                                                <img
-                                                    crossOrigin="anonymous"
-                                                    src={media.url}
-                                                    alt={media.caption.value}
-                                                />
-                                            </ImageWrapper>
-                                            <Typography>
-                                                {media.filename}
-                                            </Typography>
-                                        </Row>
-                                    ))}
-                                <Button
-                                    sx={{ marginTop: 'auto' }}
-                                    fullWidth={true}
-                                    variant="contained"
-                                    color="error"
-                                    disableElevation={true}
-                                    startIcon={<DeleteOutline />}
-                                    onClick={clickDeleteHandler}
-                                    size="large"
-                                    disabled={
-                                        !mediaFiles.some(
-                                            (media) => media.isSelected
-                                        )
-                                    }
-                                >
-                                    Delete (
-                                    {
-                                        mediaFiles.filter(
-                                            (media) => media.isSelected
-                                        ).length
-                                    }
-                                    )
-                                </Button>
-                            </Box>
-                        ) : (
-                            <EditMediaView id={selectedMediaId} mode="View" />
-                        )}
-                    </Widget>
+                    {<MediaLibraryView selectMultiple={isBulkSelectActive} />}
                 </WidgetWrapper>
             ) : (
                 <WidgetWrapper>

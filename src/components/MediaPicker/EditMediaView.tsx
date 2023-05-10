@@ -19,8 +19,8 @@ import {
     editDescriptionStatus,
     editTitleStatus,
     updateMediaAsync,
-} from '../../../../store/mediaReducer'
-import { useAppDispatch, useAppSelector } from '../../../../store/store'
+} from '../../store/mediaReducer'
+import { useAppDispatch, useAppSelector } from '../../store/store'
 
 /**
  ** **
@@ -31,10 +31,12 @@ import { useAppDispatch, useAppSelector } from '../../../../store/store'
 const EditMediaViewStyled = styled.div`
     width: 100%;
     height: 100%;
+    border: 1px solid ${(props) => props.theme.palette.grey['300']};
     background: ${(props) => props.theme.palette.secondary.main};
     display: flex;
     flex-direction: column;
     gap: 16px;
+    padding: 16px;
 `
 //Row
 const Row = styled.div`
@@ -101,7 +103,6 @@ const EditMediaView = ({ id, mode, onClose }: IEditMediaViewProps) => {
      ** ** ** Methods
      ** **
      */
-
     //Set input fiels default value from selected media
     useEffect(() => {
         if (!selectedMedia) return
