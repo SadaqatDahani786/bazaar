@@ -48,7 +48,7 @@ const useInput = ({ default_value, validation }: useInputProps) => {
     //Set default value
     useEffect(() => {
         setInput(default_value)
-        if (default_value) setInputTouched(true)
+        if (default_value) inputValidate()
     }, [default_value])
 
     /*

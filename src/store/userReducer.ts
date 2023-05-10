@@ -70,21 +70,32 @@ export const getManyUserAsync = createAsyncThunk('get/manyUser', async () => {
  */
 export const getUserAsync = createAsyncThunk(
     'get/user',
-    async ({
-        id,
-        cb = () => '',
-    }: {
-        id: string
-        cb: (user: IUserDatabase) => void
-    }) => {
-        //1) Send http request
-        const response = await axios(getUser(id))
+    async (
+        {
+            id,
+            cb = () => '',
+        }: {
+            id: string
+            cb: (user: IUserDatabase) => void
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getUser(id))
 
-        //2) Callback
-        cb(response.data.data)
+            //2) Callback
+            cb(response.data.data)
 
-        //3) Return response
-        return response.data.data
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            if (err instanceof AxiosError)
+                return rejectWithValue({
+                    message: err.response?.data?.message,
+                    status: err.response?.status,
+                })
+        }
     }
 )
 
@@ -273,12 +284,25 @@ const sliceUser = createSlice({
                 }
             })
             .addCase(getUserAsync.rejected, (state, action) => {
+                //1) Extract message and status from payload
+                const { message, status } = action.payload as {
+                    message: string
+                    status: number
+                }
+
+                //2) If 401 error, clear storage and remove user
+                if (status === 401) {
+                    localStorage.removeItem('user_id')
+                    localStorage.removeItem('user_role')
+                }
+
+                //3) Update state
                 return {
                     ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: {
                         ...state.errors,
-                        fetch: action.payload as string,
+                        fetch: message,
                     },
                 }
             })
