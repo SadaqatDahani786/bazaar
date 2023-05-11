@@ -45,11 +45,13 @@ const useUpload = ({ default_value = [], min = 1 }: useUploadProps) => {
     }, [default_value, validate])
 
     //Reset input
-    const reset = () => {
-        setValue(default_value)
+    const reset = (resetToDefault = true) => {
         setError(false)
         setTouched(false)
         setModified(false)
+
+        if (resetToDefault) setValue(default_value)
+        else setValue([])
     }
 
     //On Input Blur Handler

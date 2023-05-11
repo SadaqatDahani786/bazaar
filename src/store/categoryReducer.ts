@@ -337,12 +337,12 @@ const sliceCategory = createSlice({
                     }
                 }
             )
-            .addCase(searchMediaAsync.pending, (state) => ({
+            .addCase(searchCategoryAsync.pending, (state) => ({
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
-            .addCase(searchMediaAsync.rejected, (state, action) => ({
+            .addCase(searchCategoryAsync.rejected, (state, action) => ({
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
