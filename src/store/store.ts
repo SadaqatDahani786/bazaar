@@ -7,6 +7,7 @@ import locationReducer from './locationReducer'
 import userReducer from './userReducer'
 import authReducer from './authReducer'
 import categoryReducer from './categoryReducer'
+import reviewReducer from './reviewReducer'
 
 /**
  ** ======================================================
@@ -20,6 +21,7 @@ const store = configureStore({
         user: userReducer,
         auth: authReducer,
         category: categoryReducer,
+        review: reviewReducer,
     }),
 })
 

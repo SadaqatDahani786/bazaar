@@ -27,7 +27,7 @@ import Header from './Header'
 import Overview from './Overview'
 import { MediaLibrary, AddNewMedia } from './Media'
 import { AllCustomers, AddNewCustomer, EditCustomer, Profile } from './Customer'
-import { Categories } from './Product'
+import { Categories, Reviews } from './Product'
 
 /*
  ** **
@@ -384,6 +384,12 @@ const Dashboard = () => {
                     subtitle: '',
                 })
                 return setActivePanel(<Categories />)
+            case 'reviews':
+                setHeading({
+                    title: 'Product Reviews',
+                    subtitle: '',
+                })
+                return setActivePanel(<Reviews />)
         }
     }, [params.path])
 
