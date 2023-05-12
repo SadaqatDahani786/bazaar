@@ -81,6 +81,26 @@ export const forgotPassword = (email: string) => {
 }
 
 /** ======================================================
+ ** updatePassword = Update my password
+ ** ======================================================
+ */
+export const updatePassword = (formData: GenericFormData) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/update-password`,
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+        data: formData,
+    }
+
+    //2) Return options
+    return options
+}
+
+/** ======================================================
  ** resetPassword = Reset account password
  ** ======================================================
  */

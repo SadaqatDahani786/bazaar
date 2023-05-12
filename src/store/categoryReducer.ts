@@ -7,7 +7,7 @@ import {
     searchCategory,
     updateCategory,
 } from '../api/categories'
-import { IMediaDatabase, searchMediaAsync } from './mediaReducer'
+import { IMediaDatabase } from './mediaReducer'
 
 /** ======================================================
  ** Interface [ICategory]

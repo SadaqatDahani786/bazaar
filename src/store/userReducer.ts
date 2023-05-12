@@ -6,8 +6,10 @@ import {
     getManyUser,
     getUser,
     searchUser,
+    updateCurrentUser,
     updateUser,
 } from '../api/user'
+import { IAddress } from '../components/AddressView/AddressView'
 
 /**
  ** ======================================================
@@ -25,18 +27,7 @@ export interface IUserDatabase {
         title: string
     }
     phone_no: string
-    addresses: Array<{
-        full_name: string
-        address: string
-        phone_no: string
-        country: string
-        state: string
-        city: string
-        zip_code: string
-        property_type: 'house' | 'business' | 'apartment' | 'other'
-        default_billing_address: boolean
-        default_shipping_address: boolean
-    }>
+    addresses: Array<IAddress>
     role: 'member' | 'admin'
     created_at: string
 }
@@ -154,14 +145,53 @@ export const updateUserAsync = createAsyncThunk(
 
             //2) Callback
             cb()
-            console.log(response)
 
             //3) Return response
             return response.data.data
         } catch (err) {
             //1) Cb
             cb()
-            console.log(err)
+
+            //2) Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [updateCurrentUserAsync]
+ ** ======================================================
+ */
+export const updateCurrentUserAsync = createAsyncThunk(
+    'update/current-user',
+    async (
+        {
+            formData,
+            cb = () => undefined,
+            isMultipart = false,
+        }: {
+            formData: GenericFormData
+            cb?: (updateUser?: IUserDatabase) => void
+            isMultipart?: boolean
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(
+                updateCurrentUser(formData, isMultipart)
+            )
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //1) Cb
+            cb()
 
             //2) Reject with error
             if (err instanceof AxiosError)
@@ -360,6 +390,43 @@ const sliceUser = createSlice({
                 }
             })
             .addCase(updateUserAsync.rejected, (state, action) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, update: false },
+                    errors: {
+                        ...state.errors,
+                        update: action.payload as string,
+                    },
+                }
+            })
+            .addCase(
+                updateCurrentUserAsync.fulfilled,
+                (state, action: { payload: IUserDatabase }) => {
+                    //1) Get user
+                    const user = action.payload
+
+                    //2) Transform
+                    const updatedData = state.data.map((curruser) => {
+                        if (curruser._id === user._id)
+                            return { ...user, isSelected: false }
+                        return curruser
+                    })
+
+                    //3) Update state
+                    return {
+                        isLoading: { ...state.isLoading, update: false },
+                        errors: { ...state.errors, update: '' },
+                        data: updatedData,
+                    }
+                }
+            )
+            .addCase(updateCurrentUserAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, update: true },
+                }
+            })
+            .addCase(updateCurrentUserAsync.rejected, (state, action) => {
                 return {
                     ...state,
                     isLoading: { ...state.isLoading, update: false },

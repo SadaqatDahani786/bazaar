@@ -18,6 +18,7 @@ import {
     Button,
     ButtonGroup,
     Checkbox,
+    CircularProgress,
     FormControlLabel,
     IconButton,
     MenuItem,
@@ -55,6 +56,7 @@ import {
 } from '../../utils/validators'
 import isCountryHasStates from '../../utils/isCountryHasStates'
 import isStateHasCities from '../../utils/isStateHasCities'
+import { toCapitalize } from '../../utils/toCapitalize'
 
 /**
  ** **
@@ -104,14 +106,15 @@ const EditView = styled.div`
  ** Type [PropertyType]
  ** ======================================================
  */
-type PropertyType = 'house' | 'apartment' | 'business' | 'other'
+export type PropertyType = 'house' | 'apartment' | 'business' | 'other'
 
 /**
  ** ======================================================
  ** Interface [IAddress]
  ** ======================================================
  */
-interface IAddress {
+export interface IAddress {
+    _id: string
     full_name: string
     phone_no: string
     country: string
@@ -131,8 +134,9 @@ interface IAddress {
  */
 interface AddressViewProps {
     address?: IAddress
-    onSave?: (address: IAddress) => void
+    onSave?: (address: IAddress, closeModal: () => void) => void
     mode?: 'EDIT' | 'ADD_NEW'
+    isLoading?: boolean
 }
 
 /**
@@ -141,7 +145,10 @@ interface AddressViewProps {
  ** ======================================================
  */
 const AddressView = ({
+    mode = 'ADD_NEW',
+    isLoading = false,
     address = {
+        _id: '',
         address: '',
         city: 'select',
         country: 'select',
@@ -154,7 +161,6 @@ const AddressView = ({
         zip_code: '',
     },
     onSave = () => '',
-    mode = 'ADD_NEW',
 }: AddressViewProps) => {
     /*
      ** **
@@ -308,24 +314,26 @@ const AddressView = ({
                     )
                 )
                 //=> set country
-                setSelectedCountry(address.country)
+                setSelectedCountry(toCapitalize(address.country))
 
                 //=> dispatch states
                 dispatch(
                     getStatesInCountryAsync({
-                        country: address.country,
+                        country: toCapitalize(address.country),
                         cb: () => {
                             //=> set state
-                            setSelectedState(address.state)
+                            setSelectedState(toCapitalize(address.state))
 
                             //=> dispatch cities
                             dispatch(
                                 getCitiesInStateAsync({
-                                    country: address.country,
-                                    state: address.state,
+                                    country: toCapitalize(address.country),
+                                    state: toCapitalize(address.state),
                                     cb() {
                                         //=> set citiy
-                                        setSelectedCity(address.city)
+                                        setSelectedCity(
+                                            toCapitalize(address.city)
+                                        )
                                     },
                                 })
                             )
@@ -339,7 +347,7 @@ const AddressView = ({
     //Refetch states when country changes
     useEffect(() => {
         //1) Validate
-        if (selectedCountry === 'select') return
+        if (!selectedCountry || selectedCountry === 'select') return
 
         //2) Default
         setSelectedState('select')
@@ -352,7 +360,7 @@ const AddressView = ({
     //Refetch cities when states changes
     useEffect(() => {
         //1) Validate
-        if (selectedState === 'select') return
+        if (!selectedState || selectedState === 'select') return
 
         //2) Default
         setSelectedCity('select')
@@ -418,21 +426,24 @@ const AddressView = ({
         }
 
         //3) No errors, proceed with updating address
-        onSave({
-            full_name: inputFullName.value,
-            phone_no: '+' + selectedCountryCode + inputPhoneNumber.value,
-            country: selectedCountry,
-            state: selectedState,
-            city: selectedCity,
-            address: inputAddress.value,
-            zip_code: inputZipCode.value,
-            property_type: selectedPropertyType,
-            default_billing_address: isDefaultBillingAddress,
-            default_shipping_address: isDefaultShippingAddress,
-        })
-
-        //4) Close modal
-        setShowModal(false)
+        onSave(
+            {
+                ...address,
+                full_name: inputFullName.value,
+                phone_no: '+' + selectedCountryCode + inputPhoneNumber.value,
+                country: selectedCountry,
+                state: selectedState,
+                city: selectedCity,
+                address: inputAddress.value,
+                zip_code: inputZipCode.value,
+                property_type: selectedPropertyType,
+                default_billing_address: isDefaultBillingAddress,
+                default_shipping_address: isDefaultShippingAddress,
+            },
+            () => {
+                setShowModal(false)
+            }
+        )
     }
 
     //Click cancel handler
@@ -608,9 +619,9 @@ const AddressView = ({
                                 <MenuItem disabled={true} value="select">
                                     Select Code
                                 </MenuItem>
-                                {countries.map((country) => (
+                                {countries.map((country, i) => (
                                     <MenuItem
-                                        key={country.phone_code}
+                                        key={i}
                                         value={country.phone_code}
                                     >
                                         {country.emoji +
@@ -648,11 +659,8 @@ const AddressView = ({
                                 <MenuItem disabled={true} value="select">
                                     Select Country
                                 </MenuItem>
-                                {countries.map((country) => (
-                                    <MenuItem
-                                        key={country.name}
-                                        value={country.name}
-                                    >
+                                {countries.map((country, i) => (
+                                    <MenuItem key={i} value={country.name}>
                                         {country.emoji + ' ' + country.name}
                                     </MenuItem>
                                 ))}
@@ -675,11 +683,8 @@ const AddressView = ({
                                         (country) =>
                                             country.name === selectedCountry
                                     )
-                                    ?.states.map((state) => (
-                                        <MenuItem
-                                            key={state.name}
-                                            value={state.name}
-                                        >
+                                    ?.states.map((state, i) => (
+                                        <MenuItem key={i} value={state.name}>
                                             {state.name}
                                         </MenuItem>
                                     )) || ''}
@@ -705,8 +710,8 @@ const AddressView = ({
                                     ?.states.find(
                                         (state) => state.name === selectedState
                                     )
-                                    ?.cities.map((city) => (
-                                        <MenuItem value={city.name}>
+                                    ?.cities.map((city, i) => (
+                                        <MenuItem key={i} value={city.name}>
                                             {city.name}
                                         </MenuItem>
                                     ))}
@@ -847,13 +852,18 @@ const AddressView = ({
                     </Stack>
                     <Stack marginTop="auto" flexDirection="row" gap="16px">
                         <Button
+                            disabled={isLoading}
                             disableElevation={true}
                             size="large"
                             variant="contained"
                             sx={{ padding: '12px 0', width: '148px' }}
                             onClick={clickSaveHandler}
                         >
-                            Save
+                            {isLoading ? (
+                                <CircularProgress size={16} />
+                            ) : (
+                                'Save'
+                            )}
                         </Button>
                         <Button
                             variant="outlined"

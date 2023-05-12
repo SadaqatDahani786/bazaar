@@ -6,6 +6,7 @@ import {
     logout,
     resetPassword,
     signup,
+    updatePassword,
 } from '../api/auth'
 import { getUser } from '../api/user'
 import { IUserDatabase } from './userReducer'
@@ -96,6 +97,40 @@ export const forgotPasswordAsync = createAsyncThunk(
         try {
             //1) Send http request
             const response = await axios(forgotPassword(email))
+
+            //2) Callback
+            cb()
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [updatePasswordAsync]
+ ** ======================================================
+ */
+export const updatePasswordAsync = createAsyncThunk(
+    'auth/update-password',
+    async (
+        {
+            formData,
+            cb = () => undefined,
+        }: {
+            formData: GenericFormData
+            cb: () => void
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(updatePassword(formData))
 
             //2) Callback
             cb()
@@ -242,6 +277,23 @@ const sliceAuth = createSlice({
                 }
             })
             .addCase(forgotPasswordAsync.rejected, (state, action) => {
+                return {
+                    ...state,
+                    isLoading: false,
+                    error: action.payload as string,
+                }
+            })
+            .addCase(updatePasswordAsync.fulfilled, (state) => {
+                return { ...state, isLoading: false, error: '' }
+            })
+            .addCase(updatePasswordAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: true,
+                    error: '',
+                }
+            })
+            .addCase(updatePasswordAsync.rejected, (state, action) => {
                 return {
                     ...state,
                     isLoading: false,

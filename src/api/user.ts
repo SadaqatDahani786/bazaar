@@ -87,6 +87,31 @@ export const updateUser = (id: string, formData: GenericFormData) => {
 }
 
 /** ======================================================
+ ** updateCurrentUser = Update currently logged in user
+ ** ======================================================
+ */
+export const updateCurrentUser = (
+    formData: GenericFormData,
+    isMultipartType = true
+) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/me`,
+        method: 'PUT',
+        withCredentials: true,
+        headers: {
+            'Content-Type': isMultipartType
+                ? 'multipart/form-data'
+                : 'application/json',
+        },
+        data: formData,
+    }
+
+    //2) Return options
+    return options
+}
+
+/** ======================================================
  ** searchUser = Get one or many users via search
  ** ======================================================
  */

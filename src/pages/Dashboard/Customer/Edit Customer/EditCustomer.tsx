@@ -713,7 +713,7 @@ const EditCustomer = () => {
                     <Box>
                         <AddressView
                             mode="ADD_NEW"
-                            onSave={(newAddress) => {
+                            onSave={(newAddress, closeModal) => {
                                 //1) Validate
                                 if (!user) return
 
@@ -738,6 +738,9 @@ const EditCustomer = () => {
 
                                 //3) Update state
                                 setUser(updUser)
+
+                                //4) Close modal
+                                closeModal()
                             }}
                         />
                     </Box>
@@ -750,7 +753,7 @@ const EditCustomer = () => {
                                     key={i}
                                     address={address}
                                     mode="EDIT"
-                                    onSave={(newAddress) => {
+                                    onSave={(newAddress, closeModal) => {
                                         //1) Validate
                                         if (!user) return
 
@@ -782,6 +785,9 @@ const EditCustomer = () => {
 
                                         //3) Update state
                                         setUser(updUser)
+
+                                        //4) Close modal
+                                        closeModal()
                                     }}
                                 />
                             ))}
