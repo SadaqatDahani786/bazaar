@@ -1,10 +1,32 @@
-import { ExpandMore, Menu } from '@mui/icons-material'
-import { Avatar, Box, IconButton, Typography, useTheme } from '@mui/material'
+import {
+    ExpandMore,
+    ExpandMoreOutlined,
+    HomeOutlined,
+    Menu,
+    PersonOutlineSharp,
+} from '@mui/icons-material'
+import {
+    Avatar,
+    Box,
+    Divider,
+    IconButton,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Stack,
+    Typography,
+    useTheme,
+} from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 import styled from 'styled-components'
 
 //Hooks
 import useWindowDimensions from '../../hooks/useWindowDimensions'
+import { logoutAsync } from '../../store/authReducer'
+import { useAppDispatch, useAppSelector } from '../../store/store'
 
 /*
  ** **
@@ -44,6 +66,22 @@ const MenuButton = styled.div`
     }
 `
 
+//Stack Styled
+const StackStyled = styled(Stack)`
+    & > nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 1000;
+        background: white;
+    }
+
+    &:hover > nav {
+        display: block;
+    }
+`
+
 /**
  ** ======================================================
  ** Component [Header]
@@ -60,11 +98,29 @@ const Header = ({
 }) => {
     /**
      ** **
-     ** ** ** Hooks
+     ** ** ** State & Hooks
      ** **
      */
+    //State
+    const loggedInUser = useAppSelector((state) => state.auth.data)
+
+    //Redux
+    const dispatch = useAppDispatch()
+
+    //Hooks
     const theme = useTheme()
+    const navigate = useNavigate()
     const { width } = useWindowDimensions()
+
+    /**
+     ** **
+     ** ** ** Methods
+     ** **
+     */
+    //Click logout handler
+    const clickLogoutHandler = () => {
+        dispatch(logoutAsync())
+    }
 
     return (
         <HeaderStyled>
@@ -90,19 +146,71 @@ const Header = ({
                     {subtitle}
                 </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Avatar
-                    sx={{ width: '3.5rem', height: '3.5rem' }}
-                    alt="Sadaqat Dahani"
-                    src="https://pbs.twimg.com/profile_images/1386009845829099528/8edFUtNp_400x400.jpg"
-                />
+            <StackStyled
+                flexDirection="row"
+                alignItems="center"
+                gap="8px"
+                sx={{
+                    cursor: 'pointer',
+                    position: 'relative',
+                }}
+            >
+                <Avatar sx={{ width: '3.5rem', height: '3.5rem' }}>
+                    <img
+                        crossOrigin="anonymous"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                        }}
+                        alt={loggedInUser?.photo.title}
+                        src={loggedInUser?.photo.url}
+                    />
+                </Avatar>
                 {width > theme.breakpoints.values.sm && (
                     <Typography fontWeight="bold" variant="body1">
-                        Sadaqat Dahani
+                        {loggedInUser?.name}
                     </Typography>
                 )}
                 <ExpandMore />
-            </Box>
+                <nav
+                    style={{
+                        minWidth: '180px',
+                    }}
+                >
+                    <List>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => navigate('/')}>
+                                <ListItemIcon>
+                                    <HomeOutlined />
+                                </ListItemIcon>
+                                <ListItemText primary="Home" />
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                onClick={() => navigate('/dashboard/profile')}
+                            >
+                                <ListItemIcon>
+                                    <PersonOutlineSharp />
+                                </ListItemIcon>
+                                <ListItemText primary="My Profile" />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                    <Divider />
+                    <List>
+                        <ListItem sx={{ textAlign: 'center' }} disablePadding>
+                            <ListItemButton
+                                onClick={clickLogoutHandler}
+                                sx={{ textAlign: 'center' }}
+                            >
+                                <ListItemText primary="Logout" />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                </nav>
+            </StackStyled>
         </HeaderStyled>
     )
 }

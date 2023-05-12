@@ -243,7 +243,7 @@ const Login = () => {
                     </Stack>
                     <Stack
                         sx={{
-                            width: '75%',
+                            width: '78%',
                             padding: '24px',
                         }}
                         alignItems="center"
@@ -256,7 +256,7 @@ const Login = () => {
                         <Stack gap="16px">
                             <Typography variant="h2">
                                 {isForgetPassword
-                                    ? 'Fogot your password?'
+                                    ? 'Forgot your password?'
                                     : 'Hello Again!'}
                             </Typography>
                             <Typography variant="body1">

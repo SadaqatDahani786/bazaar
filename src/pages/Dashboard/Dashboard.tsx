@@ -337,7 +337,7 @@ const Dashboard = () => {
         switch (params.path as paths) {
             case 'overview':
                 setHeading({
-                    title: 'Welcome, Sadaqat Dahani',
+                    title: `Welcome, ${loggedInUser?.name || ''}`,
                     subtitle:
                         "Here you can see overview of what's happening in your store",
                 })
