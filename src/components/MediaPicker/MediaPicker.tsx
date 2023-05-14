@@ -102,6 +102,7 @@ interface MediaPickerProps {
     selectMultiple?: boolean
     headingTitle?: string
     buttonText?: string
+    modalButtonText?: string
     onSelect?: (selectedFiles: Array<IMedia>) => void
     onClearSelection?: (cb: () => void) => void
 }
@@ -115,7 +116,8 @@ const MediaPicker = ({
     default_selected,
     selectMultiple = false,
     headingTitle = 'Select or add new images',
-    buttonText = 'Add to gallery',
+    buttonText = 'Pick Image',
+    modalButtonText = 'Add Image',
     onSelect = () => '',
     onClearSelection,
 }: MediaPickerProps) => {
@@ -222,9 +224,7 @@ const MediaPicker = ({
                         </IconButton>
                     </Box>
                     {selectedMediaFiles?.length <= 0 ? (
-                        <Typography>
-                            {selectMultiple ? 'Pick Images' : 'Pick an Image'}
-                        </Typography>
+                        <Typography>{buttonText}</Typography>
                     ) : (
                         <Button
                             size="small"
@@ -308,7 +308,7 @@ const MediaPicker = ({
                                 }
                                 variant="contained"
                             >
-                                {buttonText}
+                                {modalButtonText}
                             </Button>
                         </Box>
                     </Stack>

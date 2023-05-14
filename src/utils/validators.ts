@@ -105,6 +105,7 @@ export const isNumber = (
  ** ======================================================
  */
 export const IsDecimal = (val: string) => {
+    if (!val) return false
     //1) Regex pattern to test for decimal values
     const pattern = `^\\d*\\.?\\d+$`
 
