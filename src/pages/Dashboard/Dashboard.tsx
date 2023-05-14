@@ -28,6 +28,8 @@ import Overview from './Overview'
 import { MediaLibrary, AddNewMedia } from './Media'
 import { AllCustomers, AddNewCustomer, EditCustomer, Profile } from './Customer'
 import { Categories, Reviews } from './Product'
+import AllProdcuts from './Product/All Prodcuts'
+import AddNewProduct from './Product/Add New Product'
 
 /*
  ** **
@@ -390,6 +392,18 @@ const Dashboard = () => {
                     subtitle: '',
                 })
                 return setActivePanel(<Reviews />)
+            case 'all-products':
+                setHeading({
+                    title: 'All Products',
+                    subtitle: '',
+                })
+                return setActivePanel(<AllProdcuts />)
+            case 'add-new-product':
+                setHeading({
+                    title: 'Add New Product',
+                    subtitle: '',
+                })
+                return setActivePanel(<AddNewProduct />)
         }
     }, [params.path])
 
