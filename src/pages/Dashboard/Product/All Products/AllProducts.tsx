@@ -35,6 +35,7 @@ import {
     IProduct,
     searchProductAsync,
 } from '../../../../store/productReducer'
+import { useNavigate } from 'react-router-dom'
 
 /*
  ** **
@@ -118,6 +119,9 @@ const AllProducts = () => {
     //State
     const [showAlert, setShowAlert] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<IProduct>()
+
+    //Nav
+    const navigate = useNavigate()
 
     //Refs
     const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
@@ -353,14 +357,11 @@ const AllProducts = () => {
                                                         variant="text"
                                                     >
                                                         <Button
-                                                        // onClick={() => {
-                                                        //     setSelectedCat(
-                                                        //         prod._id
-                                                        //     )
-                                                        //     setShowModal(
-                                                        //         true
-                                                        //     )
-                                                        // }}
+                                                            onClick={() => {
+                                                                navigate(
+                                                                    `/dashboard/edit-product?id=${prod._id}`
+                                                                )
+                                                            }}
                                                         >
                                                             Edit
                                                         </Button>
@@ -404,7 +405,26 @@ const AllProducts = () => {
                                             {prod.sku}
                                         </TableCell>
                                         <TableCell align="right">
-                                            {prod.price}
+                                            <Stack>
+                                                €
+                                                {prod?.selling_price
+                                                    ? prod.selling_price.toFixed(
+                                                          2
+                                                      )
+                                                    : prod.price.toFixed(2)}
+                                                <Typography
+                                                    sx={{
+                                                        textDecoration:
+                                                            'line-through',
+                                                    }}
+                                                    variant="overline"
+                                                >
+                                                    {prod?.selling_price
+                                                        ? '€' +
+                                                          prod.price.toFixed(2)
+                                                        : ''}
+                                                </Typography>
+                                            </Stack>
                                         </TableCell>
                                         <TableCell align="right">
                                             {prod.categories

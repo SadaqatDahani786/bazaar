@@ -21,7 +21,6 @@ import {
     clearSelection,
     editSelectedStatus,
     getMediaAsync,
-    IMedia,
     IMediaDatabase,
 } from '../../store/mediaReducer'
 import { useAppDispatch, useAppSelector } from '../../store/store'
@@ -29,7 +28,6 @@ import { useAppDispatch, useAppSelector } from '../../store/store'
 //Components
 import MediaLibraryView from './MediaLibraryView'
 import UploadMediaView from './UploadMediaView'
-import { ICategory } from '../../store/categoryReducer'
 
 /*
  ** **
@@ -98,12 +96,12 @@ const TabPanel = (props: TabPanelProps) => {
  ** ======================================================
  */
 interface MediaPickerProps {
-    default_selected?: ICategory
+    default_selected?: Array<IMediaDatabase>
     selectMultiple?: boolean
     headingTitle?: string
     buttonText?: string
     modalButtonText?: string
-    onSelect?: (selectedFiles: Array<IMedia>) => void
+    onSelect?: (selectedFiles: Array<IMediaDatabase>) => void
     onClearSelection?: (cb: () => void) => void
 }
 
@@ -145,10 +143,10 @@ const MediaPicker = ({
     //Set default values
     useEffect(() => {
         //1) Validate
-        if (!default_selected?.image) return
+        if (!default_selected || default_selected.length <= 0) return
 
         //2) Set default image
-        setSelectedMediaFiles([default_selected.image])
+        setSelectedMediaFiles(default_selected)
     }, [default_selected])
 
     //Sync state with redux media pickers open up
@@ -194,7 +192,14 @@ const MediaPicker = ({
         dispatch(clearSelection())
 
         //3) Pass selected images ids to func
-        onSelect(images)
+        onSelect(
+            images.map((img) => ({
+                ...img,
+                title: img.title.value,
+                caption: img.caption.value,
+                description: img.description.value,
+            }))
+        )
 
         //4) Hide modal
         setShowMediaPicker(false)

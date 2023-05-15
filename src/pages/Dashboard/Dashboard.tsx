@@ -27,9 +27,13 @@ import Header from './Header'
 import Overview from './Overview'
 import { MediaLibrary, AddNewMedia } from './Media'
 import { AllCustomers, AddNewCustomer, EditCustomer, Profile } from './Customer'
-import { Categories, Reviews } from './Product'
-import AllProdcuts from './Product/All Prodcuts'
-import AddNewProduct from './Product/Add New Product'
+import {
+    AllProducts,
+    AddNewProduct,
+    EditProduct,
+    Categories,
+    Reviews,
+} from './Product'
 
 /*
  ** **
@@ -180,6 +184,11 @@ const Dashboard = () => {
                     title: 'Add New Product',
                     isActive: false,
                     slug: 'add-new-product',
+                },
+                {
+                    title: 'Edit Product',
+                    isActive: false,
+                    slug: 'edit-product',
                 },
                 {
                     title: 'Categories',
@@ -397,13 +406,16 @@ const Dashboard = () => {
                     title: 'All Products',
                     subtitle: '',
                 })
-                return setActivePanel(<AllProdcuts />)
+                return setActivePanel(<AllProducts />)
             case 'add-new-product':
                 setHeading({
                     title: 'Add New Product',
                     subtitle: '',
                 })
                 return setActivePanel(<AddNewProduct />)
+            case 'edit-product':
+                setHeading({ title: 'Edit Product', subtitle: '' })
+                return setActivePanel(<EditProduct />)
         }
     }, [params.path])
 

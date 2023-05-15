@@ -6,6 +6,23 @@ const API_ENDPOINT = `${BASE_URL}/product`
 
 /*
  ** ======================================================
+ ** getProduct = Get one product
+ ** ======================================================
+ */
+export const getProduct = (id: string) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${id}`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** getManyProduct = Get one or many product
  ** ======================================================
  */
@@ -50,7 +67,7 @@ export const updateProduct = (id: string, formData: GenericFormData) => {
     const options: AxiosRequestConfig = {
         url: `${API_ENDPOINT}/${id}`,
         method: 'PUT',
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
         data: formData,
     }

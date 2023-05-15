@@ -4,10 +4,12 @@ import {
     createProduct,
     deleteProduct,
     getManyProduct,
+    getProduct,
     searchProduct,
+    updateProduct,
 } from '../api/product'
 import { ICategory } from './categoryReducer'
-import { IMediaDatabase } from './mediaReducer'
+import { IMedia, IMediaDatabase } from './mediaReducer'
 
 /**
  ** ======================================================
@@ -20,7 +22,7 @@ export interface IProduct {
     title: string
     description: string
     price: number
-    selling_priced: number
+    selling_price: number
     stock: number
     image: IMediaDatabase
     image_gallery: Array<IMediaDatabase>
@@ -41,11 +43,11 @@ export interface IProduct {
     variants: [
         {
             name: string
-            variant_type: 'color' | 'size' | 'custom'
+            variant_type: 'color' | 'size' | 'other'
             terms: [
                 {
                     name: string
-                    image: string
+                    image?: IMedia
                 }
             ]
         }
@@ -54,6 +56,40 @@ export interface IProduct {
     created_at: string
     isSelected: boolean
 }
+
+/**
+ ** ======================================================
+ ** Thunk [getProductAsync]
+ ** ======================================================
+ */
+export const getProductAsync = createAsyncThunk(
+    'get/product',
+    async (
+        {
+            id,
+            cb = () => '',
+        }: { id: string; cb: (prod: IProduct | null) => void },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getProduct(id))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //1) Callback
+            cb(null)
+
+            //2) Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
 
 /**
  ** ======================================================
@@ -88,12 +124,51 @@ export const createProductAsync = createAsyncThunk(
         {
             formData,
             cb = () => '',
-        }: { formData: GenericFormData; cb: (res?: ICategory | null) => void },
+        }: { formData: GenericFormData; cb: (res?: IProduct | null) => void },
         { rejectWithValue }
     ) => {
         try {
             //1) Send http request
             const response = await axios(createProduct(formData))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //1) Callback
+            cb(null)
+
+            //2) Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [updateProductAsync]
+ ** ======================================================
+ */
+export const updateProductAsync = createAsyncThunk(
+    'update/product',
+    async (
+        {
+            id,
+            formData,
+            cb = () => '',
+        }: {
+            id: string
+            formData: GenericFormData
+            cb: (res?: IProduct | null) => void
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(updateProduct(id, formData))
 
             //2) Callback
             cb(response.data.data)
@@ -217,6 +292,23 @@ const sliceProduct = createSlice({
     },
     extraReducers: (builder) =>
         builder
+            .addCase(getProductAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getProductAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getProductAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
             .addCase(
                 getManyProductAsync.fulfilled,
                 (state, action: { payload: Array<IProduct> }) => {
@@ -278,6 +370,36 @@ const sliceProduct = createSlice({
             .addCase(createProductAsync.rejected, (state, action) => ({
                 isLoading: { ...state.isLoading, create: false },
                 errors: { ...state.errors, create: action.payload as string },
+                data: state.data,
+            }))
+            .addCase(
+                updateProductAsync.fulfilled,
+                (state, action: { payload: IProduct }) => {
+                    //1) Get product
+                    const product = action.payload
+
+                    //2) Make changes
+                    const updatedData = state.data.map((prod) => {
+                        if (prod._id === product._id) return product
+                        return prod
+                    })
+
+                    //3) Update state
+                    return {
+                        isLoading: { ...state.isLoading, update: false },
+                        errors: { ...state.errors, update: '' },
+                        data: updatedData,
+                    }
+                }
+            )
+            .addCase(updateProductAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, update: true },
+                errors: { ...state.errors, update: '' },
+                data: state.data,
+            }))
+            .addCase(updateProductAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, update: false },
+                errors: { ...state.errors, update: action.payload as string },
                 data: state.data,
             }))
             .addCase(

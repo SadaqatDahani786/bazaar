@@ -19,7 +19,7 @@ import {
     getManyCategoryAsync,
     updateCategoryAsync,
 } from '../../../../store/categoryReducer'
-import { IMedia } from '../../../../store/mediaReducer'
+import { IMediaDatabase } from '../../../../store/mediaReducer'
 import { ICategory } from '../../../../store/categoryReducer'
 
 //Components
@@ -71,7 +71,9 @@ const CategoryView = ({
 
     //States
     const [category, setCategory] = useState<ICategory>()
-    const [selectedFiles, setSelectedFiles] = useState<Array<IMedia>>([])
+    const [selectedFiles, setSelectedFiles] = useState<Array<IMediaDatabase>>(
+        []
+    )
     const [selectedParentCat, setSelectedParentCat] = useState('none')
     const [showAlert, setShowAlert] = useState(false)
 
@@ -343,7 +345,11 @@ const CategoryView = ({
                     </Stack>
                     <Stack flex={1}>
                         <MediaPicker
-                            default_selected={category}
+                            default_selected={
+                                mode === 'EDIT' && category?.image
+                                    ? [category.image]
+                                    : []
+                            }
                             buttonText="Set Category Image"
                             onClearSelection={onClearSelection}
                             onSelect={(files) => setSelectedFiles(files)}
