@@ -9,6 +9,7 @@ import authReducer from './authReducer'
 import categoryReducer from './categoryReducer'
 import reviewReducer from './reviewReducer'
 import productReducer from './productReducer'
+import orderReducer from './orderReducer'
 
 /**
  ** ======================================================
@@ -24,6 +25,7 @@ const store = configureStore({
         category: categoryReducer,
         review: reviewReducer,
         product: productReducer,
+        order: orderReducer,
     }),
 })
 

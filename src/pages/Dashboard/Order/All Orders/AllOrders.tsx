@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
     SearchOutlined,
@@ -13,15 +13,15 @@ import {
     CircularProgress,
     Alert,
     AlertTitle,
-    Typography,
+    ButtonGroup,
+    Checkbox,
+    Divider,
     Table,
+    TableBody,
+    TableCell,
     TableHead,
     TableRow,
-    TableCell,
-    Checkbox,
-    TableBody,
-    ButtonGroup,
-    Divider,
+    Typography,
 } from '@mui/material'
 
 import styled from 'styled-components'
@@ -29,21 +29,21 @@ import styled from 'styled-components'
 //Redux
 import { useAppDispatch, useAppSelector } from '../../../../store/store'
 import {
-    deleteProductAsync,
+    deleteOrderAsync,
     editSelectedStatus,
-    getManyProductAsync,
-    IProduct,
-    searchProductAsync,
-} from '../../../../store/productReducer'
-import { useNavigate } from 'react-router-dom'
+    getManyOrderAsync,
+    IOrder,
+} from '../../../../store/orderReducer'
+import Pill from '../../../../components/Pill'
+import { toCapitalize } from '../../../../utils/toCapitalize'
 
 /*
  ** **
  ** ** ** Styled Components
  ** **
  */
-//All Products
-const AllProductsStyled = styled.div`
+//All Orders
+const AllOrdersStyled = styled.div`
     padding: 32px 0;
 `
 
@@ -70,28 +70,12 @@ const Widget = styled.div`
     gap: 32px;
 `
 
-//Image Wrapper
-const ImageWrapper = styled.div`
-    width: 48px;
-    height: 48px;
-    background: #a7a7a7;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    & img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-`
-
 /**
  ** ======================================================
- ** Component [AllProducts]
+ ** Component [AllOrders]
  ** ======================================================
  */
-const AllProducts = () => {
+const AllOrders = () => {
     /*
      ** **
      ** ** ** State & Hooks
@@ -99,33 +83,30 @@ const AllProducts = () => {
      */
     //Redux
     const {
-        data: products,
         isLoading,
         errors,
-    } = useAppSelector((state) => state.product)
+        data: orders,
+    } = useAppSelector((state) => state.order)
     const dispatch = useAppDispatch()
 
     //State
     const [showAlert, setShowAlert] = useState(false)
-    const [selectedProduct, setSelectedProduct] = useState<IProduct>()
-
-    //Nav
-    const navigate = useNavigate()
-
-    //Refs
-    const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
-        id: null,
-    })
+    const [selectedOrder, setSelectedOrder] = useState<IOrder>()
 
     /*
      ** **
      ** ** ** Side effects
      ** **
      */
-    //Fetch products when component loads up first time
     useEffect(() => {
-        dispatch(getManyProductAsync())
+        dispatch(getManyOrderAsync())
     }, [])
+
+    /*
+     ** **
+     ** ** ** Form fields
+     ** **
+     */
 
     /*
      ** **
@@ -135,18 +116,18 @@ const AllProducts = () => {
     //Click selete all handler
     const clickSelectAllHandler = () => {
         //1) Determine state
-        const state = products.every((prod) => !prod.isSelected)
+        const state = orders.every((order) => !order.isSelected)
 
         //2) Dispatch action
         dispatch(
             editSelectedStatus({
-                ids: products.map((prod) => prod._id),
+                ids: orders.map((order) => order._id),
                 edit: state,
             })
         )
     }
 
-    //Click select  handler
+    //Click select handler
     const clickSelectHandler = (id: string) => {
         dispatch(
             editSelectedStatus({
@@ -157,36 +138,17 @@ const AllProducts = () => {
 
     //Click delete handler
     const clickDeleteHandler = () => {
-        //1) Get ids of selected products
-        const ids = products
-            .filter((prod) => prod.isSelected)
-            .map((prod) => prod._id)
+        //1) Get ids of selected orders
+        const ids = orders
+            .filter((order) => order.isSelected)
+            .map((order) => order._id)
 
-        //2) Dispatch action to delete products
-        dispatch(deleteProductAsync({ ids, cb: () => '' }))
-    }
-
-    //On search input change handler
-    const onSearchInputChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        //1) Get query
-        const query = e.currentTarget.value
-
-        //2) Clear previously set timeout if there's any
-        if (timeOutID.current.id) clearTimeout(timeOutID.current.id)
-
-        //3) Refetch products when query empty again
-        if (!query || query.length <= 0) {
-            return dispatch(getManyProductAsync())
-        }
-
-        //4) Set timeout to fetch products via search query
-        timeOutID.current.id = setTimeout(() => {
-            dispatch(searchProductAsync(query))
-        }, 300)
+        //2) Dispatch action to delete orders
+        dispatch(deleteOrderAsync({ ids, cb: () => '' }))
     }
 
     return (
-        <AllProductsStyled>
+        <AllOrdersStyled>
             <Stack gap="80px">
                 <ControlBar>
                     <Stack
@@ -199,7 +161,7 @@ const AllProducts = () => {
                             placeholder="Search here"
                             color="primary"
                             variant="standard"
-                            onChange={onSearchInputChangeHandler}
+                            // onChange={onSearchInputChangeHandler}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -214,7 +176,7 @@ const AllProducts = () => {
                             startIcon={!isLoading.delete && <DeleteOutline />}
                             onClick={clickDeleteHandler}
                             disabled={
-                                products.every((prod) => !prod.isSelected) ||
+                                orders.every((order) => !order.isSelected) ||
                                 isLoading.delete
                             }
                             disableElevation
@@ -242,7 +204,7 @@ const AllProducts = () => {
                         ''
                     )}
                     <Stack textAlign="left">
-                        <Typography variant="h5">Products</Typography>
+                        <Typography variant="h5">Orders</Typography>
                     </Stack>
                     <Table
                         sx={{ minWidth: 650, overflowY: 'scroll' }}
@@ -255,34 +217,31 @@ const AllProducts = () => {
                                         onChange={clickSelectAllHandler}
                                         color="primary"
                                         indeterminate={
-                                            products.filter(
-                                                (products) =>
-                                                    products.isSelected
+                                            orders.filter(
+                                                (order) => order.isSelected
                                             ).length > 0 &&
-                                            products.filter(
-                                                (products) =>
-                                                    products.isSelected
-                                            ).length < products.length
+                                            orders.filter(
+                                                (order) => order.isSelected
+                                            ).length < orders.length
                                         }
                                         checked={
-                                            products.filter(
-                                                (media) => media.isSelected
+                                            orders.filter(
+                                                (order) => order.isSelected
                                             ).length > 0 &&
-                                            products.filter(
-                                                (media) => media.isSelected
-                                            ).length === products.length
+                                            orders.filter(
+                                                (order) => order.isSelected
+                                            ).length === orders.length
                                         }
                                         inputProps={{
-                                            'aria-label':
-                                                'select all media files',
+                                            'aria-label': 'select all orders',
                                         }}
                                     />
                                 </TableCell>
-                                <TableCell>Product</TableCell>
-                                <TableCell align="right">Sku</TableCell>
-                                <TableCell align="right">Price</TableCell>
-                                <TableCell align="right">Categories</TableCell>
-                                <TableCell align="right">Stock</TableCell>
+                                <TableCell>Order ID</TableCell>
+                                <TableCell align="right">Order By</TableCell>
+                                <TableCell align="right">Status</TableCell>
+                                <TableCell align="right">Billing</TableCell>
+                                <TableCell align="right">Total</TableCell>
                                 <TableCell align="right">Date</TableCell>
                             </TableRow>
                         </TableHead>
@@ -293,22 +252,24 @@ const AllProducts = () => {
                                         <CircularProgress size={48} />
                                     </TableCell>
                                 </TableRow>
-                            ) : products.length <= 0 ? (
+                            ) : orders.length <= 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={6}>
                                         <Typography variant="h6">
-                                            Uh oh! No products found.
+                                            Uh oh! No order found.
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                products.map((prod) => (
-                                    <TableRow key={prod._id}>
+                                orders.map((order) => (
+                                    <TableRow key={order._id}>
                                         <TableCell padding="checkbox">
                                             <Checkbox
-                                                checked={prod.isSelected}
+                                                checked={order.isSelected}
                                                 onChange={() =>
-                                                    clickSelectHandler(prod._id)
+                                                    clickSelectHandler(
+                                                        order._id
+                                                    )
                                                 }
                                             />
                                         </TableCell>
@@ -318,39 +279,21 @@ const AllProducts = () => {
                                                 justifyContent="flex-start"
                                                 gap="16px"
                                             >
-                                                <ImageWrapper>
-                                                    {prod?.image?.url ? (
-                                                        <img
-                                                            src={
-                                                                prod?.image?.url
-                                                            }
-                                                            alt={
-                                                                prod.image.title
-                                                            }
-                                                            crossOrigin="anonymous"
-                                                        />
-                                                    ) : (
-                                                        <PhotoAlbumOutlined
-                                                            fontSize="large"
-                                                            color="secondary"
-                                                        />
-                                                    )}
-                                                </ImageWrapper>
                                                 <Stack
                                                     alignItems="flex-start"
                                                     gap="8px"
                                                 >
-                                                    {prod.title}
+                                                    #{order._id}
                                                     <ButtonGroup
                                                         size="small"
                                                         variant="text"
                                                     >
                                                         <Button
-                                                            onClick={() => {
-                                                                navigate(
-                                                                    `/dashboard/edit-product?id=${prod._id}`
-                                                                )
-                                                            }}
+                                                        // onClick={() => {
+                                                        //     navigate(
+                                                        //         `/dashboard/edit-product?id=${prod._id}`
+                                                        //     )
+                                                        // }}
                                                         >
                                                             Edit
                                                         </Button>
@@ -358,18 +301,18 @@ const AllProducts = () => {
                                                         <Button
                                                             disabled={
                                                                 isLoading.delete &&
-                                                                selectedProduct?._id ===
-                                                                    prod._id
+                                                                selectedOrder?._id ===
+                                                                    order._id
                                                             }
                                                             onClick={() => {
-                                                                setSelectedProduct(
-                                                                    prod
+                                                                setSelectedOrder(
+                                                                    order
                                                                 )
                                                                 dispatch(
-                                                                    deleteProductAsync(
+                                                                    deleteOrderAsync(
                                                                         {
                                                                             ids: [
-                                                                                prod._id,
+                                                                                order._id,
                                                                             ],
                                                                         }
                                                                     )
@@ -377,8 +320,8 @@ const AllProducts = () => {
                                                             }}
                                                         >
                                                             {isLoading.delete &&
-                                                            selectedProduct?._id ===
-                                                                prod._id ? (
+                                                            selectedOrder?._id ===
+                                                                order._id ? (
                                                                 <CircularProgress
                                                                     size={16}
                                                                 />
@@ -391,41 +334,60 @@ const AllProducts = () => {
                                             </Stack>
                                         </TableCell>
                                         <TableCell align="right">
-                                            {prod.sku}
+                                            {order?.customer?.name}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <Pill
+                                                color={
+                                                    order?.delivery_status ===
+                                                    'on_hold'
+                                                        ? 'warn'
+                                                        : order?.delivery_status ===
+                                                          'processing'
+                                                        ? 'info'
+                                                        : order?.delivery_status ===
+                                                          'completed'
+                                                        ? 'success'
+                                                        : 'error'
+                                                }
+                                                text={toCapitalize(
+                                                    order?.delivery_status || ''
+                                                )}
+                                            />
                                         </TableCell>
                                         <TableCell align="right">
                                             <Stack>
-                                                €
-                                                {prod?.selling_price
-                                                    ? prod.selling_price.toFixed(
-                                                          2
-                                                      )
-                                                    : prod.price.toFixed(2)}
-                                                <Typography
-                                                    sx={{
-                                                        textDecoration:
-                                                            'line-through',
-                                                    }}
-                                                    variant="overline"
-                                                >
-                                                    {prod?.selling_price
-                                                        ? '€' +
-                                                          prod.price.toFixed(2)
-                                                        : ''}
+                                                <Typography variant="caption">{`${order.billing.address.full_name}, ${order.billing.address.phone_no}.`}</Typography>
+                                                <Typography variant="caption">
+                                                    {`${order.billing.address.country},
+                                             ${order.billing.address.state}, 
+                                             ${order.billing.address.city}, 
+                                                            `}
+                                                </Typography>
+                                                <Typography variant="caption">{`${order.billing.address.address}.`}</Typography>
+                                            </Stack>
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <Stack>
+                                                <Typography variant="caption">
+                                                    €
+                                                    {order.billing.paid_amount.toFixed(
+                                                        2
+                                                    )}
+                                                </Typography>
+                                                <Typography variant="caption">
+                                                    via [
+                                                    {
+                                                        order.billing
+                                                            .payment_method
+                                                    }
+                                                    ]
                                                 </Typography>
                                             </Stack>
                                         </TableCell>
                                         <TableCell align="right">
-                                            {prod.categories
-                                                .map((cat) => cat.name)
-                                                .join(', ') || '-- --'}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {prod.stock}
-                                        </TableCell>
-                                        <TableCell align="right">
                                             {new Date(
-                                                prod.created_at
+                                                order.created_at
                                             ).toDateString()}
                                         </TableCell>
                                     </TableRow>
@@ -435,8 +397,8 @@ const AllProducts = () => {
                     </Table>
                 </Widget>
             </Stack>
-        </AllProductsStyled>
+        </AllOrdersStyled>
     )
 }
 
-export default AllProducts
+export default AllOrders

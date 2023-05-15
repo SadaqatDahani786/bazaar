@@ -34,6 +34,7 @@ import {
     Categories,
     Reviews,
 } from './Product'
+import { AllOrders, AddNewOrder } from './Order'
 
 /*
  ** **
@@ -185,11 +186,7 @@ const Dashboard = () => {
                     isActive: false,
                     slug: 'add-new-product',
                 },
-                {
-                    title: 'Edit Product',
-                    isActive: false,
-                    slug: 'edit-product',
-                },
+
                 {
                     title: 'Categories',
                     isActive: false,
@@ -343,6 +340,8 @@ const Dashboard = () => {
             | 'edit-product'
             | 'categories'
             | 'reviews'
+            | 'all-orders'
+            | 'add-new-order'
 
         //3) Test paths and set active panel
         switch (params.path as paths) {
@@ -416,6 +415,12 @@ const Dashboard = () => {
             case 'edit-product':
                 setHeading({ title: 'Edit Product', subtitle: '' })
                 return setActivePanel(<EditProduct />)
+            case 'all-orders':
+                setHeading({ title: 'All Orders', subtitle: '' })
+                return setActivePanel(<AllOrders />)
+            case 'add-new-order':
+                setHeading({ title: 'Add New Order', subtitle: '' })
+                return setActivePanel(<AddNewOrder />)
         }
     }, [params.path])
 

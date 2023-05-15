@@ -7,7 +7,7 @@ import styled from 'styled-components'
  ** ======================================================
  */
 interface PillProps {
-    color?: 'primary' | 'secondary' | 'error' | 'info' | 'success'
+    color?: 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warn'
     text?: string
     startIcon?: React.ReactNode
     endIcon?: React.ReactNode
@@ -32,7 +32,9 @@ const PillStyled = styled.div<PillProps>`
             ? theme.palette.error.dark
             : color === 'success'
             ? theme.palette.success.dark
-            : theme.palette.info.dark};
+            : color === 'info'
+            ? theme.palette.info.dark
+            : theme.palette.warn.dark};
     background: ${({ color, theme }) =>
         color === 'primary'
             ? theme.palette.primary.light
@@ -42,7 +44,9 @@ const PillStyled = styled.div<PillProps>`
             ? theme.palette.error.light
             : color === 'success'
             ? theme.palette.success.light
-            : theme.palette.info.light};
+            : color === 'info'
+            ? theme.palette.info.light
+            : theme.palette.warn.light};
     padding: 8px 16px;
     border-radius: 4px;
 `

@@ -60,6 +60,8 @@ export const isAlphaNumeric = (
         ignorePunctuations: false,
     }
 ) => {
+    if (!val) return false
+
     //1) Regex pattern to test for alpha numeric values
     const pattern = `^[a-z0-9${options.ignoreSpaces ? '\\s' : ''}${
         options.ignoreHyphens ? '\\-' : ''
