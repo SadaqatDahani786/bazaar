@@ -1246,16 +1246,18 @@ const Header = () => {
                                             height: '32px',
                                         }}
                                     >
-                                        <img
-                                            style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'contain',
-                                            }}
-                                            crossOrigin="anonymous"
-                                            src={user.photo.url}
-                                            alt={user.photo.title}
-                                        />
+                                        {user?.photo?.url && (
+                                            <img
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'contain',
+                                                }}
+                                                crossOrigin="anonymous"
+                                                src={user.photo?.url}
+                                                alt={user.photo?.title}
+                                            />
+                                        )}
                                     </Avatar>
                                     <ExpandMoreOutlined />
                                     <nav
