@@ -34,6 +34,7 @@ import {
     isEmpty,
 } from '../../../../utils/validators'
 import useUpload from '../../../../hooks/useUpload'
+import { searchProductAsync } from '../../../../store/productReducer'
 
 /**
  ** **
@@ -84,6 +85,7 @@ const ReviewView = ({ mode = 'ADD_NEW', review }: ReviewViewProps) => {
     const { isLoading, errors } = useAppSelector((state) => state.review)
     const dispatch = useAppDispatch()
     const users = useAppSelector((state) => state.user.data)
+    const products = useAppSelector((state) => state.product.data)
 
     //State
     const [showAlert, setShowAlert] = useState(false)
@@ -257,6 +259,25 @@ const ReviewView = ({ mode = 'ADD_NEW', review }: ReviewViewProps) => {
         )
     }
 
+    //On change select prodcut handler
+    const onChangeSelectProductHandler = (
+        e: SyntheticEvent<Element, Event>,
+        query: string
+    ) => {
+        //1) Clear previously set timeout if there's any
+        if (timeOutID.current.id) clearTimeout(timeOutID.current.id)
+
+        //2) Refetch users when query empty again
+        if (!query || query.length <= 0) {
+            return
+        }
+
+        //3) Set timeout to fetch user via search query
+        timeOutID.current.id = setTimeout(() => {
+            dispatch(searchProductAsync(query))
+        }, 300)
+    }
+
     //On change input handler
     const onChangeHandler = (
         e: SyntheticEvent<Element, Event>,
@@ -370,15 +391,13 @@ const ReviewView = ({ mode = 'ADD_NEW', review }: ReviewViewProps) => {
                     <Stack flex={1}>
                         <Autocomplete
                             disablePortal
+                            onInputChange={onChangeSelectProductHandler}
                             onChange={(_, val) => setSelectedProduct(val)}
                             value={selectedProduct}
-                            options={[
-                                {
-                                    label: 'Product 01',
-                                    _id: '645c50bae8ee2ba98b75b5a3',
-                                },
-                                { label: 'Product 02', _id: '2' },
-                            ]}
+                            options={products.map((prod) => ({
+                                label: prod.title,
+                                _id: prod._id,
+                            }))}
                             renderInput={(params: TextFieldProps) => (
                                 <TextField
                                     inputRef={refInputProduct}

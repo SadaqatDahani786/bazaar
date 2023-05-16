@@ -34,7 +34,7 @@ const PillStyled = styled.div<PillProps>`
             ? theme.palette.success.dark
             : color === 'info'
             ? theme.palette.info.dark
-            : theme.palette.warn.dark};
+            : theme.palette.warning.dark};
     background: ${({ color, theme }) =>
         color === 'primary'
             ? theme.palette.primary.light
@@ -46,7 +46,7 @@ const PillStyled = styled.div<PillProps>`
             ? theme.palette.success.light
             : color === 'info'
             ? theme.palette.info.light
-            : theme.palette.warn.light};
+            : theme.palette.warning.light};
     padding: 8px 16px;
     border-radius: 4px;
 `

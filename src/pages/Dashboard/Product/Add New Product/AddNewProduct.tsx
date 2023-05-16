@@ -1,5 +1,10 @@
 import ProductView from '../ProductView'
 
+/**
+ ** ======================================================
+ ** Component [AddNewProduct]
+ ** ======================================================
+ */
 const AddNewProduct = () => {
     return (
         <div>
