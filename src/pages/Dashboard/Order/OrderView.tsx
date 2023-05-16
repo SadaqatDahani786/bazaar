@@ -25,6 +25,7 @@ import {
     Alert,
     AlertTitle,
 } from '@mui/material'
+import { TouchRippleActions } from '@mui/material/ButtonBase/TouchRipple'
 
 import styled from 'styled-components'
 
@@ -32,7 +33,11 @@ import styled from 'styled-components'
 import { useAppDispatch, useAppSelector } from '../../../store/store'
 import { searchUserAsync } from '../../../store/userReducer'
 import { IProduct, searchProductAsync } from '../../../store/productReducer'
-import { createOrderAsync } from '../../../store/orderReducer'
+import {
+    createOrderAsync,
+    IOrder,
+    updateOrderAsync,
+} from '../../../store/orderReducer'
 
 //Components
 import AddressView, {
@@ -122,7 +127,13 @@ const ImageWrapper = styled.div`
  ** Component [OrderView]
  ** ======================================================
  */
-const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
+const OrderView = ({
+    mode = 'ADD_NEW',
+    order,
+}: {
+    mode?: 'EDIT' | 'ADD_NEW'
+    order?: IOrder
+}) => {
     /*
      ** **
      ** ** ** State & Hooks
@@ -150,7 +161,22 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
         label: string
         _id: string
         addresses: Array<IAddress>
-    } | null>()
+    } | null>(
+        order?.customer
+            ? {
+                  label: order.customer.username,
+                  _id: order.customer._id,
+                  addresses: [
+                      {
+                          ...order.billing.address,
+                      },
+                      {
+                          ...order.shipping.address,
+                      },
+                  ],
+              }
+            : null
+    )
     const [selectedProduct, setSeletedProduct] = useState<{
         label: string
         product: IProduct
@@ -182,6 +208,7 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
     //Refs
     const refInputCustomer = useRef<HTMLInputElement>(null)
     const refInputTransactionId = useRef<HTMLInputElement>(null)
+    const refAddItemButton = useRef<TouchRippleActions>(null)
     const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
         id: null,
     })
@@ -191,6 +218,7 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
      ** ** ** Side effects
      ** **
      */
+    //Set customer's default addresses
     useEffect(() => {
         //1) Validate
         if (!selectedCustomer) return
@@ -208,13 +236,37 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
         if (shippingAddress) setShippingAddress(shippingAddress)
     }, [selectedCustomer])
 
+    //Set default on edit mode
+    useEffect(() => {
+        //1) Validate
+        if (!order) return
+
+        //2) Set fields
+        setSeletedCustomer({
+            label: order.customer.username,
+            _id: order.customer._id,
+            addresses: [
+                {
+                    ...order.billing.address,
+                },
+                {
+                    ...order.shipping.address,
+                },
+            ],
+        })
+        setDeliveryStatus(order.delivery_status || '')
+        setDate(order.created_at.slice(0, 10))
+        setPaymentMethod(order.billing.payment_method)
+        setItems(order.products)
+    }, [order])
+
     /*
      ** **
      ** ** ** Form fields
      ** **
      */
     const inputTransactionId = useInput({
-        default_value: '',
+        default_value: order?.billing?.transaction_id || '',
         validation: combineValidators([
             {
                 validator: isAlphaNumeric,
@@ -342,7 +394,7 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
     //Click reset handler
     const clickResetHandler = () => {
         //1) Clear selected fields
-        setSeletedCustomer(undefined)
+        setSeletedCustomer(null)
         setDeliveryStatus('processing')
         setDate(new Date(Date.now()).toISOString().slice(0, 10))
         setPaymentMethod('cash_on_delivery')
@@ -368,9 +420,15 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
             return refInputCustomer.current?.focus()
         } else if (items.length <= 0) {
             setActiveTab(3)
+            refAddItemButton.current?.start()
+            window.setTimeout(() => {
+                refAddItemButton.current?.stop()
+            }, 100)
+
+            return
         }
 
-        //3) No errors, create with form data
+        //3) No errors, create form data
         const formData = new FormData()
         formData.append('customer', selectedCustomer._id)
         formData.append('products', JSON.stringify(items))
@@ -393,12 +451,24 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
                 .toString()
         )
 
-        //4) Dispatch action to create prodcut
+        //4) Dispatch action to create order
+        if (mode === 'ADD_NEW')
+            return dispatch(
+                createOrderAsync({
+                    formData,
+                    cb: (order) => {
+                        if (order) clickResetHandler()
+                        setShowAlert(true)
+                    },
+                })
+            )
+
+        //5) Dispatch action to update order
         dispatch(
-            createOrderAsync({
+            updateOrderAsync({
+                id: order?._id || '',
                 formData,
-                cb: (order) => {
-                    if (order) clickResetHandler()
+                cb: () => {
                     setShowAlert(true)
                 },
             })
@@ -471,6 +541,9 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
                                             val && setSeletedCustomer(val)
                                         }
                                         value={selectedCustomer}
+                                        getOptionLabel={(option) =>
+                                            option.label
+                                        }
                                         disablePortal
                                         options={users.map((user) => ({
                                             label: user.username,
@@ -544,15 +617,11 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
                                 <Stack gap="16px">
                                     <AddressView
                                         mode="EDIT"
-                                        onSave={(address) =>
+                                        onSave={(address, closeModal) => {
                                             setBillingAddress(address)
-                                        }
-                                        address={
-                                            selectedCustomer.addresses.find(
-                                                (addr) =>
-                                                    addr.default_billing_address
-                                            ) || undefined
-                                        }
+                                            closeModal()
+                                        }}
+                                        address={billingAddress}
                                     />
                                     <Stack flexDirection="row" gap="16px">
                                         <Stack flex={1}>
@@ -609,15 +678,11 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
                             ) : (
                                 <AddressView
                                     mode="EDIT"
-                                    onSave={(address) =>
+                                    onSave={(address, closeModal) => {
                                         setShippingAddress(address)
-                                    }
-                                    address={
-                                        selectedCustomer.addresses.find(
-                                            (addr) =>
-                                                addr.default_shipping_address
-                                        ) || undefined
-                                    }
+                                        closeModal()
+                                    }}
+                                    address={shippingAddress}
                                 />
                             )}
                         </Stack>
@@ -830,6 +895,7 @@ const OrderView = ({ mode = 'ADD_NEW' }: { mode?: 'EDIT' | 'ADD_NEW' }) => {
                                 <Button
                                     variant="outlined"
                                     onClick={() => setShowModal(true)}
+                                    touchRippleRef={refAddItemButton}
                                 >
                                     Add Item
                                 </Button>

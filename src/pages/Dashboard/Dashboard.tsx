@@ -35,6 +35,7 @@ import {
     Reviews,
 } from './Product'
 import { AllOrders, AddNewOrder } from './Order'
+import EditOrder from './Order/Edit Order'
 
 /*
  ** **
@@ -342,6 +343,7 @@ const Dashboard = () => {
             | 'reviews'
             | 'all-orders'
             | 'add-new-order'
+            | 'edit-order'
 
         //3) Test paths and set active panel
         switch (params.path as paths) {
@@ -421,6 +423,9 @@ const Dashboard = () => {
             case 'add-new-order':
                 setHeading({ title: 'Add New Order', subtitle: '' })
                 return setActivePanel(<AddNewOrder />)
+            case 'edit-order':
+                setHeading({ title: 'Edit Order', subtitle: '' })
+                return setActivePanel(<EditOrder />)
         }
     }, [params.path])
 

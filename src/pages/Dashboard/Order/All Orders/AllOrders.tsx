@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import {
-    SearchOutlined,
-    DeleteOutline,
-    PhotoAlbumOutlined,
-} from '@mui/icons-material'
+import { SearchOutlined, DeleteOutline } from '@mui/icons-material'
 import {
     Stack,
     TextField,
@@ -22,6 +18,7 @@ import {
     TableHead,
     TableRow,
     Typography,
+    MenuItem,
 } from '@mui/material'
 
 import styled from 'styled-components'
@@ -34,8 +31,13 @@ import {
     getManyOrderAsync,
     IOrder,
 } from '../../../../store/orderReducer'
+
+//Components
 import Pill from '../../../../components/Pill'
+
+//Hooks & Func
 import { toCapitalize } from '../../../../utils/toCapitalize'
+import { useNavigate } from 'react-router-dom'
 
 /*
  ** **
@@ -92,6 +94,9 @@ const AllOrders = () => {
     //State
     const [showAlert, setShowAlert] = useState(false)
     const [selectedOrder, setSelectedOrder] = useState<IOrder>()
+    const [selectedDeliveryStatus, setSelectedDeliveryStatus] = useState('all')
+
+    const navigate = useNavigate()
 
     /*
      ** **
@@ -99,14 +104,22 @@ const AllOrders = () => {
      ** **
      */
     useEffect(() => {
-        dispatch(getManyOrderAsync())
-    }, [])
-
-    /*
-     ** **
-     ** ** ** Form fields
-     ** **
-     */
+        dispatch(
+            getManyOrderAsync({
+                opts: {
+                    filters: [
+                        {
+                            name: 'delivery_status',
+                            value:
+                                selectedDeliveryStatus === 'all'
+                                    ? ''
+                                    : selectedDeliveryStatus,
+                        },
+                    ],
+                },
+            })
+        )
+    }, [selectedDeliveryStatus])
 
     /*
      ** **
@@ -156,20 +169,36 @@ const AllOrders = () => {
                         flexDirection="row"
                         justifyContent="space-between"
                     >
-                        <TextField
-                            type="search"
-                            placeholder="Search here"
-                            color="primary"
-                            variant="standard"
-                            // onChange={onSearchInputChangeHandler}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchOutlined />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
+                        <Stack
+                            flexDirection="row"
+                            alignItems="center"
+                            gap="8px"
+                        >
+                            <Typography variant="caption">
+                                Delivery Status:{' '}
+                            </Typography>
+                            <TextField
+                                size="small"
+                                sx={{ width: '12rem', background: 'white' }}
+                                value={selectedDeliveryStatus}
+                                onChange={(e) =>
+                                    setSelectedDeliveryStatus(e.target.value)
+                                }
+                                select
+                            >
+                                <MenuItem value="all">All</MenuItem>
+                                <MenuItem value="processing">
+                                    Processing
+                                </MenuItem>
+                                <MenuItem value="pending_payment">
+                                    Pending Payment
+                                </MenuItem>
+                                <MenuItem value="oh_hold">On Hold</MenuItem>
+                                <MenuItem value="completed">Completed</MenuItem>
+                                <MenuItem value="canceled">Canceled</MenuItem>
+                                <MenuItem value="Refunded">Refunded</MenuItem>
+                            </TextField>
+                        </Stack>
                         <Button
                             variant="contained"
                             color="secondary"
@@ -289,11 +318,11 @@ const AllOrders = () => {
                                                         variant="text"
                                                     >
                                                         <Button
-                                                        // onClick={() => {
-                                                        //     navigate(
-                                                        //         `/dashboard/edit-product?id=${prod._id}`
-                                                        //     )
-                                                        // }}
+                                                            onClick={() => {
+                                                                navigate(
+                                                                    `/dashboard/edit-order?id=${order._id}`
+                                                                )
+                                                            }}
                                                         >
                                                             Edit
                                                         </Button>

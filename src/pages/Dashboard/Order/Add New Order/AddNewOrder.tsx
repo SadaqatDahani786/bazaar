@@ -1,15 +1,15 @@
-import styled from 'styled-components'
 import OrderView from '../OrderView'
 
-const AddNewOrderStyled = styled.div`
-    /* padding: 32px 0; */
-`
-
+/**
+ ** ======================================================
+ ** Component [AddNewOrder]
+ ** ======================================================
+ */
 const AddNewOrder = () => {
     return (
-        <AddNewOrderStyled>
-            <OrderView />
-        </AddNewOrderStyled>
+        <div>
+            <OrderView mode="ADD_NEW" />
+        </div>
     )
 }
 

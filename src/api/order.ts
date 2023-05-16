@@ -4,6 +4,10 @@ import { BASE_URL } from '../utils/consts'
 //API ENDPOINT URL
 const API_ENDPOINT = `${BASE_URL}/order`
 
+export interface opts {
+    filters?: Array<{ name: string; value: string }>
+}
+
 /*
  ** ======================================================
  ** getOrder = Get one order
@@ -26,15 +30,23 @@ export const getOrder = (id: string) => {
  ** getManyOrder = Get one or many order
  ** ======================================================
  */
-export const getManyOrder = () => {
-    //1) Create a request with options
+export const getManyOrder = (opts?: opts) => {
+    //1) Filters
+    const filters = opts?.filters
+        ? opts.filters
+              .filter((filter) => filter.value !== '')
+              .map((filter) => `${filter.name}=${filter.value}`)
+              .join('&')
+        : ''
+
+    //2) Create a request with options
     const options: AxiosRequestConfig = {
-        url: API_ENDPOINT,
+        url: `${API_ENDPOINT}?${filters}`,
         method: 'GET',
         withCredentials: true,
     }
 
-    //2) Return options
+    //3) Return options
     return options
 }
 
@@ -58,6 +70,23 @@ export const createOrder = (formData: GenericFormData) => {
 }
 
 /*
+ ** ======================================================
+ ** updateOrder = Update an order
+ ** ======================================================
+ */
+export const updateOrder = (id: string, formData: GenericFormData) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${id}`,
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
+        data: formData,
+    }
+
+    //2) Return options
+    return options
+}
 
 /*
  ** ======================================================

@@ -1,8 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios, { AxiosError, GenericFormData } from 'axios'
-import { createOrder, deleteOrder, getManyOrder } from '../api/order'
+import {
+    createOrder,
+    deleteOrder,
+    getManyOrder,
+    getOrder,
+    opts,
+    updateOrder,
+} from '../api/order'
 import { IAddress } from '../components/AddressView/AddressView'
-import { IMedia } from './mediaReducer'
 import { IProduct } from './productReducer'
 import { IUserDatabase } from './userReducer'
 
@@ -18,12 +24,7 @@ export interface IOrder {
         product: IProduct
         selected_variants: Array<{
             name: string
-            terms: [
-                {
-                    name: string
-                    media?: IMedia
-                }
-            ]
+            term: string
         }>
         quantity: number
     }>
@@ -51,15 +52,46 @@ export interface IOrder {
 
 /**
  ** ======================================================
+ ** Thunk [getOrderAsync]
+ ** ======================================================
+ */
+export const getOrderAsync = createAsyncThunk(
+    'get/order',
+    async (
+        {
+            id,
+            cb = () => undefined,
+        }: { id: string; cb: (order: IOrder) => void },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getOrder(id))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
  ** Thunk [getManyOrderAsync]
  ** ======================================================
  */
 export const getManyOrderAsync = createAsyncThunk(
     'get/manyOrder',
-    async (_, { rejectWithValue }) => {
+    async ({ opts }: { opts?: opts }, { rejectWithValue }) => {
         try {
             //1) Send http request
-            const response = await axios(getManyOrder())
+            const response = await axios(getManyOrder(opts))
 
             //2) Return response
             return response.data.data
@@ -88,6 +120,45 @@ export const createOrderAsync = createAsyncThunk(
         try {
             //1) Send http request
             const response = await axios(createOrder(formData))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //1) Callback
+            cb(null)
+
+            //2) Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [updateOrderAsync]
+ ** ======================================================
+ */
+export const updateOrderAsync = createAsyncThunk(
+    'update/order',
+    async (
+        {
+            id,
+            formData,
+            cb = () => '',
+        }: {
+            id: string
+            formData: GenericFormData
+            cb: (res?: IOrder | null) => void
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(updateOrder(id, formData))
 
             //2) Callback
             cb(response.data.data)
@@ -189,6 +260,23 @@ const sliceOrder = createSlice({
     },
     extraReducers: (builder) =>
         builder
+            .addCase(getOrderAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getOrderAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getOrderAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
             .addCase(
                 getManyOrderAsync.fulfilled,
                 (state, action: { payload: Array<IOrder> }) => {
@@ -250,6 +338,36 @@ const sliceOrder = createSlice({
             .addCase(createOrderAsync.rejected, (state, action) => ({
                 isLoading: { ...state.isLoading, create: false },
                 errors: { ...state.errors, create: action.payload as string },
+                data: state.data,
+            }))
+            .addCase(
+                updateOrderAsync.fulfilled,
+                (state, action: { payload: IOrder }) => {
+                    //1) Get order
+                    const order = action.payload
+
+                    //2) Transform data
+                    const updatedData = state.data.map((orderCurr) => {
+                        if (orderCurr._id === order._id) return order
+                        return orderCurr
+                    })
+
+                    //3) Update state
+                    return {
+                        isLoading: { ...state.isLoading, update: false },
+                        errors: { ...state.errors, update: '' },
+                        data: updatedData,
+                    }
+                }
+            )
+            .addCase(updateOrderAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, update: true },
+                errors: { ...state.errors, update: '' },
+                data: state.data,
+            }))
+            .addCase(updateOrderAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, update: false },
+                errors: { ...state.errors, update: action.payload as string },
                 data: state.data,
             }))
             .addCase(
