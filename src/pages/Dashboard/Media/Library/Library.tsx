@@ -115,20 +115,25 @@ const Library = () => {
      ** ** ** State & Hooks
      ** **
      */
-    const [isBulkSelectActive, setIsBulkSelectActive] = useState(false)
-    const [isGridviewActive, setIsGridviewActive] = useState(true)
+    //Redux
     const mediaFiles = useAppSelector((state) => state.media.data)
     const isLoading = useAppSelector((state) => state.media.isLoading)
     const dispatch = useAppDispatch()
-    const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
-        id: null,
-    })
+
+    //State
+    const [isBulkSelectActive, setIsBulkSelectActive] = useState(false)
+    const [isGridviewActive, setIsGridviewActive] = useState(true)
     const [showModal, setShowModal] = useState(false)
     const [selectedMediaId, setSelectedMediaId] = useState<string>()
 
+    //Refs
+    const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
+        id: null,
+    })
+
     /**
      ** **
-     ** ** ** Methods
+     ** ** ** Side effects
      ** **
      */
     //Clear selection when gridview to listview or vice-versa
@@ -137,6 +142,11 @@ const Library = () => {
         setSelectedMediaId(undefined)
     }, [isGridviewActive])
 
+    /**
+     ** **
+     ** ** ** Methods
+     ** **
+     */
     //Delete handler
     const clickDeleteHandler = () => {
         //1) Get id

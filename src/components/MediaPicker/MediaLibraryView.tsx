@@ -1,4 +1,4 @@
-import { SyntheticEvent, useState } from 'react'
+import { SyntheticEvent, useEffect, useState } from 'react'
 
 import { DeleteOutline } from '@mui/icons-material'
 import {
@@ -15,7 +15,11 @@ import styled from 'styled-components'
 
 //Redux
 import { useAppDispatch, useAppSelector } from '../../store/store'
-import { deleteMediaAsync, editSelectedStatus } from '../../store/mediaReducer'
+import {
+    deleteMediaAsync,
+    editSelectedStatus,
+    getMediaAsync,
+} from '../../store/mediaReducer'
 
 //Components
 import EditMediaView from './EditMediaView'
@@ -71,6 +75,15 @@ const MediaLibraryView = ({ selectMultiple }: { selectMultiple: boolean }) => {
      ** ** ** Methods
      ** **
      */
+    useEffect(() => {
+        dispatch(getMediaAsync())
+    }, [])
+
+    /*
+     ** **
+     ** ** ** Methods
+     ** **
+     */
     //Delete handler
     const clickDeleteHandler = () => {
         //1) Get id
@@ -110,7 +123,7 @@ const MediaLibraryView = ({ selectMultiple }: { selectMultiple: boolean }) => {
 
     return (
         <MediaLibraryViewStyled>
-            <Stack flex={1}>
+            <Stack flex="0 0 70%">
                 {isLoading.fetch || mediaFiles.length <= 0 ? (
                     <Box
                         sx={{

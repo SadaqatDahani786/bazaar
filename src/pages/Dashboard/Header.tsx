@@ -156,16 +156,18 @@ const Header = ({
                 }}
             >
                 <Avatar sx={{ width: '3.5rem', height: '3.5rem' }}>
-                    <img
-                        crossOrigin="anonymous"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                        }}
-                        alt={loggedInUser?.photo.title}
-                        src={loggedInUser?.photo.url}
-                    />
+                    {loggedInUser?.photo?.url && (
+                        <img
+                            crossOrigin="anonymous"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }}
+                            alt={loggedInUser?.photo?.title}
+                            src={loggedInUser?.photo?.url}
+                        />
+                    )}
                 </Avatar>
                 {width > theme.breakpoints.values.sm && (
                     <Typography fontWeight="bold" variant="body1">

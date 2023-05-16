@@ -72,6 +72,10 @@ const Widget = styled.div`
 const ImageWrapper = styled.div`
     width: 48px;
     height: 48px;
+    background: #a7a7a7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     & > img {
         width: 100%;
