@@ -196,7 +196,7 @@ const AllOrders = () => {
                                 <MenuItem value="oh_hold">On Hold</MenuItem>
                                 <MenuItem value="completed">Completed</MenuItem>
                                 <MenuItem value="canceled">Canceled</MenuItem>
-                                <MenuItem value="Refunded">Refunded</MenuItem>
+                                <MenuItem value="refunded">Refunded</MenuItem>
                             </TextField>
                         </Stack>
                         <Button

@@ -166,7 +166,10 @@ const StatsView = ({
                                 : theme.palette.primary.main,
                     }}
                 >
-                    <AddOutlined fontSize="small" />
+                    {changePercent.treding === 'UPWARD' && (
+                        <AddOutlined fontSize="small" />
+                    )}
+
                     <Typography>{changeAmount}</Typography>
                 </Row>
             </Row>

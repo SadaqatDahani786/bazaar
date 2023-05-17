@@ -5,6 +5,9 @@ import {
     deleteOrder,
     getManyOrder,
     getOrder,
+    getTotalRefunds,
+    getTotalSales,
+    getTotalSalesInYear,
     opts,
     updateOrder,
 } from '../api/order'
@@ -94,6 +97,101 @@ export const getManyOrderAsync = createAsyncThunk(
             const response = await axios(getManyOrder(opts))
 
             //2) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getTotalSalesAsync]
+ ** ======================================================
+ */
+export const getTotalSalesAsync = createAsyncThunk(
+    'get/total-sales',
+    async (
+        cb: (res: { total_sales: number; total_orders: number }) => void,
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getTotalSales())
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getTotalRefundsAsync]
+ ** ======================================================
+ */
+export const getTotalRefundsAsync = createAsyncThunk(
+    'get/total-refunds',
+    async (
+        cb: (res: {
+            total_refunds: number
+            refunds_in_months_of_year: { month: string; refunds: number }[]
+        }) => void,
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getTotalRefunds())
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getTotalSalesInYearAsync]
+ ** ======================================================
+ */
+export const getTotalSalesInYearAsync = createAsyncThunk(
+    'get/total-sales-in-year',
+    async (
+        {
+            year,
+            cb = () => undefined,
+        }: {
+            year: string
+            cb: (
+                res: { month: string; sales: number; orders: number }[]
+            ) => void
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getTotalSalesInYear(year))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
             return response.data.data
         } catch (err) {
             //Reject with error
@@ -303,6 +401,57 @@ const sliceOrder = createSlice({
                 data: state.data,
             }))
             .addCase(getManyOrderAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
+            .addCase(getTotalSalesAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getTotalSalesAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getTotalSalesAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
+            .addCase(getTotalRefundsAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getTotalRefundsAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getTotalRefundsAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
+            .addCase(getTotalSalesInYearAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getTotalSalesInYearAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getTotalSalesInYearAsync.rejected, (state, action) => ({
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,

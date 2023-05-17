@@ -4,6 +4,7 @@ import {
     createUser,
     deleteUser,
     getManyUser,
+    getTotalUsersCount,
     getUser,
     searchUser,
     updateCurrentUser,
@@ -86,6 +87,37 @@ export const getUserAsync = createAsyncThunk(
                     message: err.response?.data?.message,
                     status: err.response?.status,
                 })
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getTotalUsersCountAsync]
+ ** ======================================================
+ */
+export const getTotalUsersCountAsync = createAsyncThunk(
+    'get/total-users-count',
+    async (
+        cb: (res: {
+            total_users: number
+            users_in_months_of_year: { month: string; users: number }[]
+        }) => void,
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getTotalUsersCount())
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
         }
     }
 )
@@ -362,6 +394,23 @@ const sliceUser = createSlice({
                     isLoading: { ...state.isLoading, fetch: true },
                 }
             })
+            .addCase(getTotalUsersCountAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getTotalUsersCountAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getTotalUsersCountAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
             .addCase(
                 updateUserAsync.fulfilled,
                 (state, action: { payload: IUser }) => {

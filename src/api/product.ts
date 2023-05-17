@@ -40,6 +40,23 @@ export const getManyProduct = () => {
 
 /*
  ** ======================================================
+ ** getTopSellingProducts = Get one or many top selling products
+ ** ======================================================
+ */
+export const getTopSellingProducts = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/top-selling-products`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** createProduct = Create a product
  ** ======================================================
  */

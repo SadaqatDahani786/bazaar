@@ -23,6 +23,23 @@ export const getManyCateogory = () => {
 
 /*
  ** ======================================================
+ ** getSalesInEachCategory = Get total sales in each category
+ ** ======================================================
+ */
+export const getSalesInEachCategory = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/sales-in-each-category`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** createCategory = Create a category
  ** ======================================================
  */

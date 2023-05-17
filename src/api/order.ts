@@ -52,6 +52,57 @@ export const getManyOrder = (opts?: opts) => {
 
 /*
  ** ======================================================
+ ** getTotalSales = Get total sales
+ ** ======================================================
+ */
+export const getTotalSales = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/total-sales`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getTotalRefunds = Get total refunds
+ ** ======================================================
+ */
+export const getTotalRefunds = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/total-refunds`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getTotalSalesInYear = Get total sales in year
+ ** ======================================================
+ */
+export const getTotalSalesInYear = (year: string) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/sales-in-months-of-year/${year}`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** createOrder = Create an order
  ** ======================================================
  */

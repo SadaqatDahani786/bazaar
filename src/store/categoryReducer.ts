@@ -4,6 +4,7 @@ import {
     createCategory,
     deleteCategory,
     getManyCateogory,
+    getSalesInEachCategory,
     searchCategory,
     updateCategory,
 } from '../api/categories'
@@ -41,6 +42,40 @@ export const getManyCategoryAsync = createAsyncThunk(
             const response = await axios(getManyCateogory())
 
             //2) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getSalesInEachCategoryAsync]
+ ** ======================================================
+ */
+export const getSalesInEachCategoryAsync = createAsyncThunk(
+    'get/sales-in-each-category',
+    async (
+        cb: (
+            res: {
+                category: ICategory
+                sales: number
+                orders: number
+            }[]
+        ) => void,
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getSalesInEachCategory())
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
             return response.data.data
         } catch (err) {
             //Reject with error
@@ -229,6 +264,23 @@ const sliceCategory = createSlice({
                 data: state.data,
             }))
             .addCase(getManyCategoryAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
+            .addCase(getSalesInEachCategoryAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getSalesInEachCategoryAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getSalesInEachCategoryAsync.rejected, (state, action) => ({
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,

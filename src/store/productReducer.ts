@@ -5,6 +5,7 @@ import {
     deleteProduct,
     getManyProduct,
     getProduct,
+    getTopSellingProducts,
     searchProduct,
     updateProduct,
 } from '../api/product'
@@ -104,6 +105,41 @@ export const getManyProductAsync = createAsyncThunk(
             const response = await axios(getManyProduct())
 
             //2) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getTopSellingProductsAsync]
+ ** ======================================================
+ */
+export const getTopSellingProductsAsync = createAsyncThunk(
+    'get/top-selling-products',
+    async (
+        cb: (
+            res: {
+                sold: number
+                sales: number
+                product: IProduct
+                image: IMediaDatabase
+            }[]
+        ) => void,
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getTopSellingProducts())
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
             return response.data.data
         } catch (err) {
             //Reject with error
@@ -335,6 +371,23 @@ const sliceProduct = createSlice({
                 data: state.data,
             }))
             .addCase(getManyProductAsync.rejected, (state, action) => ({
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
+            .addCase(getTopSellingProductsAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getTopSellingProductsAsync.pending, (state) => ({
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getTopSellingProductsAsync.rejected, (state, action) => ({
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,

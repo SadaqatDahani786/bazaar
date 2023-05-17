@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
     Box,
-    CardMedia,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -15,17 +15,37 @@ import {
     AttachMoneyOutlined,
     CurrencyExchange,
     PersonOutline,
+    PhotoAlbumOutlined,
     ShoppingBasketOutlined,
 } from '@mui/icons-material'
 
 import { Chart, ChartConfiguration } from 'chart.js/auto'
 import styled from 'styled-components'
 
+//Redux
+import { useAppDispatch } from '../../../store/store'
+import {
+    getTotalRefundsAsync,
+    getTotalSalesAsync,
+    getTotalSalesInYearAsync,
+} from '../../../store/orderReducer'
+import { getTotalUsersCountAsync } from '../../../store/userReducer'
+import {
+    getTopSellingProductsAsync,
+    IProduct,
+} from '../../../store/productReducer'
+import { IMediaDatabase } from '../../../store/mediaReducer'
+import {
+    getSalesInEachCategoryAsync,
+    ICategory,
+} from '../../../store/categoryReducer'
+
 //Components
 import StatsView from './StatsView'
 
 //Hooks
 import useWindowDimensions from '../../../hooks/useWindowDimensions'
+import { getGrowthIncrease } from '../../../utils/getGrowthIncrease'
 
 /*
  ** **
@@ -139,6 +159,22 @@ const ColorCircle = styled.div`
     border-radius: 100%;
 `
 
+//Image Wrapper
+const ImageWrapper = styled.div`
+    width: 48px;
+    height: 48px;
+    background: #a7a7a7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    & img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+`
+
 /**
  ** ======================================================
  ** Component [Overview]
@@ -150,58 +186,124 @@ const Overview = () => {
      ** ** ** State & Hooks
      ** **
      */
-    const refRevenueChartCanvas = useRef<HTMLCanvasElement>(null)
-    const refSalesCategoryChartCanvas = useRef<HTMLCanvasElement>(null)
+    //Redux
+    const dispatch = useAppDispatch()
 
+    //Stats [total]
+    const [totalSales, setTotalSales] = useState(0)
+    const [totalOrders, setTotalOrders] = useState(0)
+    const [totalRefunds, setTotalRefunds] = useState(0)
+    const [totalCustomers, setTotalCustomers] = useState(0)
+
+    //Stats [arrays]
+    const [salesInEachCategory, setSalesInEachCategory] = useState<
+        {
+            sales: number
+            orders: number
+            category: ICategory
+        }[]
+    >([])
+    const [topSellingProducts, setTopSellingProduct] = useState<
+        {
+            sold: number
+            sales: number
+            product: IProduct
+            image: IMediaDatabase
+        }[]
+    >([])
+    const [customersInMonthsOfYear, setCustomersInMonthsOfYear] = useState<
+        { month: string; users: number }[]
+    >([])
+    const [refundsInMonthsOfYear, setRefundsInMonthsOfYear] = useState<
+        { month: string; refunds: number }[]
+    >([])
+    const [salesInYear, setTotalSalesInYear] = useState<
+        Array<{
+            month: string
+            sales: number
+            orders: number
+        }>
+    >([])
+
+    //Hooks
     const theme = useTheme()
     const { width } = useWindowDimensions()
 
-    /*
-     ** **
-     ** ** ** State & Hooks
-     ** **
-     */
-    //Sales in category
-    const salesInCategories = [
-        {
-            title: 'Fashion',
-            color: theme.palette.error.main,
-            sales: 135.5,
-        },
-        {
-            title: 'Electronics',
-            color: theme.palette.info.main,
-            sales: 115.44,
-        },
-        {
-            title: 'Health & Beauty',
-            color: theme.palette.warning.main,
-            sales: 95.12,
-        },
-        {
-            title: 'Fragrances',
-            color: theme.palette.success.main,
-            sales: 65.53,
-        },
-        {
-            title: 'Gaming',
-            color: theme.palette.primary.main,
-            sales: 45.56,
-        },
-        {
-            title: 'Home & Decoration',
-            color: theme.palette.secondary.dark,
-            sales: 10.94,
-        },
+    //Refs
+    const refRevenueChartCanvas = useRef<HTMLCanvasElement>(null)
+    const refSalesCategoryChartCanvas = useRef<HTMLCanvasElement>(null)
+
+    //Colors
+    const colors = [
+        theme.palette.error.main,
+        theme.palette.info.main,
+        theme.palette.warning.main,
+        theme.palette.success.main,
+        theme.palette.primary.main,
+        theme.palette.secondary.dark,
     ]
 
     /*
      ** **
-     ** ** ** Methods
+     ** ** ** Side effects
      ** **
      */
+    //Set states
+    useEffect(() => {
+        //1) Fetch total sales
+        dispatch(
+            getTotalSalesAsync(({ total_sales, total_orders }) => {
+                setTotalSales(total_sales)
+                setTotalOrders(total_orders)
+            })
+        )
+
+        //2) Fetch total refunds
+        dispatch(
+            getTotalRefundsAsync(
+                ({ total_refunds, refunds_in_months_of_year }) => {
+                    setTotalRefunds(total_refunds)
+                    setRefundsInMonthsOfYear(refunds_in_months_of_year)
+                }
+            )
+        )
+
+        //3) Fetch total users
+        dispatch(
+            getTotalUsersCountAsync(
+                ({ total_users, users_in_months_of_year }) => {
+                    setTotalCustomers(total_users)
+                    setCustomersInMonthsOfYear(users_in_months_of_year)
+                }
+            )
+        )
+
+        //4) Fetch sales in year
+        dispatch(
+            getTotalSalesInYearAsync({
+                year: new Date(Date.now()).getFullYear().toString(),
+                cb: (res) => {
+                    setTotalSalesInYear(res)
+                },
+            })
+        )
+
+        //5) Fetch top selling products
+        dispatch(
+            getTopSellingProductsAsync((res) => {
+                setTopSellingProduct(res)
+            })
+        )
+
+        //6) Fetch sales in each category
+        dispatch(
+            getSalesInEachCategoryAsync((res) => setSalesInEachCategory(res))
+        )
+    }, [])
+
     //Chart revenue vs orders
     useEffect(() => {
+        //1) Months labels
         const labels = [
             'Jan',
             'Feb',
@@ -217,23 +319,34 @@ const Overview = () => {
             'Dec',
         ]
 
+        //2) Data
         const data = {
             labels,
             datasets: [
                 {
                     label: 'Revenue',
-                    data: [65, 59, 80, 81, 56, 55, 40, 55, 10, 24, 45, 56],
+                    data: labels.map(
+                        (label) =>
+                            salesInYear.find((sale) => sale.month === label)
+                                ?.sales || 0
+                    ),
                     fill: false,
                     tension: 0.4,
                 },
                 {
                     label: 'Order',
-                    data: [55, 79, 10, 41, 56, 25, 10, 12, 65, 34, 65, 34],
+                    data: labels.map(
+                        (label) =>
+                            salesInYear.find((sale) => sale.month === label)
+                                ?.orders || 0
+                    ),
                     fill: false,
                     tension: 0.4,
                 },
             ],
         }
+
+        //3) Config
         const config: ChartConfiguration = {
             type: 'line',
             data,
@@ -255,26 +368,28 @@ const Overview = () => {
             },
         }
 
+        //4) Validate
         if (
             !refRevenueChartCanvas.current ||
             !(refRevenueChartCanvas.current instanceof HTMLCanvasElement)
         )
             return
 
+        //5) Context
         const context = refRevenueChartCanvas.current.getContext('2d')
-
         if (!context) return
 
-        //Instantiate
+        //6) Instantiate
         const ChartObj = new Chart(context, config)
 
+        //7) Clean up
         return () => ChartObj.destroy()
-    }, [width])
+    }, [width, salesInYear])
 
     //Chart sales in categories
     useEffect(() => {
-        //1) labels
-        const labels = salesInCategories.map((cat) => cat.title)
+        //1) Labels
+        const labels = salesInEachCategory.map((cat) => cat.category.name)
 
         //2) Dataset
         const data = {
@@ -282,10 +397,10 @@ const Overview = () => {
             datasets: [
                 {
                     label: 'Sales',
-                    data: salesInCategories.map((cat) => cat.sales),
+                    data: salesInEachCategory.map((cat) => cat.sales),
                     borderWidth: 5,
                     cutout: '80%',
-                    backgroundColor: salesInCategories.map((cat) => cat.color),
+                    backgroundColor: colors,
                 },
             ],
         }
@@ -323,35 +438,63 @@ const Overview = () => {
 
         //7) Clean up on unmount
         return () => ChartObj.destroy()
-    }, [width])
+    }, [width, salesInEachCategory])
 
     return (
         <OverviewStyled>
             <Wrapper>
                 <StatsView
-                    color="primary"
                     title="Total Sales"
+                    color="primary"
                     icon={
                         <AttachMoneyOutlined fontSize="large" color="primary" />
                     }
-                    total="$45,645.60"
+                    total={`€${totalSales.toFixed(2)}`}
                     changePercent={{
-                        treding: 'UPWARD',
-                        value: 2.5,
+                        treding:
+                            getGrowthIncrease<{ sales: number }>({
+                                arr: salesInYear,
+                                extracter: ({ sales }) => sales,
+                            }).growthPercentage < 0
+                                ? 'DOWNWARD'
+                                : 'UPWARD',
+                        value: getGrowthIncrease<{ sales: number }>({
+                            arr: salesInYear,
+                            extracter: ({ sales }) => sales,
+                        }).growthPercentage,
                     }}
-                    changeAmount="4.5k this month"
+                    changeAmount={`${
+                        getGrowthIncrease<{ sales: number }>({
+                            arr: salesInYear,
+                            extracter: ({ sales }) => sales,
+                        }).growth
+                    }k this month`}
                 />
                 <StatsView
                     title="Refunded"
                     icon={
                         <CurrencyExchange fontSize="large" color="secondary" />
                     }
-                    total="$11,156.00"
+                    total={`€${totalRefunds.toFixed(2)}`}
                     changePercent={{
-                        treding: 'DOWNWARD',
-                        value: 1.5,
+                        treding:
+                            getGrowthIncrease<{ refunds: number }>({
+                                arr: refundsInMonthsOfYear,
+                                extracter: ({ refunds }) => refunds,
+                            }).growthPercentage < 0
+                                ? 'DOWNWARD'
+                                : 'UPWARD',
+                        value: getGrowthIncrease<{ refunds: number }>({
+                            arr: refundsInMonthsOfYear,
+                            extracter: ({ refunds }) => refunds,
+                        }).growthPercentage,
                     }}
-                    changeAmount="2k this month"
+                    changeAmount={`${
+                        getGrowthIncrease<{ refunds: number }>({
+                            arr: refundsInMonthsOfYear,
+                            extracter: ({ refunds }) => refunds,
+                        }).growth
+                    }k this month`}
                 />
                 <StatsView
                     title="Total Orders"
@@ -361,22 +504,50 @@ const Overview = () => {
                             color="secondary"
                         />
                     }
-                    total="4,000"
+                    total={totalOrders.toString()}
                     changePercent={{
-                        treding: 'UPWARD',
-                        value: 6.5,
+                        treding:
+                            getGrowthIncrease<{ orders: number }>({
+                                arr: salesInYear,
+                                extracter: ({ orders }) => orders,
+                            }).growthPercentage < 0
+                                ? 'DOWNWARD'
+                                : 'UPWARD',
+                        value: getGrowthIncrease<{ orders: number }>({
+                            arr: salesInYear,
+                            extracter: ({ orders }) => orders,
+                        }).growthPercentage,
                     }}
-                    changeAmount="2.8k this month"
+                    changeAmount={`${Math.abs(
+                        getGrowthIncrease<{ orders: number }>({
+                            arr: salesInYear,
+                            extracter: ({ orders }) => orders,
+                        }).growth
+                    )}k this month`}
                 />
                 <StatsView
                     title="Total Customers"
                     icon={<PersonOutline fontSize="large" color="secondary" />}
-                    total="1,400"
+                    total={totalCustomers.toString()}
                     changePercent={{
-                        treding: 'UPWARD',
-                        value: 1.7,
+                        treding:
+                            getGrowthIncrease<{ users: number }>({
+                                arr: customersInMonthsOfYear,
+                                extracter: ({ users }) => users,
+                            }).growthPercentage < 0
+                                ? 'DOWNWARD'
+                                : 'UPWARD',
+                        value: getGrowthIncrease<{ users: number }>({
+                            arr: customersInMonthsOfYear,
+                            extracter: ({ users }) => users,
+                        }).growthPercentage,
                     }}
-                    changeAmount="5k this month"
+                    changeAmount={`${
+                        getGrowthIncrease<{ users: number }>({
+                            arr: customersInMonthsOfYear,
+                            extracter: ({ users }) => users,
+                        }).growth
+                    }k this month`}
                 />
             </Wrapper>
             <WidgetsWrapper>
@@ -402,102 +573,81 @@ const Overview = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                <TableRow
-                                    sx={{
-                                        '&:last-child td, &:last-child th': {
-                                            border: 0,
-                                        },
-                                    }}
-                                >
-                                    <TableCell component="th" scope="row">
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                gap: '8px',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <CardMedia
-                                                sx={{
-                                                    width: '48px',
-                                                }}
-                                                component="img"
-                                                image="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bWFjYm9va3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-                                            />
-                                            Macbook Air M2
-                                        </Box>
-                                    </TableCell>
-                                    <TableCell align="right">#34234</TableCell>
-                                    <TableCell align="right">$546.00</TableCell>
-                                    <TableCell align="right">467</TableCell>
-                                    <TableCell align="right">
-                                        $24,445.66
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow
-                                    sx={{
-                                        '&:last-child td, &:last-child th': {
-                                            border: 0,
-                                        },
-                                    }}
-                                >
-                                    <TableCell component="th" scope="row">
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                gap: '8px',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <CardMedia
-                                                sx={{
-                                                    width: '48px',
-                                                }}
-                                                component="img"
-                                                image="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bWFjYm9va3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-                                            />
-                                            Macbook Air M2
-                                        </Box>
-                                    </TableCell>
-                                    <TableCell align="right">#34234</TableCell>
-                                    <TableCell align="right">$546.00</TableCell>
-                                    <TableCell align="right">467</TableCell>
-                                    <TableCell align="right">
-                                        $24,445.66
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow
-                                    sx={{
-                                        '&:last-child td, &:last-child th': {
-                                            border: 0,
-                                        },
-                                    }}
-                                >
-                                    <TableCell component="th" scope="row">
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                gap: '8px',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <CardMedia
-                                                sx={{
-                                                    width: '48px',
-                                                }}
-                                                component="img"
-                                                image="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bWFjYm9va3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-                                            />
-                                            Macbook Air M2
-                                        </Box>
-                                    </TableCell>
-                                    <TableCell align="right">#34234</TableCell>
-                                    <TableCell align="right">$546.00</TableCell>
-                                    <TableCell align="right">467</TableCell>
-                                    <TableCell align="right">
-                                        $24,445.66
-                                    </TableCell>
-                                </TableRow>
+                                {topSellingProducts.map((prod) => (
+                                    <TableRow
+                                        key={prod.product._id}
+                                        sx={{
+                                            '&:last-child td, &:last-child th':
+                                                {
+                                                    border: 0,
+                                                },
+                                        }}
+                                    >
+                                        <TableCell component="th" scope="row">
+                                            <Stack
+                                                flexDirection="row"
+                                                alignItems="center"
+                                                gap="16px"
+                                            >
+                                                <ImageWrapper>
+                                                    {prod.image?.url ? (
+                                                        <img
+                                                            src={
+                                                                prod.image?.url
+                                                            }
+                                                            alt={
+                                                                prod.image.title
+                                                            }
+                                                            crossOrigin="anonymous"
+                                                        />
+                                                    ) : (
+                                                        <PhotoAlbumOutlined
+                                                            fontSize="large"
+                                                            color="secondary"
+                                                        />
+                                                    )}
+                                                </ImageWrapper>
+                                                {prod.product.title}
+                                            </Stack>
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {prod.product._id}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <Stack>
+                                                <Typography variant="subtitle2">
+                                                    &euro;
+                                                    {(
+                                                        prod.product
+                                                            .selling_price ||
+                                                        prod.product.price
+                                                    ).toFixed(2)}
+                                                </Typography>
+                                                {prod.product.selling_price && (
+                                                    <Typography
+                                                        color="text.secondary"
+                                                        variant="caption"
+                                                        sx={{
+                                                            textDecoration:
+                                                                'line-through',
+                                                        }}
+                                                    >
+                                                        &euro;
+                                                        {prod.product.price.toFixed(
+                                                            2
+                                                        )}
+                                                    </Typography>
+                                                )}
+                                            </Stack>
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {prod.sold}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            &euro;{prod.sales.toFixed(2)}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
                             </TableBody>
                         </Table>
                     </Widget>
@@ -507,32 +657,34 @@ const Overview = () => {
                         <Box sx={{ position: 'relative' }}>
                             <ChartStyled ref={refSalesCategoryChartCanvas} />
                             <DoughnutCenterText variant="h6" fontWeight="bold">
-                                $
-                                {salesInCategories
-                                    .reduce(
+                                &euro;
+                                {(
+                                    salesInEachCategory.reduce(
                                         (acc, currItem) =>
                                             (acc += currItem.sales),
                                         0
-                                    )
-                                    .toFixed(2)}
+                                    ) / 1000
+                                ).toFixed(2)}
                                 k
                             </DoughnutCenterText>
                         </Box>
 
                         <Box>
-                            {salesInCategories.map((cat) => (
-                                <Row key={cat.title}>
+                            {salesInEachCategory.map((cat, i) => (
+                                <Row key={cat.category._id}>
                                     <Row>
                                         <ColorCircle
                                             style={{
-                                                backgroundColor: cat.color,
+                                                backgroundColor: colors[i],
                                             }}
                                         />
                                         <Typography variant="subtitle1">
-                                            {cat.title}
+                                            {cat.category.name}
                                         </Typography>
                                     </Row>
-                                    <Typography>${cat.sales}k</Typography>
+                                    <Typography>
+                                        &euro;{(cat.sales / 1000).toFixed(2)}k
+                                    </Typography>
                                 </Row>
                             ))}
                         </Box>

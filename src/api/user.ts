@@ -36,6 +36,23 @@ export const getUser = (id: string) => {
     return options
 }
 
+/*
+ ** ======================================================
+ ** getTotalUsersCount = Get total users count
+ ** ======================================================
+ */
+export const getTotalUsersCount = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/total-users-count`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
 /** ======================================================
  ** deleteUser = Delete one or many user
  ** ======================================================
