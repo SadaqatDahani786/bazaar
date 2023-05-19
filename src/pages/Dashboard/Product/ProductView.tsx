@@ -809,10 +809,12 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
             )
             .map((variant) => ({
                 ...variant,
-                terms: variant.terms.map((term) => ({
-                    ...term,
-                    image: term.image?._id || undefined,
-                })),
+                terms: variant.terms
+                    .filter((term) => term.isSelected)
+                    .map((term) => ({
+                        ...term,
+                        image: term.image?._id || undefined,
+                    })),
             }))
         formData.append('variants', JSON.stringify(variants))
 

@@ -31,6 +31,7 @@ import EditMediaView from './EditMediaView'
  */
 //Media Library View
 const MediaLibraryViewStyled = styled.div`
+    width: 100%;
     display: flex;
     height: 100%;
     gap: 16px;

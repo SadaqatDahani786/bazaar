@@ -248,7 +248,8 @@ const CategoryView = ({
         inputSlug.reset(false)
         inputDescription.reset(false)
 
-        //=> Reset seletc
+        //=> Reset data
+        setCategory(undefined)
         setSelectedParentCat('none')
 
         //=> Clear func

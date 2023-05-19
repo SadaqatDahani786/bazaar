@@ -334,7 +334,6 @@ const Library = () => {
                                                     (media) => media.isSelected
                                                 ).length === mediaFiles.length
                                             }
-                                            // onChange={onSelectAllClick}
                                             inputProps={{
                                                 'aria-label':
                                                     'select all media files',
