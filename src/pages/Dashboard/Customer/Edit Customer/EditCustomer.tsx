@@ -593,7 +593,7 @@ const EditCustomer = () => {
                                     }}
                                     src={
                                         inputProfilePhoto.value.length <= 0
-                                            ? user?.photo.url
+                                            ? user?.photo?.url
                                             : inputProfilePhoto.value[0].url
                                     }
                                     crossOrigin="anonymous"

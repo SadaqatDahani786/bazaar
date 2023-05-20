@@ -41,20 +41,12 @@ import {
     ArrowForward,
     ExpandMoreOutlined,
     Dashboard,
-    AddBoxOutlined,
-    SubdirectoryArrowRightOutlined,
-    AutoAwesome,
-    AutoAwesomeOutlined,
-    TripOriginOutlined,
-    TripOrigin,
-    LinkOutlined,
-    Circle,
-    PlayForWorkOutlined,
+    AdjustOutlined,
 } from '@mui/icons-material'
 
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link as RouterLink } from 'react-router-dom'
 
 //Redux
 import { useAppDispatch, useAppSelector } from '../../store/store'
@@ -193,7 +185,7 @@ const NavSubMenu = styled.div`
     min-height: 300px;
     background: ${(props) => props.theme.palette.primary.main};
     position: absolute;
-    top: 60px;
+    top: 63px;
     left: 0;
     width: calc(100vw - 48px * 2);
     padding: 48px;
@@ -409,7 +401,7 @@ const TextFieldQuantity = styled(TextField)`
 const DrawerCart = styled.div`
     width: 380px;
     height: 100%;
-    background: white;
+    background: ${(props) => props.theme.palette.secondary.main};
     padding: 48px;
 `
 
@@ -454,7 +446,7 @@ const StackStyled = styled(Stack)`
         top: 100%;
         right: 0;
         z-index: 1000;
-        background: white;
+        background: ${(props) => props.theme.palette.secondary.main};
     }
 
     &:hover > nav {
@@ -566,6 +558,15 @@ const Header = () => {
 
         dispatch(getManyCategoryAsync())
     }, [])
+
+    //Set menu
+    useEffect(() => {
+        //1) Validate
+        if (!categories || categories.length <= 1) return
+
+        //2) Set menu
+        selectMenu()
+    }, [categories])
 
     /**
      ** **
@@ -695,6 +696,29 @@ const Header = () => {
         dispatch(logoutAsync())
     }
 
+    //selectedMenu
+    const selectMenu = () => {
+        //1) Hold new value
+        const newMenu = []
+
+        //2) Find parent, child of parent and child of child
+        const parent = categories.find((cat) => !cat.parent)
+        const childOfParent = categories.find(
+            (cat) => cat.parent?.slug === parent?.slug
+        )
+        const childOfChild = categories.find(
+            (cat) => cat.parent?.slug === childOfParent?.slug
+        )
+
+        //3) Push all into new menu
+        newMenu.push(parent?.slug || '')
+        newMenu.push(childOfParent?.slug || '')
+        newMenu.push(childOfChild?.slug || '')
+
+        //4) Update selected menu with new menu
+        setSelectedMenu(newMenu)
+    }
+
     return (
         <HeaderStyled>
             <AppBar>
@@ -729,32 +753,21 @@ const Header = () => {
                 <Nav>
                     <NavList>
                         <NavListItem>
-                            <NavLink underline="none" color="primary">
+                            <Link
+                                component={RouterLink}
+                                to="/"
+                                underline="none"
+                                color="primary"
+                                sx={{ ':hover': { color: 'text.secondary' } }}
+                            >
                                 Home
-                            </NavLink>
+                            </Link>
                         </NavListItem>
                         <NavListItem
                             onMouseEnter={() => setIsMenuOpen(true)}
                             onMouseLeave={() => {
-                                // setSelectedMenu(
-                                //     categories.reduce<string[]>(
-                                //         (acc, currItem, i) => {
-                                //             if (i === 0) {
-                                //                 acc.push(currItem.slug)
-                                //                 return acc
-                                //             } else if (
-                                //                 acc[acc.length - 1] ===
-                                //                 currItem?.parent?.slug
-                                //             ) {
-                                //                 acc.push(currItem.slug)
-                                //                 return acc
-                                //             }
-                                //             return acc
-                                //         },
-                                //         []
-                                //     )
-                                // )
                                 setIsMenuOpen(false)
+                                selectMenu()
                             }}
                         >
                             <NavLink underline="none">
@@ -781,6 +794,8 @@ const Header = () => {
                                                     data-menu={cat.slug}
                                                 >
                                                     <Link
+                                                        to={`/products/${cat.slug}/1`}
+                                                        component={RouterLink}
                                                         color="secondary"
                                                         underline="hover"
                                                         variant="subtitle2"
@@ -804,7 +819,7 @@ const Header = () => {
                                                             selectedMenu[1] ? (
                                                                 <KeyboardArrowRightOutlined />
                                                             ) : (
-                                                                <PlayForWorkOutlined fontSize="small" />
+                                                                <AdjustOutlined fontSize="inherit" />
                                                             )
                                                         ) : (
                                                             ''
@@ -831,6 +846,8 @@ const Header = () => {
                                                     data-menu={cat.slug}
                                                 >
                                                     <Link
+                                                        to={`/products/${cat.slug}/1`}
+                                                        component={RouterLink}
                                                         color="secondary"
                                                         underline="hover"
                                                         variant="subtitle2"
@@ -853,7 +870,7 @@ const Header = () => {
                                                             selectedMenu[2] ? (
                                                                 <KeyboardArrowRightOutlined />
                                                             ) : (
-                                                                <PlayForWorkOutlined fontSize="small" />
+                                                                <AdjustOutlined fontSize="inherit" />
                                                             )
                                                         ) : (
                                                             ''
@@ -877,6 +894,8 @@ const Header = () => {
                                                     data-menu={cat.slug}
                                                 >
                                                     <Link
+                                                        to={`/products/${cat.slug}/1`}
+                                                        component={RouterLink}
                                                         color="secondary"
                                                         underline="hover"
                                                         variant="subtitle2"
@@ -888,7 +907,7 @@ const Header = () => {
                                                         }}
                                                     >
                                                         {cat.name}
-                                                        <PlayForWorkOutlined fontSize="small" />
+                                                        <AdjustOutlined fontSize="inherit" />
                                                     </Link>
                                                 </li>
                                             ))}
@@ -1142,7 +1161,9 @@ const Header = () => {
                     </Drawer>
                 </Nav>
                 <Logo>
-                    <Link underline="none">Bazaar</Link>
+                    <Link component={RouterLink} to="/" underline="none">
+                        Bazaar
+                    </Link>
                 </Logo>
                 <Nav
                     style={{
