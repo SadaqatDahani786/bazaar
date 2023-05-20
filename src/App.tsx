@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Signup from './pages/Signuo/Signup'
 import ResetPassword from './pages/ResetPassword'
+import ProductsInCategory from './pages/Products In Category'
 
 //CSS
 import './App.css'
@@ -88,6 +89,10 @@ function App() {
                                     <Route
                                         path="/reset-password/:token"
                                         element={<ResetPassword />}
+                                    />
+                                    <Route
+                                        path="/products/:category/:page"
+                                        element={<ProductsInCategory />}
                                     />
                                     <Route
                                         path="/dashboard/"

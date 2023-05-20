@@ -23,6 +23,28 @@ export const getManyCateogory = () => {
 
 /*
  ** ======================================================
+ ** getProductsInCategory = Get products in category
+ ** ======================================================
+ */
+export const getProductsInCategory = (
+    category_slug: string,
+    queryParams: { key: string; value: string }[] = []
+) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${category_slug}/product?${queryParams
+            .map(({ key, value }) => `${key}=${value}`)
+            .join('&')}`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** getSalesInEachCategory = Get total sales in each category
  ** ======================================================
  */

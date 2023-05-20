@@ -57,6 +57,57 @@ export const getTopSellingProducts = () => {
 
 /*
  ** ======================================================
+ ** getBrands = Get brands from products
+ ** ======================================================
+ */
+export const getBrands = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/filter/brand`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getColors = Get colors from products
+ ** ======================================================
+ */
+export const getColors = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/filter/color`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getSizes = Get sizes from products
+ ** ======================================================
+ */
+export const getSizes = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/filter/size`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** createProduct = Create a product
  ** ======================================================
  */

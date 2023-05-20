@@ -41,6 +41,15 @@ import {
     ArrowForward,
     ExpandMoreOutlined,
     Dashboard,
+    AddBoxOutlined,
+    SubdirectoryArrowRightOutlined,
+    AutoAwesome,
+    AutoAwesomeOutlined,
+    TripOriginOutlined,
+    TripOrigin,
+    LinkOutlined,
+    Circle,
+    PlayForWorkOutlined,
 } from '@mui/icons-material'
 
 import styled from 'styled-components'
@@ -51,6 +60,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../store/store'
 import { getUserAsync } from '../../store/userReducer'
 import { setUser, logoutAsync } from '../../store/authReducer'
+import { getManyCategoryAsync } from '../../store/categoryReducer'
 
 /**
  ** **
@@ -463,68 +473,6 @@ const Header = () => {
      ** ** ** Dummy Data
      ** **
      */
-    const categories = [
-        {
-            name: "Men's Fashion",
-            slug: 'men-fashion',
-            parent: 'none',
-        },
-        {
-            name: "Women's Fashion",
-            slug: 'women-fashion',
-            parent: 'none',
-        },
-        {
-            name: 'Health & Beauty',
-            slug: 'health-and-beauty',
-            parent: 'none',
-        },
-        {
-            name: "Men's Apparels",
-            slug: 'men-apparels',
-            parent: 'men-fashion',
-        },
-        {
-            name: "Men's Footwears",
-            slug: 'men-footwears',
-            parent: 'men-fashion',
-        },
-        {
-            name: "Men's Accessories",
-            slug: 'men-accessories',
-            parent: 'men-fashion',
-        },
-        {
-            name: "Men's Jeans",
-            slug: 'men-jeans',
-            parent: 'men-apparels',
-        },
-        {
-            name: "Men's TShirts",
-            slug: 'men-tshirts',
-            parent: 'men-apparels',
-        },
-        {
-            name: "Men's Suits",
-            slug: 'men-suits',
-            parent: 'men-apparels',
-        },
-        {
-            name: "Women's Apparels",
-            slug: 'women-apparels',
-            parent: 'women-fashion',
-        },
-        {
-            name: "Women's Footwears",
-            slug: 'women-footwears',
-            parent: 'women-fashion',
-        },
-        {
-            name: "Women's Accessories",
-            slug: 'women-accessories',
-            parent: 'women-fashion',
-        },
-    ]
 
     const defaultCartItems = [
         {
@@ -570,6 +518,7 @@ const Header = () => {
      */
     //Redux
     const user = useAppSelector((state) => state.auth.data)
+    const categories = useAppSelector((state) => state.category.data)
     const dispatch = useAppDispatch()
 
     //Cart
@@ -584,11 +533,7 @@ const Header = () => {
 
     //State
     const [drawerSelectedMenu, setDrawerSelectedMenu] = useState('')
-    const [selectedMenu, setSelectedMenu] = useState([
-        'men-fashion',
-        'men-apparels',
-        'men-jeans',
-    ])
+    const [selectedMenu, setSelectedMenu] = useState<string[]>([])
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
@@ -618,6 +563,8 @@ const Header = () => {
                 },
             })
         )
+
+        dispatch(getManyCategoryAsync())
     }, [])
 
     /**
@@ -634,11 +581,11 @@ const Header = () => {
 
         //2) child of selected menu
         const childCat =
-            categories.find((cat) => cat.parent === slug)?.slug || ''
+            categories.find((cat) => cat.parent?.slug === slug)?.slug || ''
 
         //3) child of selected menu's child
         const childOfChildCat =
-            categories.find((cat) => cat.parent === childCat)?.slug || ''
+            categories.find((cat) => cat.parent?.slug === childCat)?.slug || ''
 
         //4) update the state
         setSelectedMenu([slug, childCat, childOfChildCat])
@@ -653,7 +600,7 @@ const Header = () => {
 
         //2) child of selected menu
         const childCat =
-            categories.find((cat) => cat.parent === slug)?.name || ''
+            categories.find((cat) => cat.parent?.slug === slug)?.name || ''
 
         //4) update the state
         setSelectedMenu((state) => [state[0], slug, childCat])
@@ -789,11 +736,24 @@ const Header = () => {
                         <NavListItem
                             onMouseEnter={() => setIsMenuOpen(true)}
                             onMouseLeave={() => {
-                                setSelectedMenu([
-                                    'men-fashion',
-                                    'men-apparels',
-                                    'men-jeans',
-                                ])
+                                // setSelectedMenu(
+                                //     categories.reduce<string[]>(
+                                //         (acc, currItem, i) => {
+                                //             if (i === 0) {
+                                //                 acc.push(currItem.slug)
+                                //                 return acc
+                                //             } else if (
+                                //                 acc[acc.length - 1] ===
+                                //                 currItem?.parent?.slug
+                                //             ) {
+                                //                 acc.push(currItem.slug)
+                                //                 return acc
+                                //             }
+                                //             return acc
+                                //         },
+                                //         []
+                                //     )
+                                // )
                                 setIsMenuOpen(false)
                             }}
                         >
@@ -811,9 +771,7 @@ const Header = () => {
                                 <NavCol>
                                     <ul>
                                         {categories
-                                            .filter(
-                                                (cat) => cat.parent === 'none'
-                                            )
+                                            .filter((cat) => !cat.parent)
                                             .map((cat) => (
                                                 <li
                                                     key={cat.slug}
@@ -842,16 +800,14 @@ const Header = () => {
                                                     >
                                                         {cat.name}
                                                         {cat.slug ===
-                                                            selectedMenu[0] && (
-                                                            <Icon
-                                                                style={{
-                                                                    marginTop:
-                                                                        '-5px',
-                                                                    color: 'white',
-                                                                }}
-                                                            >
+                                                        selectedMenu[0] ? (
+                                                            selectedMenu[1] ? (
                                                                 <KeyboardArrowRightOutlined />
-                                                            </Icon>
+                                                            ) : (
+                                                                <PlayForWorkOutlined fontSize="small" />
+                                                            )
+                                                        ) : (
+                                                            ''
                                                         )}
                                                     </Link>
                                                 </li>
@@ -863,7 +819,7 @@ const Header = () => {
                                         {categories
                                             .filter(
                                                 (cat) =>
-                                                    cat.parent ===
+                                                    cat.parent?.slug ===
                                                     selectedMenu[0]
                                             )
                                             .map((cat) => (
@@ -893,16 +849,14 @@ const Header = () => {
                                                         {cat.name}
 
                                                         {cat.slug ===
-                                                            selectedMenu[1] && (
-                                                            <Icon
-                                                                style={{
-                                                                    color: 'white',
-                                                                    marginTop:
-                                                                        '-5px',
-                                                                }}
-                                                            >
+                                                        selectedMenu[1] ? (
+                                                            selectedMenu[2] ? (
                                                                 <KeyboardArrowRightOutlined />
-                                                            </Icon>
+                                                            ) : (
+                                                                <PlayForWorkOutlined fontSize="small" />
+                                                            )
+                                                        ) : (
+                                                            ''
                                                         )}
                                                     </Link>
                                                 </li>
@@ -914,7 +868,7 @@ const Header = () => {
                                         {categories
                                             .filter(
                                                 (cat) =>
-                                                    cat.parent ===
+                                                    cat.parent?.slug ===
                                                     selectedMenu[1]
                                             )
                                             .map((cat) => (
@@ -934,6 +888,7 @@ const Header = () => {
                                                         }}
                                                     >
                                                         {cat.name}
+                                                        <PlayForWorkOutlined fontSize="small" />
                                                     </Link>
                                                 </li>
                                             ))}
@@ -1089,7 +1044,7 @@ const Header = () => {
                                 </Typography>
                                 <DrawerMenuList>
                                     {categories
-                                        .filter((cat) => cat.parent === 'none')
+                                        .filter((cat) => !cat.parent)
                                         .map((cat) => (
                                             <li key={cat.slug}>
                                                 <DrawerNavLink
@@ -1159,7 +1114,9 @@ const Header = () => {
                                                         {categories
                                                             .filter(
                                                                 (catsub) =>
-                                                                    catsub.parent ===
+                                                                    catsub
+                                                                        .parent
+                                                                        ?.slug ===
                                                                     cat.slug
                                                             )
                                                             .map((catsub) => (

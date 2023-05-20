@@ -1,6 +1,5 @@
 import {
     ExpandMore,
-    ExpandMoreOutlined,
     HomeOutlined,
     Menu,
     PersonOutlineSharp,
