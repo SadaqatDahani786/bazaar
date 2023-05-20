@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { SearchOutlined, DeleteOutline } from '@mui/icons-material'
+import { DeleteOutline } from '@mui/icons-material'
 import {
     Stack,
     TextField,
-    InputAdornment,
     Button,
     CircularProgress,
     Alert,

@@ -1,4 +1,5 @@
-import { Typography, useTheme } from '@mui/material'
+import { Link, Tooltip, Typography, useTheme } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
 import styled from 'styled-components'
 
 /*
@@ -46,15 +47,16 @@ const ProductCardDetails = styled.div`
 //Wrapper
 const Wrapper = styled.div`
     display: flex;
+    align-items: center;
     gap: 8px;
 `
 
 //Color Circle
 const ColorCircle = styled.div`
-    width: 1.4rem;
-    height: 1.4rem;
+    width: 1.2rem;
+    height: 1.2rem;
     border-radius: 100%;
-    border: 2px solid ${(props) => props.theme.palette.primary.main};
+    border: 1px solid ${(props) => props.theme.palette.primary.main};
 `
 
 //Tag Wrapper
@@ -106,6 +108,7 @@ const StaffPickedTag = styled.div`
 export interface IProductCardProps {
     title?: string
     image: string
+    url?: string
     prices?: {
         price: number
         sale_price?: number
@@ -124,6 +127,7 @@ const ProductCard = ({
     prices,
     image,
     isStaffPicked = false,
+    url = '',
     colors = [],
 }: IProductCardProps) => {
     //Hooks
@@ -132,44 +136,50 @@ const ProductCard = ({
     return (
         <ProductCardStyled>
             <ProductCardImage>
-                {isStaffPicked ? (
-                    <StaffPickedTag>
-                        <span>Staff Picked</span>
-                    </StaffPickedTag>
-                ) : (
-                    ''
-                )}
-                <img src={image} />
-                <TagWrapper>
-                    {prices?.sale_price ? <Tag>Sale</Tag> : ''}
-                </TagWrapper>
+                <Link component={RouterLink} to={url}>
+                    {isStaffPicked ? (
+                        <StaffPickedTag>
+                            <span>Staff Picked</span>
+                        </StaffPickedTag>
+                    ) : (
+                        ''
+                    )}
+                    <img src={image} crossOrigin="anonymous" />
+                    <TagWrapper>
+                        {prices?.sale_price ? <Tag>Sale</Tag> : ''}
+                    </TagWrapper>
+                </Link>
             </ProductCardImage>
+
             {title ? (
                 <ProductCardDetails>
-                    <Typography
-                        style={{
-                            lineHeight: '1.2em',
-                            maxHeight: '2.4em',
-                            display: '-webkit-box',
-                            WebkitBoxOrient: 'vertical',
-                            WebkitLineClamp: 2,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                        }}
-                        fontWeight={600}
-                        variant="h5"
-                    >
-                        {title}
-                    </Typography>
+                    <Link underline="hover" component={RouterLink} to={url}>
+                        <Typography
+                            style={{
+                                lineHeight: '1.2em',
+                                maxHeight: '2.4em',
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                WebkitLineClamp: 2,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            fontWeight={600}
+                            variant="h5"
+                        >
+                            {title}
+                        </Typography>
+                    </Link>
                     <Wrapper>
                         <Typography
                             style={{ display: 'flex', alignItems: 'center' }}
                             variant="h5"
                         >
-                            $
-                            {prices?.sale_price
+                            &euro;
+                            {(prices?.sale_price
                                 ? prices.sale_price
-                                : prices?.price}
+                                : prices?.price
+                            )?.toFixed(2)}
                         </Typography>
                         {prices?.sale_price ? (
                             <Typography
@@ -179,19 +189,27 @@ const ProductCard = ({
                                 }}
                                 variant="h6"
                             >
-                                ${prices?.price}
+                                &euro;{prices?.price.toFixed(2)}
                             </Typography>
                         ) : (
                             ''
                         )}
                     </Wrapper>
                     <Wrapper>
-                        {colors.map((color, ind) => (
-                            <ColorCircle
-                                key={ind}
-                                style={{ background: color }}
-                            />
-                        ))}
+                        <Typography>Colors: </Typography>
+                        {colors.length <= 0
+                            ? 'No options available.'
+                            : colors.map((color, ind) => (
+                                  <Tooltip title={color}>
+                                      <ColorCircle
+                                          key={ind}
+                                          style={{
+                                              background: color,
+                                              cursor: 'pointer',
+                                          }}
+                                      />
+                                  </Tooltip>
+                              ))}
                     </Wrapper>
                 </ProductCardDetails>
             ) : (
