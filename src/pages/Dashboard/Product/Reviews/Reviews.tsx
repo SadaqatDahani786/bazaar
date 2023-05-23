@@ -130,7 +130,7 @@ const Reviews = () => {
      ** **
      */
     useEffect(() => {
-        dispatch(getManyReviewAsync())
+        dispatch(getManyReviewAsync([]))
     }, [])
 
     /*
@@ -182,7 +182,7 @@ const Reviews = () => {
 
         //3) Refetch reviews when query empty again
         if (!query || query.length <= 0) {
-            return dispatch(getManyReviewAsync())
+            return dispatch(getManyReviewAsync([]))
         }
 
         //4) Set timeout to fetch reviews via search query

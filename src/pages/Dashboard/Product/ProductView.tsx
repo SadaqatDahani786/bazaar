@@ -162,7 +162,7 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
             terms: Array<{
                 name: string
                 isSelected?: boolean
-                image?: IMedia
+                image?: IMediaDatabase
             }>
         }>
     >([])
@@ -525,7 +525,13 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
                     })),
                 }
             } else {
-                return variant
+                return {
+                    ...variant,
+                    terms: variant.terms.map((term) => ({
+                        ...term,
+                        isSelected: true,
+                    })),
+                }
             }
         })
 
@@ -817,6 +823,8 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
                     })),
             }))
         formData.append('variants', JSON.stringify(variants))
+
+        console.log(variants)
 
         //=> Shipping
         formData.append('shipping[weight]', inputWeight.value)
@@ -1367,18 +1375,39 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
                                                 <Stack flex={3}>
                                                     <TextField
                                                         label="Terms"
+                                                        defaultValue={productVariations
+                                                            .find(
+                                                                (variant) =>
+                                                                    variant.name ===
+                                                                    productVar.name
+                                                            )
+                                                            ?.terms.map(
+                                                                (term) =>
+                                                                    term.name
+                                                            )
+                                                            .join('|')}
                                                         onChange={(e) => {
                                                             const upd = [
                                                                 ...productVariations,
                                                             ]
                                                             upd[i].terms =
                                                                 e.target.value
+                                                                    .trim()
                                                                     .split('|')
+                                                                    .filter(
+                                                                        (
+                                                                            term
+                                                                        ) =>
+                                                                            term.trim() !==
+                                                                            ''
+                                                                    )
                                                                     .map(
                                                                         (
                                                                             val
                                                                         ) => ({
                                                                             name: val,
+                                                                            isSelected:
+                                                                                true,
                                                                         })
                                                                     )
                                                             setProductVariations(
@@ -1390,6 +1419,73 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
                                                         }
                                                     />
                                                 </Stack>
+                                            </Stack>
+                                            <Stack
+                                                flexDirection="row"
+                                                gap="16px"
+                                                flexWrap="wrap"
+                                            >
+                                                {productVariations
+                                                    .find(
+                                                        (variant) =>
+                                                            variant.name ===
+                                                            productVar.name
+                                                    )
+                                                    ?.terms.map((term) => (
+                                                        <Box>
+                                                            <MediaPicker
+                                                                default_selected={
+                                                                    term.image
+                                                                        ? [
+                                                                              term.image,
+                                                                          ]
+                                                                        : []
+                                                                }
+                                                                onSelect={(
+                                                                    files
+                                                                ) =>
+                                                                    setProductVariations(
+                                                                        productVariations.map(
+                                                                            (
+                                                                                variant
+                                                                            ) => {
+                                                                                if (
+                                                                                    variant.name ===
+                                                                                    productVar.name
+                                                                                ) {
+                                                                                    return {
+                                                                                        ...variant,
+                                                                                        terms: variant.terms.map(
+                                                                                            (
+                                                                                                currterm
+                                                                                            ) => {
+                                                                                                if (
+                                                                                                    currterm.name ===
+                                                                                                    term.name
+                                                                                                )
+                                                                                                    return {
+                                                                                                        ...currterm,
+                                                                                                        image:
+                                                                                                            files.length >
+                                                                                                            0
+                                                                                                                ? files[0]
+                                                                                                                : undefined,
+                                                                                                    }
+                                                                                                return currterm
+                                                                                            }
+                                                                                        ),
+                                                                                    }
+                                                                                }
+                                                                                return variant
+                                                                            }
+                                                                        )
+                                                                    )
+                                                                }
+                                                                buttonText={`${term.name} Image`}
+                                                                modalButtonText="Set custom variant image"
+                                                            />
+                                                        </Box>
+                                                    ))}
                                             </Stack>
                                         </AccordionDetails>
                                     </Accordion>

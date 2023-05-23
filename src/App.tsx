@@ -14,6 +14,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signuo/Signup'
 import ResetPassword from './pages/ResetPassword'
 import ProductsInCategory from './pages/Products In Category'
+import Product from './pages/Product'
 
 //CSS
 import './App.css'
@@ -93,6 +94,10 @@ function App() {
                                     <Route
                                         path="/products/:category/:page"
                                         element={<ProductsInCategory />}
+                                    />
+                                    <Route
+                                        path="/product/:id"
+                                        element={<Product />}
                                     />
                                     <Route
                                         path="/dashboard/"

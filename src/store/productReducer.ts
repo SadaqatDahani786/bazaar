@@ -6,6 +6,7 @@ import {
     deleteProduct,
     getBrands,
     getColors,
+    getItemsBoughtTogether,
     getManyProduct,
     getProduct,
     getSizes,
@@ -103,10 +104,13 @@ export const getProductAsync = createAsyncThunk(
  */
 export const getManyProductAsync = createAsyncThunk(
     'get/manyProduct',
-    async (_, { rejectWithValue }) => {
+    async (
+        queryParams: { key: string; value: string }[] = [],
+        { rejectWithValue }
+    ) => {
         try {
             //1) Send http request
-            const response = await axios(getManyProduct())
+            const response = await axios(getManyProduct(queryParams))
 
             //2) Return response
             return {
@@ -178,6 +182,46 @@ export const getTopSellingProductsAsync = createAsyncThunk(
         try {
             //1) Send http request
             const response = await axios(getTopSellingProducts())
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getItemsBoughtTogetherAsync]
+ ** ======================================================
+ */
+export const getItemsBoughtTogetherAsync = createAsyncThunk(
+    'get/items-bought-together',
+    async (
+        {
+            id,
+            cb = () => undefined,
+        }: {
+            id: string
+            cb: (
+                res: {
+                    sold: number
+                    product: IProduct
+                    image: IMediaDatabase
+                }[]
+            ) => void
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getItemsBoughtTogether(id))
 
             //2) Callback
             cb(response.data.data)
@@ -560,6 +604,23 @@ const sliceProduct = createSlice({
                 errors: { ...state.errors, fetch: '' },
             }))
             .addCase(getTopSellingProductsAsync.rejected, (state, action) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+            }))
+            .addCase(getItemsBoughtTogetherAsync.fulfilled, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                }
+            })
+            .addCase(getItemsBoughtTogetherAsync.pending, (state) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+            }))
+            .addCase(getItemsBoughtTogetherAsync.rejected, (state, action) => ({
                 ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },

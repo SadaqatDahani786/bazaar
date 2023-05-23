@@ -200,9 +200,8 @@ const ProductCard = ({
                         {colors.length <= 0
                             ? 'No options available.'
                             : colors.map((color, ind) => (
-                                  <Tooltip title={color}>
+                                  <Tooltip key={ind} title={color}>
                                       <ColorCircle
-                                          key={ind}
                                           style={{
                                               background: color,
                                               cursor: 'pointer',

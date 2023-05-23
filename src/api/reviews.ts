@@ -9,10 +9,31 @@ const API_ENDPOINT = `${BASE_URL}/review`
  ** getManyReview = Get one or many review
  ** ======================================================
  */
-export const getManyReview = () => {
+export const getManyReview = (
+    queryParams: { key: string; value: string }[] = []
+) => {
     //1) Create a request with options
     const options: AxiosRequestConfig = {
-        url: API_ENDPOINT,
+        url: `${API_ENDPOINT}?${queryParams
+            .map(({ key, value }) => `${key}=${value}`)
+            .join('&')}`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getRatingsOfProduct = Get ratings of one or many product
+ ** ======================================================
+ */
+export const getRatingsOfProduct = (ids: string[]) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/ratings/${ids.join(',')}`,
         method: 'GET',
         withCredentials: true,
     }

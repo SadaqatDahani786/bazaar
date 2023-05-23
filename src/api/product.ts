@@ -26,11 +26,114 @@ export const getProduct = (id: string) => {
  ** getManyProduct = Get one or many product
  ** ======================================================
  */
-export const getManyProduct = () => {
+export const getManyProduct = (
+    queryParams: { key: string; value: string }[] = []
+) => {
     //1) Create a request with options
     const options: AxiosRequestConfig = {
-        url: API_ENDPOINT,
+        url: `${API_ENDPOINT}?${queryParams
+            .map(({ key, value }) => `${key}=${value}`)
+            .join('&')}`,
         method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getItemsBoughtTogether = Get items that are frequently bought together
+ ** ======================================================
+ */
+export const getItemsBoughtTogether = (id: string) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${id}/frequently-bought-together`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getUserProductReview = Get review of current user on the product
+ ** ======================================================
+ */
+export const getUserProductReview = (prodId: string) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${prodId}/review/user`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** createUserProductReview = Update review of current user on the product
+ ** ======================================================
+ */
+export const createUserProductReview = (
+    prodId: string,
+    formData: GenericFormData
+) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${prodId}/review/user`,
+        method: 'POST',
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+        data: formData,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** updateUserProductReview = Update review of current user on the product
+ ** ======================================================
+ */
+export const updateUserProductReview = (
+    prodId: string,
+    formData: GenericFormData
+) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${prodId}/review/user`,
+        method: 'PUT',
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+        data: formData,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** deleteUserProductReview = Delete review of current user on the product
+ ** ======================================================
+ */
+export const deleteUserProductReview = (prodId: string) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${prodId}/review/user`,
+        method: 'DELETE',
         withCredentials: true,
     }
 

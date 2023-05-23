@@ -124,7 +124,7 @@ const AllProducts = () => {
      */
     //Fetch products when component loads up first time
     useEffect(() => {
-        dispatch(getManyProductAsync())
+        dispatch(getManyProductAsync([]))
     }, [])
 
     /*
@@ -176,7 +176,7 @@ const AllProducts = () => {
 
         //3) Refetch products when query empty again
         if (!query || query.length <= 0) {
-            return dispatch(getManyProductAsync())
+            return dispatch(getManyProductAsync([]))
         }
 
         //4) Set timeout to fetch products via search query
