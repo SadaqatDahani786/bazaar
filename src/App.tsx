@@ -15,6 +15,7 @@ import Signup from './pages/Signuo/Signup'
 import ResetPassword from './pages/ResetPassword'
 import ProductsInCategory from './pages/Products In Category'
 import Product from './pages/Product'
+import Cart from './pages/Cart'
 
 //CSS
 import './App.css'
@@ -91,6 +92,7 @@ function App() {
                                         path="/reset-password/:token"
                                         element={<ResetPassword />}
                                     />
+                                    <Route path="/cart" element={<Cart />} />
                                     <Route
                                         path="/products/:category/:page"
                                         element={<ProductsInCategory />}

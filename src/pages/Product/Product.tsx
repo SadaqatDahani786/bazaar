@@ -15,6 +15,7 @@ import {
     Breadcrumbs,
     Button,
     ButtonGroup,
+    CircularProgress,
     Divider,
     Grid,
     IconButton,
@@ -55,6 +56,7 @@ import {
     updateReviewAsync,
     updateUserProductReviewAsync,
 } from '../../store/reviewReducer'
+import { addItemInUserCartAsync } from '../../store/cartReducer'
 import { IMediaDatabase } from '../../store/mediaReducer'
 
 //Components
@@ -177,6 +179,7 @@ const Product = () => {
     const user = useAppSelector((state) => state.auth.data)
     const { data: reviews, count } = useAppSelector((state) => state.review)
     const isLoadingReview = useAppSelector((state) => state.review.isLoading)
+    const { isLoading } = useAppSelector((state) => state.cart)
     const dispatch = useAppDispatch()
 
     //State
@@ -268,6 +271,7 @@ const Product = () => {
         )
     }, [])
 
+    //Fetch ratings of products
     useEffect(() => {
         if (!params.id) return
 
@@ -284,13 +288,16 @@ const Product = () => {
 
     //Fetch product reviews
     useEffect(() => {
+        if (!product) return
+
         dispatch(
             getManyReviewAsync([
-                { key: 'limit', value: '1' },
+                { key: 'product', value: product._id },
+                { key: 'limit', value: '10' },
                 { key: 'page', value: page.toString() },
             ])
         )
-    }, [page])
+    }, [page, product])
 
     //Set Reviews
     useEffect(() => {
@@ -422,6 +429,25 @@ const Product = () => {
         )
     }
 
+    //Add item int to cart handler
+    const clickAddToCartHandler = () => {
+        if (!product || !quantity) return
+
+        //1) Create form data
+        const data = {
+            product: product._id,
+            quantity: quantity,
+            selected_variants:
+                variants?.map((variant) => ({
+                    name: variant.name,
+                    term: variant.selectedTerm,
+                })) || [],
+        }
+
+        //3) Dispatch action to add item into the cart
+        dispatch(addItemInUserCartAsync({ data, cb: () => undefined }))
+    }
+
     return (
         <ProductStyled>
             <Header />
@@ -528,10 +554,11 @@ const Product = () => {
                                         component="span"
                                         variant="body1"
                                     >
-                                        {ratings.length > 0 &&
+                                        {(ratings.length > 0 &&
                                             calcAverageRatings(
                                                 ratings[0].ratings
-                                            ).average}
+                                            ).average) ||
+                                            0}
                                     </Typography>
                                     ) Ratings
                                 </Typography>
@@ -543,9 +570,10 @@ const Product = () => {
                                     component="span"
                                     variant="body1"
                                 >
-                                    {ratings.length > 0 &&
+                                    {(ratings.length > 0 &&
                                         calcAverageRatings(ratings[0].ratings)
-                                            .total}
+                                            .total) ||
+                                        0}
                                 </Typography>
                                 ) Reviews
                             </Typography>
@@ -717,50 +745,69 @@ const Product = () => {
                     </Stack>
                     <Divider />
                     <Stack flexDirection="row" gap="32px" alignItems="center">
-                        <Stack flexDirection="row" gap="8px">
-                            <IconButton
-                                onClick={() =>
-                                    setQuantity((state) =>
-                                        state > 0 ? state - 1 : 0
-                                    )
-                                }
-                            >
-                                <Remove fontSize="small" />
-                            </IconButton>
-                            <TextField
-                                value={quantity}
-                                onChange={(e) => {
-                                    const val = e.target.value.replaceAll(
-                                        /[^0-9]/g,
-                                        ''
-                                    )
-                                    setQuantity(+val)
-                                }}
-                                sx={{ width: '4rem', textAlign: 'center' }}
-                                size="small"
-                            />
-                            <IconButton
-                                onClick={() =>
-                                    setQuantity((state) => state + 1)
-                                }
-                            >
-                                <AddOutlined fontSize="small" />
-                            </IconButton>
-                        </Stack>
+                        {!user ? (
+                            <Typography>
+                                <Link
+                                    component={RouterLink}
+                                    to="/login"
+                                    underline="always"
+                                >
+                                    Login
+                                </Link>{' '}
+                                to add items in cart.
+                            </Typography>
+                        ) : (
+                            <Stack flexDirection="row" gap="8px">
+                                <IconButton
+                                    onClick={() =>
+                                        setQuantity((state) =>
+                                            state > 0 ? state - 1 : 0
+                                        )
+                                    }
+                                >
+                                    <Remove fontSize="small" />
+                                </IconButton>
+                                <TextField
+                                    value={quantity}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replaceAll(
+                                            /[^0-9]/g,
+                                            ''
+                                        )
+                                        setQuantity(+val)
+                                    }}
+                                    sx={{ width: '4rem', textAlign: 'center' }}
+                                    size="small"
+                                />
+                                <IconButton
+                                    onClick={() =>
+                                        setQuantity((state) => state + 1)
+                                    }
+                                >
+                                    <AddOutlined fontSize="small" />
+                                </IconButton>
+                            </Stack>
+                        )}
                         <Button
                             size="large"
                             variant="contained"
                             disableElevation
-                            startIcon={<ShoppingCart />}
+                            startIcon={!isLoading.add_item && <ShoppingCart />}
                             sx={{ padding: '16px 32px' }}
+                            onClick={clickAddToCartHandler}
                             disabled={
+                                isLoading.add_item ||
                                 quantity <= 0 ||
                                 quantity > (product?.stock || quantity + 1)
                             }
                         >
-                            {quantity <= (product?.stock || quantity + 1)
-                                ? 'Add to cart'
-                                : 'Not sufficient stock'}
+                            {isLoading.add_item ? (
+                                <CircularProgress size={16} />
+                            ) : quantity <= (product?.stock || quantity + 1) ? (
+                                'Add to cart'
+                            ) : (
+                                'Not sufficient stock'
+                            )}
                         </Button>
                     </Stack>
                 </Details>
@@ -897,9 +944,10 @@ const Product = () => {
                                     component="span"
                                     variant="inherit"
                                 >
-                                    {ratings.length > 0 &&
+                                    {(ratings.length > 0 &&
                                         calcAverageRatings(ratings[0].ratings)
-                                            .average}
+                                            .average) ||
+                                        0}
                                 </Typography>
                                 ) Ratings
                             </Typography>
@@ -911,9 +959,10 @@ const Product = () => {
                                 component="span"
                                 variant="inherit"
                             >
-                                {ratings.length > 0 &&
+                                {(ratings.length > 0 &&
                                     calcAverageRatings(ratings[0].ratings)
-                                        .total}
+                                        .total) ||
+                                    0}
                             </Typography>
                             ) Customers Reviews
                         </Typography>
