@@ -21,6 +21,8 @@ import {
     Tooltip,
     Typography,
     Stack,
+    FormControlLabel,
+    Radio,
 } from '@mui/material'
 
 import { useNavigate } from 'react-router-dom'
@@ -37,6 +39,10 @@ import {
     removeItemFromUserCartAsync,
 } from '../../store/cartReducer'
 import { IProduct } from '../../store/productReducer'
+import {
+    createCheckoutNoPayAsync,
+    createStripeCheckoutSessionAsync,
+} from '../../store/checkoutReducer'
 
 /*
  ** **
@@ -86,17 +92,24 @@ const Cart = () => {
      ** **
      */
     //Redux
-    const user = useAppSelector((state) => state.auth.data)
+    const user = useAppSelector((state) => state.auth)
     const {
         data: cart,
         isLoading,
         errors,
     } = useAppSelector((state) => state.cart)
+    const isLoadingCheckout = useAppSelector(
+        (state) => state.checkout.isLoading
+    )
+    const errorCheckout = useAppSelector((state) => state.checkout.error)
     const dispatch = useAppDispatch()
 
     //State
     const [deleteAction, setDeleteAction] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+        'card' | 'cash'
+    >('card')
 
     //Hooks
     const navigate = useNavigate()
@@ -107,12 +120,9 @@ const Cart = () => {
      ** **
      */
     useEffect(() => {
-        //1) If user logged in then don't proceed
-        if (user) return
-
-        //2) User not logged in, redirect to login page
-        navigate('/login', { replace: true })
-    }, [])
+        if (!localStorage.getItem('user_id'))
+            navigate('/login', { replace: true })
+    }, [user])
 
     /*
      ** **
@@ -169,19 +179,45 @@ const Cart = () => {
         )
     }
 
+    //Click checkout handler
+    const clickCheckoutHandler = () => {
+        //1) Cart method
+        if (selectedPaymentMethod === 'card')
+            return dispatch(
+                createStripeCheckoutSessionAsync((res) => {
+                    if (res) window.location.href = res
+                    setShowAlert(true)
+                })
+            )
+
+        //2) Cash method
+        dispatch(
+            createCheckoutNoPayAsync((err) => {
+                setShowAlert(true)
+                if (!err) navigate('/success')
+            })
+        )
+    }
+
     return (
         <CartStyled>
             <Header />
             <Section>
                 {showAlert &&
-                (errors.add_item || errors.fetch || errors.remove_item) ? (
+                (errors.add_item ||
+                    errors.fetch ||
+                    errors.remove_item ||
+                    errorCheckout) ? (
                     <Alert
                         severity="error"
                         variant="outlined"
                         onClose={() => setShowAlert(false)}
                     >
                         <AlertTitle>Error Occured!</AlertTitle>
-                        {errors.fetch || errors.add_item || errors.remove_item}
+                        {errors.fetch ||
+                            errors.add_item ||
+                            errors.remove_item ||
+                            errorCheckout}
                     </Alert>
                 ) : (
                     ''
@@ -363,26 +399,61 @@ const Cart = () => {
                         </Typography>
                         <Typography variant="h6">
                             &euro;
-                            {cart?.products.reduce(
-                                (acc, currItem) =>
-                                    (acc +=
-                                        (currItem.product.selling_price ||
-                                            currItem.product.price) *
-                                        currItem.quantity),
-                                0
-                            ) || (0).toFixed(2)}
+                            {(
+                                cart?.products.reduce(
+                                    (acc, currItem) =>
+                                        (acc +=
+                                            (currItem.product.selling_price ||
+                                                currItem.product.price) *
+                                            currItem.quantity),
+                                    0
+                                ) || 0
+                            ).toFixed(2)}
                         </Typography>
                     </Stack>
                     <Divider />
+                    <Stack>
+                        <Typography>Select Payment Method: </Typography>
+                        <FormControlLabel
+                            label="Card"
+                            control={
+                                <Radio
+                                    checked={selectedPaymentMethod === 'card'}
+                                    onChange={() =>
+                                        setSelectedPaymentMethod('card')
+                                    }
+                                />
+                            }
+                        />
+                        <FormControlLabel
+                            label="Cash On Delivery"
+                            control={
+                                <Radio
+                                    checked={selectedPaymentMethod === 'cash'}
+                                    onChange={() =>
+                                        setSelectedPaymentMethod('cash')
+                                    }
+                                />
+                            }
+                        />
+                    </Stack>
                     <Button
                         sx={{ padding: '16px 24px' }}
                         size="large"
                         variant="contained"
                         disableElevation
                         endIcon={<ArrowForward />}
-                        disabled={!(cart && cart.products.length > 0)}
+                        onClick={clickCheckoutHandler}
+                        disabled={
+                            isLoadingCheckout ||
+                            !(cart && cart.products.length > 0)
+                        }
                     >
-                        Checkout
+                        {isLoadingCheckout ? (
+                            <CircularProgress size={16} />
+                        ) : (
+                            'Checkout'
+                        )}
                     </Button>
                 </Stack>
             </Section>

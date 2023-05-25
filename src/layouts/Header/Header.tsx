@@ -1475,16 +1475,18 @@ const Header = () => {
                                     </Typography>
                                     <Typography variant="h6" fontWeight="bold">
                                         &euro;
-                                        {cart?.products.reduce(
-                                            (acc, currItem) =>
-                                                (acc +=
-                                                    (currItem.product
-                                                        .selling_price ||
-                                                        currItem.product
-                                                            .price) *
-                                                    currItem.quantity),
-                                            0
-                                        ) || (0).toFixed(2)}
+                                        {(
+                                            cart?.products.reduce(
+                                                (acc, currItem) =>
+                                                    (acc +=
+                                                        (currItem.product
+                                                            .selling_price ||
+                                                            currItem.product
+                                                                .price) *
+                                                        currItem.quantity),
+                                                0
+                                            ) || 0
+                                        ).toFixed(2)}
                                     </Typography>
                                 </Box>
                                 <Button
