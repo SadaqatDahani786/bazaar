@@ -1,16 +1,20 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios, { AxiosError, GenericFormData } from 'axios'
 import {
+    clearUserHistory,
     createUser,
     deleteUser,
+    getCurrentUser,
     getManyUser,
     getTotalUsersCount,
     getUser,
     searchUser,
     updateCurrentUser,
     updateUser,
+    updateUserHistory,
 } from '../api/user'
 import { IAddress } from '../components/AddressView/AddressView'
+import { IProduct } from './productReducer'
 
 /**
  ** ======================================================
@@ -30,6 +34,10 @@ export interface IUserDatabase {
     phone_no: string
     addresses: Array<IAddress>
     role: 'member' | 'admin'
+    history?: {
+        product: IProduct
+        touch_date: string
+    }[]
     created_at: string
 }
 
@@ -75,6 +83,33 @@ export const getUserAsync = createAsyncThunk(
         try {
             //1) Send http request
             const response = await axios(getUser(id))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            if (err instanceof AxiosError)
+                return rejectWithValue({
+                    message: err.response?.data?.message,
+                    status: err.response?.status,
+                })
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getCurrentUserAsync]
+ ** ======================================================
+ */
+export const getCurrentUserAsync = createAsyncThunk(
+    'get/current-user',
+    async (cb: (user: IUserDatabase) => void, { rejectWithValue }) => {
+        try {
+            //1) Send http request
+            const response = await axios(getCurrentUser())
 
             //2) Callback
             cb(response.data.data)
@@ -185,6 +220,62 @@ export const updateUserAsync = createAsyncThunk(
             cb()
 
             //2) Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [updateUserHistoryAsync]
+ ** ======================================================
+ */
+export const updateUserHistoryAsync = createAsyncThunk(
+    'update/user-history',
+    async (
+        {
+            id,
+            cb = () => '',
+        }: { id: string; cb: (user: IUserDatabase) => void },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(updateUserHistory(id))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //=> Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [clearUserHistoryAsync]
+ ** ======================================================
+ */
+export const clearUserHistoryAsync = createAsyncThunk(
+    'delete/user-history',
+    async (cb: (user: IUserDatabase) => void, { rejectWithValue }) => {
+        try {
+            //1) Send http request
+            const response = await axios(clearUserHistory())
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //=> Reject with error
             if (err instanceof AxiosError)
                 return rejectWithValue(err.response?.data?.message)
         }
@@ -368,6 +459,42 @@ const sliceUser = createSlice({
                     },
                 }
             })
+            .addCase(getCurrentUserAsync.fulfilled, (state) => {
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: state.data,
+                }
+            })
+            .addCase(getCurrentUserAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: true },
+                }
+            })
+            .addCase(getCurrentUserAsync.rejected, (state, action) => {
+                //1) Extract message and status from payload
+                const { message, status } = action.payload as {
+                    message: string
+                    status: number
+                }
+
+                //2) If 401 error, clear storage and remove user
+                if (status === 401) {
+                    localStorage.removeItem('user_id')
+                    localStorage.removeItem('user_role')
+                }
+
+                //3) Update state
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: {
+                        ...state.errors,
+                        fetch: message,
+                    },
+                }
+            })
             .addCase(
                 getManyUserAsync.fulfilled,
                 (state, action: { payload: Array<IUser> }) => {
@@ -445,6 +572,52 @@ const sliceUser = createSlice({
                     errors: {
                         ...state.errors,
                         update: action.payload as string,
+                    },
+                }
+            })
+            .addCase(updateUserHistoryAsync.fulfilled, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, update: false },
+                    errors: { ...state.errors, update: '' },
+                }
+            })
+            .addCase(updateUserHistoryAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, update: true },
+                }
+            })
+            .addCase(updateUserHistoryAsync.rejected, (state, action) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, update: false },
+                    errors: {
+                        ...state.errors,
+                        update: action.payload as string,
+                    },
+                }
+            })
+            .addCase(clearUserHistoryAsync.fulfilled, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, delete: false },
+                    errors: { ...state.errors, delete: '' },
+                }
+            })
+            .addCase(clearUserHistoryAsync.pending, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, delete: true },
+                }
+            })
+            .addCase(clearUserHistoryAsync.rejected, (state, action) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, delete: false },
+                    errors: {
+                        ...state.errors,
+                        delete: action.payload as string,
                     },
                 }
             })

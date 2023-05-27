@@ -36,6 +36,22 @@ export const getUser = (id: string) => {
     return options
 }
 
+/** ======================================================
+ ** getCurrentUser = Fetch currently logged in user
+ ** ======================================================
+ */
+export const getCurrentUser = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/me`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
 /*
  ** ======================================================
  ** getTotalUsersCount = Get total users count
@@ -97,6 +113,38 @@ export const updateUser = (id: string, formData: GenericFormData) => {
         method: 'PUT',
         withCredentials: true,
         data: formData,
+    }
+
+    //2) Return options
+    return options
+}
+
+/** ======================================================
+ ** updateUserHistory = Update user's watch history
+ ** ======================================================
+ */
+export const updateUserHistory = (id: string) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/history?id=${id}`,
+        method: 'PATCH',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/** ======================================================
+ ** clearUserHistory = Clear user's watch history
+ ** ======================================================
+ */
+export const clearUserHistory = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/history`,
+        method: 'DELETE',
+        withCredentials: true,
     }
 
     //2) Return options

@@ -8,7 +8,7 @@ import {
     signup,
     updatePassword,
 } from '../api/auth'
-import { getUser } from '../api/user'
+import { getCurrentUser, getUser } from '../api/user'
 import { IUserDatabase } from './userReducer'
 
 /**
@@ -49,10 +49,10 @@ export const loginAsync = createAsyncThunk(
     ) => {
         try {
             //1) Send http request
-            const response = await axios(login(email, password))
+            await axios(login(email, password))
 
-            //2) Get complete user with it's id
-            const reponseUser = await axios(getUser(response.data.data.user))
+            //2) Get current user
+            const reponseUser = await axios(getCurrentUser())
 
             //3) Return response
             return reponseUser.data.data

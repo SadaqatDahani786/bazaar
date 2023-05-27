@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 //Components
 import ProductCard from '../Product Card'
 import { IProductCardProps } from '../Product Card/ProductCard'
+import { Typography } from '@mui/material'
 
 /*
  ** **
@@ -92,6 +93,7 @@ interface ICardSliderProps {
     showNextPreview?: boolean
     slides: Array<IProductCardProps>
     slidesToShow?: number
+    helpertext?: string
 }
 
 /**
@@ -104,6 +106,7 @@ const CardSlider = ({
     slides,
     showNextPreview = true,
     slidesToShow = 3,
+    helpertext,
 }: ICardSliderProps) => {
     /*
      ** **
@@ -164,11 +167,17 @@ const CardSlider = ({
                     stiffness: 7,
                 }}
             >
-                {slides.map((slide, ind) => (
-                    <Slide key={ind} $showNextPreview={showNextPreview}>
-                        <ProductCard {...slide} />
-                    </Slide>
-                ))}
+                {slides.length <= 0 ? (
+                    <Typography variant="h5" margin="auto" textAlign="center">
+                        {helpertext}
+                    </Typography>
+                ) : (
+                    slides.map((slide, ind) => (
+                        <Slide key={ind} $showNextPreview={showNextPreview}>
+                            <ProductCard {...slide} />
+                        </Slide>
+                    ))
+                )}
             </CardSliderInner>
 
             <SliderControl

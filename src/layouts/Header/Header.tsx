@@ -51,7 +51,7 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom'
 
 //Redux
 import { useAppDispatch, useAppSelector } from '../../store/store'
-import { getUserAsync } from '../../store/userReducer'
+import { getCurrentUserAsync } from '../../store/userReducer'
 import { setUser, logoutAsync } from '../../store/authReducer'
 import { getManyCategoryAsync } from '../../store/categoryReducer'
 import {
@@ -519,7 +519,7 @@ const Header = () => {
     //Fetch categories & set user
     useEffect(() => {
         //1) Fetch categories
-        dispatch(getManyCategoryAsync())
+        dispatch(getManyCategoryAsync([]))
 
         //2) Get user id and validate
         const id = localStorage.getItem('user_id')
@@ -527,11 +527,8 @@ const Header = () => {
 
         //3) Fetch and set logged in user details
         dispatch(
-            getUserAsync({
-                id,
-                cb: (user) => {
-                    dispatch(setUser(user))
-                },
+            getCurrentUserAsync((user) => {
+                dispatch(setUser(user))
             })
         )
     }, [])

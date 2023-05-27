@@ -1,6 +1,8 @@
+import { PhotoAlbumOutlined } from '@mui/icons-material'
 import { Link, Tooltip, Typography, useTheme } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
 import styled from 'styled-components'
+import Pill from '../Pill'
 
 /*
  ** **
@@ -21,6 +23,11 @@ const ProductCardImage = styled.div`
     flex: 1;
     overflow: hidden;
     position: relative;
+    background: ${(props) => props.theme.palette.grey[300]};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10rem;
 
     & img {
         width: 100%;
@@ -63,6 +70,7 @@ const ColorCircle = styled.div`
 const TagWrapper = styled.div`
     position: absolute;
     bottom: 0;
+    left: 0;
     padding: 8px;
     width: 100%;
     height: max-content;
@@ -71,7 +79,7 @@ const TagWrapper = styled.div`
     gap: 8px;
 `
 
-//Tag
+// //Tag
 const Tag = styled.div`
     background: ${(props) => props.theme.palette.error.main};
     color: ${(props) => props.theme.palette.secondary.main};
@@ -144,7 +152,14 @@ const ProductCard = ({
                     ) : (
                         ''
                     )}
-                    <img src={image} crossOrigin="anonymous" />
+                    {image ? (
+                        <img src={image} crossOrigin="anonymous" />
+                    ) : (
+                        <PhotoAlbumOutlined
+                            fontSize="inherit"
+                            color="secondary"
+                        />
+                    )}
                     <TagWrapper>
                         {prices?.sale_price ? <Tag>Sale</Tag> : ''}
                     </TagWrapper>

@@ -129,7 +129,7 @@ const Categories = () => {
      */
     //Get many categories async
     useEffect(() => {
-        dispatch(getManyCategoryAsync())
+        dispatch(getManyCategoryAsync([]))
         setShowAlert(true)
     }, [])
 
@@ -182,7 +182,7 @@ const Categories = () => {
 
         //3) Refetch users when query empty again
         if (!query || query.length <= 0) {
-            return dispatch(getManyCategoryAsync())
+            return dispatch(getManyCategoryAsync([]))
         }
 
         //4) Set timeout to fetch user via search query

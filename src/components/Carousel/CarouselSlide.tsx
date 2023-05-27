@@ -1,7 +1,7 @@
-import { Button, Link, Typography, useTheme } from '@mui/material'
+import { Button, Link, Typography } from '@mui/material'
 import { ArrowForwardOutlined, AddOutlined } from '@mui/icons-material'
 import styled from 'styled-components'
-import useWindowDimensions from '../../hooks/useWindowDimensions'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 
 /*
  ** **
@@ -61,6 +61,7 @@ interface ICarouselSlideProps {
     title?: string
     subtitle?: string
     image?: string
+    url?: string
 }
 
 /**
@@ -73,9 +74,10 @@ const CarouselSlide = ({
     title,
     subtitle,
     image,
+    url = '',
 }: ICarouselSlideProps) => {
-    const { width } = useWindowDimensions()
-    const theme = useTheme()
+    //Navigation
+    const navigate = useNavigate()
 
     return (
         <>
@@ -131,12 +133,15 @@ const CarouselSlide = ({
                             size="large"
                             variant={'contained'}
                             color="secondary"
+                            onClick={() => navigate(url)}
                         >
                             Shop Now
                             <ArrowForwardOutlined />
                         </Button>
                     ) : (
                         <Link
+                            component={RouterLink}
+                            to={url}
                             underline="hover"
                             style={{
                                 display: 'flex',

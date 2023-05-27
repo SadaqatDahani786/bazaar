@@ -69,6 +69,7 @@ const SlideLeft = styled.div`
     }
 `
 
+//Slider
 const SlideRight = styled.div`
     flex: 1;
     height: 100%;
@@ -79,6 +80,7 @@ const SlideRight = styled.div`
     gap: 16px;
 `
 
+//Slider Row
 const SliderRow = styled.div`
     height: calc(50% - 8px);
     position: relative;
@@ -117,6 +119,7 @@ interface ICarouselProps {
             title: string
             subtitle?: string
             image: string
+            url: string
         }>
     >
 }
@@ -196,6 +199,7 @@ const Carousel = ({
                                     title={slide[0].title}
                                     subtitle={slide[0].subtitle}
                                     image={slide[0].image}
+                                    url={slide[0].url}
                                     variant="mini"
                                 />
                             </SlideLeft>
@@ -204,6 +208,7 @@ const Carousel = ({
                                     <CarouselSlide
                                         title={slide[1].title}
                                         image={slide[1].image}
+                                        url={slide[1].url}
                                         variant="small"
                                     />
                                 </SliderRow>
@@ -211,6 +216,7 @@ const Carousel = ({
                                     <CarouselSlide
                                         title={slide[2].title}
                                         image={slide[2].image}
+                                        url={slide[2].image}
                                         variant="small"
                                     />
                                 </SliderRow>
@@ -224,6 +230,7 @@ const Carousel = ({
                                     title={slide[0].title}
                                     subtitle={slide[0].subtitle}
                                     image={slide[0].image}
+                                    url={slide[0].url}
                                     variant="mini"
                                 />
                             </SlideLeft>
@@ -232,6 +239,7 @@ const Carousel = ({
                                     title={slide[1].title}
                                     subtitle={slide[1].subtitle}
                                     image={slide[1].image}
+                                    url={slide[1].url}
                                     variant="mini"
                                 />
                             </SlideRight>
@@ -244,6 +252,7 @@ const Carousel = ({
                                     title={slide[0].title}
                                     subtitle={slide[0].subtitle}
                                     image={slide[0].image}
+                                    url={slide[0].url}
                                     variant="full"
                                 />
                             </SlideLeft>

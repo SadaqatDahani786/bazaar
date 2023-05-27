@@ -155,7 +155,7 @@ const CategoryView = ({
     /*
      ** **
      ** ** ** Side effects
-     ** **
+     ** **s
      */
     //Fetch categories
     useEffect(() => {
@@ -163,7 +163,7 @@ const CategoryView = ({
         if (categories.length > 0) return
 
         //2) Dispatch action to fetch categories
-        dispatch(getManyCategoryAsync())
+        dispatch(getManyCategoryAsync([]))
     }, [])
 
     //Set category which to be updated

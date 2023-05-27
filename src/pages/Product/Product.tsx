@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
     AddOutlined,
@@ -35,7 +35,12 @@ import {
 } from '@mui/material'
 
 import styled from 'styled-components'
-import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom'
+import {
+    useNavigate,
+    useParams,
+    Link as RouterLink,
+    useLocation,
+} from 'react-router-dom'
 import { GenericFormData } from 'axios'
 
 //Redux
@@ -43,6 +48,7 @@ import { useAppDispatch, useAppSelector } from '../../store/store'
 import {
     getItemsBoughtTogetherAsync,
     getProductAsync,
+    getSimilarViewedItemsAsync,
     IProduct,
 } from '../../store/productReducer'
 import {
@@ -58,6 +64,8 @@ import {
 } from '../../store/reviewReducer'
 import { addItemInUserCartAsync } from '../../store/cartReducer'
 import { IMediaDatabase } from '../../store/mediaReducer'
+import { updateUserHistoryAsync } from '../../store/userReducer'
+import { setUser } from '../../store/authReducer'
 
 //Components
 import Footer from '../../layouts/Footer'
@@ -182,14 +190,28 @@ const Product = () => {
     const { isLoading } = useAppSelector((state) => state.cart)
     const dispatch = useAppDispatch()
 
-    //State
+    //Products
     const [product, setProduct] = useState<IProduct>()
-    const [quantity, setQuantity] = useState(0)
-    const [page, setPage] = useState(1)
-    const [showModal, setShowModal] = useState(false)
     const [itemsBoughtTogether, setItemsBoughtTogether] = useState<
         { image: IMediaDatabase; product: IProduct; sold: number }[]
     >([])
+    const [similarlyViewedItems, setSimilarlyViewedItems] =
+        useState<IProduct[]>()
+
+    //State
+    const [quantity, setQuantity] = useState(0)
+    const [page, setPage] = useState(1)
+    const [showModal, setShowModal] = useState(false)
+    const [variants, setVariants] = useState(
+        product?.variants.map((variant) => ({
+            ...variant,
+            selectedTerm: variant.terms[0].name,
+        }))
+    )
+
+    //Reviews & ratings
+    const [allReviews, setAllReviews] = useState<IReview[]>([])
+    const [userReview, setUserReview] = useState<IReview>()
     const [ratings, setRatings] = useState<
         {
             product: string
@@ -199,19 +221,13 @@ const Product = () => {
             }[]
         }[]
     >([])
-    const [variants, setVariants] = useState(
-        product?.variants.map((variant) => ({
-            ...variant,
-            selectedTerm: variant.terms[0].name,
-        }))
-    )
-    const [allReviews, setAllReviews] = useState<IReview[]>([])
-    const [userReview, setUserReview] = useState<IReview>()
 
     //Hooks
+    const hasRan = useRef<boolean>(false)
     const params = useParams()
     const theme = useTheme()
     const navigate = useNavigate()
+    const location = useLocation()
 
     /*
      ** **
@@ -220,7 +236,7 @@ const Product = () => {
      */
     //Fetch product and ratings
     useEffect(() => {
-        //Empty reviews
+        window.scrollTo({ top: 0, behavior: 'smooth' })
         setAllReviews([])
 
         //1) Get id
@@ -269,7 +285,38 @@ const Product = () => {
                 },
             })
         )
-    }, [])
+
+        //6) Fetch similarly viewed items
+        dispatch(
+            getSimilarViewedItemsAsync({
+                id: prodId,
+                cb: (products) => {
+                    setSimilarlyViewedItems(products)
+                },
+            })
+        )
+    }, [location.pathname])
+
+    //Update user's watch history
+    useEffect(() => {
+        //1) Validate
+        if (!params.id || !user || hasRan.current) return
+
+        hasRan.current = true
+
+        //2) Update uses's history
+        dispatch(
+            updateUserHistoryAsync({
+                id: params.id,
+                cb: (user) => {
+                    if (user) {
+                        dispatch(setUser(user))
+                        console.log(user)
+                    }
+                },
+            })
+        )
+    }, [user])
 
     //Fetch ratings of products
     useEffect(() => {
@@ -1115,18 +1162,40 @@ const Product = () => {
             <ProductCardList
                 title="Frequently purchased with these items."
                 subtitle="Bought Together"
+                helpertext="It seeems like there were no items bought together with this item."
                 slides={itemsBoughtTogether.map((item) => ({
                     title: item.product.title,
                     prices: {
                         price: item.product.price,
                         sale_price: item.product.selling_price,
                     },
+                    url: `/product/${item.product._id}`,
                     image: item?.image?.url,
                     isStaffPicked: item.product.staff_picked,
                     colors: item.product.variants
                         .find((variant) => variant.name === 'Color')
                         ?.terms.map((term) => term.name),
                 }))}
+            />
+            <ProductCardList
+                title="Some of our customers were also interested in these items."
+                subtitle="Interest"
+                helpertext="There are no similarly viewed items for this product."
+                slides={
+                    similarlyViewedItems?.map((item) => ({
+                        title: item.title,
+                        prices: {
+                            price: item.price,
+                            sale_price: item.selling_price,
+                        },
+                        url: `/product/${item._id}`,
+                        image: item?.image?.url,
+                        isStaffPicked: item.staff_picked,
+                        colors: item.variants
+                            ?.find((variant) => variant.name === 'Color')
+                            ?.terms.map((term) => term.name),
+                    })) || []
+                }
             />
             <Footer />
         </ProductStyled>

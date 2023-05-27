@@ -44,6 +44,23 @@ export const getManyProduct = (
 
 /*
  ** ======================================================
+ ** getTrendingItemsInYourArea = Get items that are trending where user lives
+ ** ======================================================
+ */
+export const getTrendingItemsInYourArea = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/trending-items-in-your-area`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** getItemsBoughtTogether = Get items that are frequently bought together
  ** ======================================================
  */
@@ -51,6 +68,40 @@ export const getItemsBoughtTogether = (id: string) => {
     //1) Create a request with options
     const options: AxiosRequestConfig = {
         url: `${API_ENDPOINT}/${id}/frequently-bought-together`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getSimilarViewedItems = Get similar viewed items by other customers
+ ** ======================================================
+ */
+export const getSimilarViewedItems = (id: string) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/${id}/similar-viewed-items`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
+ ** getUserInterestsItems = Get items that user might be interested in
+ ** ======================================================
+ */
+export const getUserInterestsItems = () => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/user-interests-item`,
         method: 'GET',
         withCredentials: true,
     }

@@ -36,10 +36,13 @@ export interface ICategory {
  */
 export const getManyCategoryAsync = createAsyncThunk(
     'get/manyCategory',
-    async (_, { rejectWithValue }) => {
+    async (
+        queryParams: { key: string; value: string }[] = [],
+        { rejectWithValue }
+    ) => {
         try {
             //1) Send http request
-            const response = await axios(getManyCateogory())
+            const response = await axios(getManyCateogory(queryParams))
 
             //2) Return response
             return response.data.data

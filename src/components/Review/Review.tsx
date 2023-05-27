@@ -68,7 +68,6 @@ interface ReviewProps {
     readonly?: boolean
     isLoading?: boolean
     onSave?: (formData: GenericFormData, disableEditMode: () => void) => void
-    onCancel?: () => void
     onDelete?: () => void
 }
 
@@ -82,7 +81,6 @@ const Review = ({
     readonly = false,
     isLoading = false,
     onSave = () => undefined,
-    onCancel = () => undefined,
     onDelete = () => undefined,
 }: ReviewProps) => {
     /*
@@ -210,7 +208,7 @@ const Review = ({
                                     />
                                 </Avatar>
                                 <Typography variant="caption">
-                                    {review.author.name}
+                                    {review.author?.name}
                                 </Typography>
                             </Stack>
                         </Stack>

@@ -9,8 +9,11 @@ import {
     getItemsBoughtTogether,
     getManyProduct,
     getProduct,
+    getSimilarViewedItems,
     getSizes,
     getTopSellingProducts,
+    getTrendingItemsInYourArea,
+    getUserInterestsItems,
     searchProduct,
     updateProduct,
 } from '../api/product'
@@ -136,9 +139,11 @@ export const getProductsInCategoryAsync = createAsyncThunk(
         {
             category_slug,
             queryParams,
+            cb = () => undefined,
         }: {
             category_slug: string
             queryParams: { key: string; value: string }[]
+            cb?: (products: IProduct[]) => void
         },
         { rejectWithValue }
     ) => {
@@ -147,6 +152,8 @@ export const getProductsInCategoryAsync = createAsyncThunk(
             const response = await axios(
                 getProductsInCategory(category_slug, queryParams)
             )
+
+            cb(response.data.data)
 
             //2) Return response
             return {
@@ -198,6 +205,62 @@ export const getTopSellingProductsAsync = createAsyncThunk(
 
 /**
  ** ======================================================
+ ** Thunk [getUserInterestsItemsAsync]
+ ** ======================================================
+ */
+export const getUserInterestsItemsAsync = createAsyncThunk(
+    'get/user-interests-item',
+    async (cb: (product: IProduct[]) => void, { rejectWithValue }) => {
+        try {
+            //1) Send http request
+            const response = await axios(getUserInterestsItems())
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getSimilarViewedItemsAsync]
+ ** ======================================================
+ */
+export const getSimilarViewedItemsAsync = createAsyncThunk(
+    'get/similar-viewed-items',
+    async (
+        {
+            id,
+            cb = () => '',
+        }: { id: string; cb: (product: IProduct[]) => void },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getSimilarViewedItems(id))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
  ** Thunk [getItemsBoughtTogetherAsync]
  ** ======================================================
  */
@@ -222,6 +285,31 @@ export const getItemsBoughtTogetherAsync = createAsyncThunk(
         try {
             //1) Send http request
             const response = await axios(getItemsBoughtTogether(id))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return response.data.data
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getTrendingItemsInYourAreaAsync]
+ ** ======================================================
+ */
+export const getTrendingItemsInYourAreaAsync = createAsyncThunk(
+    'get/trending-items-in-your-area',
+    async (cb: (products: IProduct[]) => void, { rejectWithValue }) => {
+        try {
+            //1) Send http request
+            const response = await axios(getTrendingItemsInYourArea())
 
             //2) Callback
             cb(response.data.data)
@@ -625,6 +713,63 @@ const sliceProduct = createSlice({
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
             }))
+            .addCase(getUserInterestsItemsAsync.fulfilled, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                }
+            })
+            .addCase(getUserInterestsItemsAsync.pending, (state) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+            }))
+            .addCase(getUserInterestsItemsAsync.rejected, (state, action) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+            }))
+            .addCase(getSimilarViewedItemsAsync.fulfilled, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                }
+            })
+            .addCase(getSimilarViewedItemsAsync.pending, (state) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+            }))
+            .addCase(getSimilarViewedItemsAsync.rejected, (state, action) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+            }))
+            .addCase(getTrendingItemsInYourAreaAsync.fulfilled, (state) => {
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                }
+            })
+            .addCase(getTrendingItemsInYourAreaAsync.pending, (state) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+            }))
+            .addCase(
+                getTrendingItemsInYourAreaAsync.rejected,
+                (state, action) => ({
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: {
+                        ...state.errors,
+                        fetch: action.payload as string,
+                    },
+                })
+            )
             .addCase(getBrandsAsync.fulfilled, (state) => {
                 return {
                     ...state,

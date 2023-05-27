@@ -1,13 +1,17 @@
-import { ArrowForwardOutlined } from '@mui/icons-material'
-import { Button, Typography, useTheme } from '@mui/material'
 import { useEffect, useState } from 'react'
 
+import { ArrowForwardOutlined } from '@mui/icons-material'
+import { Button, Typography, useTheme } from '@mui/material'
+
 import styled from 'styled-components'
-import useWindowDimensions from '../../hooks/useWindowDimensions'
+import { useNavigate } from 'react-router-dom'
 
 //Components
 import CardSlider from '../Card Slider'
 import { IProductCardProps } from '../Product Card/ProductCard'
+
+//Hooks
+import useWindowDimensions from '../../hooks/useWindowDimensions'
 
 /*
  ** **
@@ -72,6 +76,8 @@ interface IProductCardList {
     title: string
     subtitle: string
     slides: Array<IProductCardProps>
+    url?: string
+    helpertext?: string
 }
 
 /**
@@ -79,7 +85,13 @@ interface IProductCardList {
  ** Component [ProductCardList]
  ** ======================================================
  */
-const ProductCardList = ({ title, subtitle, slides }: IProductCardList) => {
+const ProductCardList = ({
+    title,
+    subtitle,
+    slides,
+    url,
+    helpertext,
+}: IProductCardList) => {
     /*
      ** **
      ** ** ** State & Hooks
@@ -87,6 +99,7 @@ const ProductCardList = ({ title, subtitle, slides }: IProductCardList) => {
      */
     const [numSlidesToShow, setNumSlidesToShow] = useState(3)
 
+    const navigate = useNavigate()
     const theme = useTheme()
     const windowDimensions = useWindowDimensions()
 
@@ -126,20 +139,25 @@ const ProductCardList = ({ title, subtitle, slides }: IProductCardList) => {
                         size="large"
                         variant={'contained'}
                         color="primary"
+                        onClick={() => url && navigate(url)}
                     >
                         Shop Now
                         <ArrowForwardOutlined />
                     </Button>
                 </Wrapper>
             </Column>
-            <Column>
-                <CardSlider
-                    showNextPreview={
-                        windowDimensions.width > theme.breakpoints.values.sm
-                    }
-                    slidesToShow={numSlidesToShow}
-                    slides={slides}
-                />
+            <Column style={{ textAlign: 'center' }}>
+                {slides.length <= 0 ? (
+                    <Typography variant="h5">{helpertext}</Typography>
+                ) : (
+                    <CardSlider
+                        showNextPreview={
+                            windowDimensions.width > theme.breakpoints.values.sm
+                        }
+                        slidesToShow={numSlidesToShow}
+                        slides={slides}
+                    />
+                )}
             </Column>
         </ProductCardListStyled>
     )

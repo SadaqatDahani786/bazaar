@@ -1,4 +1,5 @@
 import { Typography } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 /**
@@ -103,10 +104,16 @@ interface IGridProps {
  ** ======================================================
  */
 const Grid = ({ items }: IGridProps) => {
+    //Navigation
+    const navigate = useNavigate()
+
     return (
         <GridStyled>
             {items.map((cat) => (
-                <GridItem key={cat.slug}>
+                <GridItem
+                    onClick={() => navigate(`/products/${cat.slug}/1`)}
+                    key={cat.slug}
+                >
                     <Image>
                         <img src={cat.image} />
                     </Image>

@@ -33,7 +33,7 @@ import { Link } from 'react-router-dom'
 
 //Redux
 import { useAppDispatch, useAppSelector } from '../../../store/store'
-import { IMedia, IMediaDatabase } from '../../../store/mediaReducer'
+import { IMediaDatabase } from '../../../store/mediaReducer'
 import {
     editSelectedStatus,
     getManyCategoryAsync,
@@ -475,7 +475,7 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
      */
     //Fetch categories
     useEffect(() => {
-        dispatch(getManyCategoryAsync())
+        dispatch(getManyCategoryAsync([]))
     }, [])
 
     // Set default product categories
