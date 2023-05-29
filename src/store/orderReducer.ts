@@ -4,6 +4,7 @@ import {
     createOrder,
     deleteOrder,
     getManyOrder,
+    getMyOrders,
     getOrder,
     getTotalRefunds,
     getTotalSales,
@@ -97,7 +98,41 @@ export const getManyOrderAsync = createAsyncThunk(
             const response = await axios(getManyOrder(opts))
 
             //2) Return response
-            return response.data.data
+            return { orders: response.data.data, count: response.data.count }
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getMyOrdersAsync]
+ ** ======================================================
+ */
+export const getMyOrdersAsync = createAsyncThunk(
+    'get/myOrders',
+    async (
+        {
+            queryParams = [],
+            cb = () => '',
+        }: {
+            queryParams: { key: string; value: string }[]
+            cb: (orders: IOrder[]) => void
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getMyOrders(queryParams))
+
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
+            return { orders: response.data.data, count: response.data.count }
         } catch (err) {
             //Reject with error
             if (err instanceof AxiosError)
@@ -313,6 +348,7 @@ const defaultState: {
         delete: string
     }
     data: Array<IOrder>
+    count: number
 } = {
     isLoading: {
         create: false,
@@ -327,6 +363,7 @@ const defaultState: {
         delete: '',
     },
     data: [],
+    count: 0,
 }
 
 //Slice order
@@ -360,98 +397,144 @@ const sliceOrder = createSlice({
         builder
             .addCase(getOrderAsync.fulfilled, (state) => {
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: { ...state.errors, fetch: '' },
                     data: state.data,
                 }
             })
             .addCase(getOrderAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(getOrderAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
             }))
-            .addCase(
-                getManyOrderAsync.fulfilled,
-                (state, action: { payload: Array<IOrder> }) => {
-                    //1) Get orders
-                    const orders = action.payload
+            .addCase(getManyOrderAsync.fulfilled, (state, { payload }) => {
+                //1) Get orders
+                const orders = (payload?.orders || []) as IOrder[]
+                const count = (payload?.count || 0) as number
 
-                    //2) Transform
-                    const updatedData = orders.map((order) => ({
-                        ...order,
-                        isSelected: false,
-                    }))
+                //2) Transform
+                const updatedData = orders.map((order) => ({
+                    ...order,
+                    isSelected: false,
+                }))
 
-                    //3) Update state
-                    return {
-                        isLoading: { ...state.isLoading, fetch: false },
-                        errors: { ...state.errors, fetch: '' },
-                        data: updatedData,
-                    }
+                //3) Update state
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: updatedData,
+                    count,
                 }
-            )
+            })
             .addCase(getManyOrderAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(getManyOrderAsync.rejected, (state, action) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+                data: state.data,
+            }))
+            .addCase(getMyOrdersAsync.fulfilled, (state, { payload }) => {
+                //1) Get orders
+                const orders = (payload?.orders || []) as IOrder[]
+                const count = (payload?.count || 0) as number
+
+                //2) Transform
+                const updatedData = orders.map((order) => ({
+                    ...order,
+                    isSelected: false,
+                }))
+
+                //3) Update state
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: updatedData,
+                    count,
+                }
+            })
+            .addCase(getMyOrdersAsync.pending, (state) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+                data: state.data,
+            }))
+            .addCase(getMyOrdersAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
             }))
             .addCase(getTotalSalesAsync.fulfilled, (state) => {
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: { ...state.errors, fetch: '' },
                     data: state.data,
                 }
             })
             .addCase(getTotalSalesAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(getTotalSalesAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
             }))
             .addCase(getTotalRefundsAsync.fulfilled, (state) => {
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: { ...state.errors, fetch: '' },
                     data: state.data,
                 }
             })
             .addCase(getTotalRefundsAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(getTotalRefundsAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
             }))
             .addCase(getTotalSalesInYearAsync.fulfilled, (state) => {
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: { ...state.errors, fetch: '' },
                     data: state.data,
                 }
             })
             .addCase(getTotalSalesInYearAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(getTotalSalesInYearAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
@@ -473,6 +556,7 @@ const sliceOrder = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, create: false },
                         errors: { ...state.errors, create: '' },
                         data: updatedData,
@@ -480,11 +564,13 @@ const sliceOrder = createSlice({
                 }
             )
             .addCase(createOrderAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, create: true },
                 errors: { ...state.errors, create: '' },
                 data: state.data,
             }))
             .addCase(createOrderAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, create: false },
                 errors: { ...state.errors, create: action.payload as string },
                 data: state.data,
@@ -503,6 +589,7 @@ const sliceOrder = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, update: false },
                         errors: { ...state.errors, update: '' },
                         data: updatedData,
@@ -510,11 +597,13 @@ const sliceOrder = createSlice({
                 }
             )
             .addCase(updateOrderAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, update: true },
                 errors: { ...state.errors, update: '' },
                 data: state.data,
             }))
             .addCase(updateOrderAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, update: false },
                 errors: { ...state.errors, update: action.payload as string },
                 data: state.data,
@@ -532,6 +621,7 @@ const sliceOrder = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, delete: false },
                         errors: { ...state.errors, delete: '' },
                         data: updatedData,
@@ -539,11 +629,13 @@ const sliceOrder = createSlice({
                 }
             )
             .addCase(deleteOrderAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, delete: true },
                 errors: { ...state.errors, delete: '' },
                 data: state.data,
             }))
             .addCase(deleteOrderAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, delete: false },
                 errors: { ...state.errors, delete: action.payload as string },
                 data: state.data,

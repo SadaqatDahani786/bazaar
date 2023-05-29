@@ -52,6 +52,27 @@ export const getManyOrder = (opts?: opts) => {
 
 /*
  ** ======================================================
+ ** getMyOrders = Get my orders
+ ** ======================================================
+ */
+export const getMyOrders = (
+    queryParams: { key: string; value: string }[] = []
+) => {
+    //2) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/my-orders?${queryParams
+            .map(({ key, value }) => `${key}=${value}`)
+            .join('&')}`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //3) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** getTotalSales = Get total sales
  ** ======================================================
  */

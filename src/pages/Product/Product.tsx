@@ -40,6 +40,7 @@ import {
     useParams,
     Link as RouterLink,
     useLocation,
+    useSearchParams,
 } from 'react-router-dom'
 import { GenericFormData } from 'axios'
 
@@ -223,8 +224,10 @@ const Product = () => {
     >([])
 
     //Hooks
-    const hasRan = useRef<boolean>(false)
+    const hasRan = useRef(false)
+    const refReviews = useRef<HTMLDivElement>(null)
     const params = useParams()
+    const [searchParams] = useSearchParams()
     const theme = useTheme()
     const navigate = useNavigate()
     const location = useLocation()
@@ -236,7 +239,14 @@ const Product = () => {
      */
     //Fetch product and ratings
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        //1) Scroll to top
+        if (searchParams.get('target') === 'reviews')
+            refReviews.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            })
+        else window.scrollTo({ top: 0, behavior: 'smooth' })
+
         setAllReviews([])
 
         //1) Get id
@@ -415,8 +425,15 @@ const Product = () => {
         //3) else delete with user route
         dispatch(
             deleteUserProductReviewAsync({
-                id: userReview._id,
-                cb: () => setUserReview(undefined),
+                id: userReview.product._id,
+                cb: () => {
+                    setUserReview(undefined)
+                    setAllReviews(
+                        allReviews.filter(
+                            (review) => review._id !== userReview._id
+                        )
+                    )
+                },
             })
         )
     }
@@ -951,7 +968,7 @@ const Product = () => {
                 </Stack>
             </ProductDetails>
             <Divider sx={{ background: theme.palette.grey[400] }} />
-            <ProductDetails>
+            <ProductDetails ref={refReviews}>
                 <Typography fontWeight="300" variant="h3">
                     Product{' '}
                     <span

@@ -24,7 +24,6 @@ import CardSlider from '../../components/Card Slider'
 
 //Hooks
 import useWindowDimensions from '../../hooks/useWindowDimensions'
-import { SmartButton } from '@mui/icons-material'
 
 /**
  ** **
@@ -284,7 +283,9 @@ const Home = () => {
                         image: prod.image?.url,
                         isStaffPicked: prod.staff_picked,
                         colors: prod.variants
-                            .find((variant) => variant.variant_type === 'color')
+                            ?.find(
+                                (variant) => variant.variant_type === 'color'
+                            )
                             ?.terms.map((term) => term.name),
                         url: `/product/${prod._id}`,
                     })) || []
@@ -334,7 +335,7 @@ const Home = () => {
                                 image: prod.image?.url,
                                 isStaffPicked: prod.staff_picked,
                                 colors: prod.variants
-                                    .find(
+                                    ?.find(
                                         (variant) =>
                                             variant.variant_type === 'color'
                                     )
@@ -362,7 +363,9 @@ const Home = () => {
                         image: prod.image?.url,
                         isStaffPicked: prod.staff_picked,
                         colors: prod.variants
-                            .find((variant) => variant.variant_type === 'color')
+                            ?.find(
+                                (variant) => variant.variant_type === 'color'
+                            )
                             ?.terms.map((term) => term.name),
                         url: `/product/${prod._id}`,
                     })) || []
@@ -382,7 +385,9 @@ const Home = () => {
                         image: prod.image?.url,
                         isStaffPicked: prod.staff_picked,
                         colors: prod.variants
-                            .find((variant) => variant.variant_type === 'color')
+                            ?.find(
+                                (variant) => variant.variant_type === 'color'
+                            )
                             ?.terms.map((term) => term.name),
                         url: `/product/${prod._id}`,
                     })) || []
@@ -415,7 +420,7 @@ const Home = () => {
                                             : 0
                                     )
                                     .map(({ product }) => ({
-                                        image: product.image?.url,
+                                        image: product?.image?.url,
                                     })) || []
                             }
                         />

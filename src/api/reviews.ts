@@ -27,6 +27,27 @@ export const getManyReview = (
 
 /*
  ** ======================================================
+ ** getMyManyReview = Get my many reviews
+ ** ======================================================
+ */
+export const getMyManyReview = (
+    queryParams: { key: string; value: string }[] = []
+) => {
+    //1) Create a request with options
+    const options: AxiosRequestConfig = {
+        url: `${API_ENDPOINT}/my-review?${queryParams
+            .map(({ key, value }) => `${key}=${value}`)
+            .join('&')}`,
+        method: 'GET',
+        withCredentials: true,
+    }
+
+    //2) Return options
+    return options
+}
+
+/*
+ ** ======================================================
  ** getRatingsOfProduct = Get ratings of one or many product
  ** ======================================================
  */

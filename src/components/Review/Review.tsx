@@ -282,7 +282,13 @@ const Review = ({
                                                     <IconButton
                                                         onClick={onDelete}
                                                     >
-                                                        <DeleteOutline />
+                                                        {isLoading ? (
+                                                            <CircularProgress
+                                                                size={16}
+                                                            />
+                                                        ) : (
+                                                            <DeleteOutline />
+                                                        )}
                                                     </IconButton>
                                                 </Tooltip>
                                             </Box>

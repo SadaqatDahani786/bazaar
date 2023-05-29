@@ -10,6 +10,7 @@ import {
     createReview,
     deleteReview,
     getManyReview,
+    getMyManyReview,
     getRatingsOfProduct,
     searchReview,
     updateReview,
@@ -50,6 +51,31 @@ export const getManyReviewAsync = createAsyncThunk(
         try {
             //1) Send http request
             const response = await axios(getManyReview(queryParams))
+
+            //2) Return response
+            return { reviews: response.data.data, count: response.data.count }
+        } catch (err) {
+            //Reject with errorss
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
+
+/**
+ ** ======================================================
+ ** Thunk [getMyManyReviewAsync]
+ ** ======================================================
+ */
+export const getMyManyReviewAsync = createAsyncThunk(
+    'get/myManyReview',
+    async (
+        queryParams: { key: string; value: string }[],
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getMyManyReview(queryParams))
 
             //2) Return response
             return { reviews: response.data.data, count: response.data.count }
@@ -447,6 +473,35 @@ const sliceReview = createSlice({
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
             }))
+            .addCase(getMyManyReviewAsync.fulfilled, (state, { payload }) => {
+                //1) Get reviews from payload
+                const count = payload?.count || (0 as number)
+                const reviews = (payload?.reviews || []) as IReview[]
+
+                //2) Transform data
+                const updateData = reviews.map((review) => ({
+                    ...review,
+                    isSelected: false,
+                }))
+
+                //3) Update state
+                return {
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    count,
+                    data: updateData,
+                }
+            })
+            .addCase(getMyManyReviewAsync.pending, (state) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: true },
+                errors: { ...state.errors, fetch: '' },
+            }))
+            .addCase(getMyManyReviewAsync.rejected, (state, action) => ({
+                ...state,
+                isLoading: { ...state.isLoading, fetch: false },
+                errors: { ...state.errors, fetch: action.payload as string },
+            }))
             .addCase(getRatingsOfProductAsync.fulfilled, (state) => {
                 return {
                     ...state,
@@ -546,7 +601,7 @@ const sliceReview = createSlice({
 
                     //2) Filter out deleted review
                     const updatedData = state.data.filter(
-                        (review) => review._id !== id
+                        (review) => review.product._id !== id
                     )
 
                     //3) Update state,
@@ -555,6 +610,7 @@ const sliceReview = createSlice({
                         isLoading: { ...state.isLoading, delete: false },
                         errors: { ...state.errors, delete: '' },
                         data: updatedData,
+                        count: state.count - 1,
                     }
                 }
             )
@@ -582,8 +638,8 @@ const sliceReview = createSlice({
 
                     //2) Make changes
                     const updateData = [
-                        { ...review, isSelected: false },
                         ...state.data,
+                        { ...review, isSelected: false },
                     ]
 
                     //3) Update state
@@ -653,6 +709,7 @@ const sliceReview = createSlice({
                         isLoading: { ...state.isLoading, delete: false },
                         errors: { ...state.errors, delete: '' },
                         data: updatedData,
+                        count: state.count - 1,
                     }
                 }
             )

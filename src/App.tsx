@@ -17,6 +17,7 @@ import ProductsInCategory from './pages/Products In Category'
 import Product from './pages/Product'
 import Cart from './pages/Cart'
 import OrderSuccess from './pages/Order Success/'
+import Profile from './pages/Profile'
 
 //CSS
 import './App.css'
@@ -84,6 +85,10 @@ function App() {
                         <Provider store={store}>
                             <div className="App">
                                 <Routes>
+                                    <Route
+                                        path="/profile"
+                                        element={<Profile />}
+                                    />
                                     <Route path="/login" element={<Login />} />
                                     <Route
                                         path="/signup"

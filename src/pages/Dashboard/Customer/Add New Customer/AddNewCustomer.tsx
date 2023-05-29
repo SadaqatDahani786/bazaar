@@ -470,6 +470,10 @@ const AddNewCustomer = () => {
         formData.append('email', inputEmail.value)
         formData.append('username', inputUsername.value)
         formData.append('bio', inputBio.value)
+        formData.append(
+            'phone_no',
+            `+${selectedCountryCode}${inputPhoneNumber.value}`
+        )
         formData.append('password', inputPassword.value)
         formData.append('password_confirm', inputPasswordConfirm.value)
         formData.append('role', isAdmin ? 'admin' : 'member')

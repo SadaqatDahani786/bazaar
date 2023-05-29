@@ -126,7 +126,7 @@ function TabPanel(props: TabPanelProps) {
  ** Type [ActionType]
  ** ======================================================
  */
-type ActionType =
+export type ActionType =
     | 'name'
     | 'phone_no'
     | 'bio'
@@ -140,7 +140,7 @@ type ActionType =
  ** Interface [IUserAuth]
  ** ======================================================
  */
-interface IUserAuth {
+export interface IUserAuth {
     _id: string
     name: { value: string; edit: boolean }
     username: { value: string; edit: boolean }
@@ -185,45 +185,6 @@ const Profile = () => {
     //Tab
     const [activeTab, setActiveTab] = useState(0)
     const tabs = ['Personal Information', 'Account Information', 'Addresses']
-
-    /*
-     ** **
-     ** ** ** Side effects
-     ** **
-     */
-    //Fetch all countries when components loads first time
-    useEffect(() => {
-        dispatch(getCountriesAsync())
-    }, [])
-
-    //Set user from authenticated user
-    useEffect(() => {
-        if (!authUser) return
-
-        setUser({
-            ...authUser,
-            bio: { value: authUser.bio, edit: false },
-            name: { value: authUser.name, edit: false },
-            username: { value: authUser.username, edit: false },
-            phone_no: { value: authUser.phone_no, edit: false },
-            email: { value: authUser.email, edit: false },
-            password: { value: '********', edit: false },
-        })
-    }, [authUser])
-
-    //Set country code
-    useEffect(() => {
-        if (countries.length <= 0 || !user) return
-
-        const countryCode = splitNumberByCode(
-            user.addresses.find((addr) => addr.default_billing_address)
-                ?.phone_no
-        ).country_code.substring(1)
-
-        if (!countryCode) return
-
-        setSelectedCountryCode(countryCode)
-    }, [countries])
 
     /*
      ** **
@@ -371,6 +332,45 @@ const Profile = () => {
             },
         ]),
     })
+
+    /*
+     ** **
+     ** ** ** Side effects
+     ** **
+     */
+    //Fetch all countries when components loads first time
+    useEffect(() => {
+        dispatch(getCountriesAsync())
+    }, [])
+
+    //Set user from authenticated user
+    useEffect(() => {
+        if (!authUser) return
+
+        setUser({
+            ...authUser,
+            bio: { value: authUser.bio, edit: false },
+            name: { value: authUser.name, edit: false },
+            username: { value: authUser.username, edit: false },
+            phone_no: { value: authUser.phone_no, edit: false },
+            email: { value: authUser.email, edit: false },
+            password: { value: '********', edit: false },
+        })
+    }, [authUser])
+
+    //Set country code
+    useEffect(() => {
+        //1) Validate
+        if (countries.length <= 0 || !user) return
+
+        //2) Extract country from full number
+        const countryCode = splitNumberByCode(
+            user.phone_no.value
+        ).country_code.substring(1)
+
+        //3) Set country code
+        if (countryCode) setSelectedCountryCode(countryCode)
+    }, [countries])
 
     //Update profile photo
     useEffect(() => {
