@@ -6,6 +6,7 @@ import {
     Button,
     CircularProgress,
     Grid,
+    Pagination,
     Stack,
     Typography,
     useTheme,
@@ -64,21 +65,38 @@ const MediaLibraryView = ({ selectMultiple }: { selectMultiple: boolean }) => {
      ** **
      */
     //Redux
-    const mediaFiles = useAppSelector((state) => state.media.data)
-    const isLoading = useAppSelector((state) => state.media.isLoading)
+    const {
+        data: mediaFiles,
+        isLoading,
+        count,
+    } = useAppSelector((state) => state.media)
     const dispatch = useAppDispatch()
 
     const [selectedMediaId, setSelectedMediaId] = useState<string>()
     const theme = useTheme()
 
+    const [page, setPage] = useState(1)
+    const itemsPerPage = 10
+
     /*
      ** **
-     ** ** ** Methods
+     ** ** ** Side effects
      ** **
      */
     useEffect(() => {
-        dispatch(getMediaAsync())
-    }, [])
+        dispatch(
+            getMediaAsync([
+                {
+                    key: 'page',
+                    value: page.toString(),
+                },
+                {
+                    key: 'limit',
+                    value: itemsPerPage.toString(),
+                },
+            ])
+        )
+    }, [page])
 
     /*
      ** **
@@ -124,7 +142,7 @@ const MediaLibraryView = ({ selectMultiple }: { selectMultiple: boolean }) => {
 
     return (
         <MediaLibraryViewStyled>
-            <Stack flex="0 0 70%">
+            <Stack flex="0 0 70%" sx={{ minHeight: '40vh' }} gap="48px">
                 {isLoading.fetch || mediaFiles.length <= 0 ? (
                     <Box
                         sx={{
@@ -175,6 +193,13 @@ const MediaLibraryView = ({ selectMultiple }: { selectMultiple: boolean }) => {
                         ))}
                     </Grid>
                 )}
+                <Pagination
+                    sx={{ margin: 'auto auto 0 auto' }}
+                    shape="rounded"
+                    variant="outlined"
+                    count={Math.floor(count / itemsPerPage)}
+                    onChange={(e, page) => setPage(page)}
+                />
             </Stack>
             <Stack
                 flex="0 0 30%"

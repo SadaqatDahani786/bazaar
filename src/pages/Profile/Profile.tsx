@@ -28,7 +28,7 @@ import {
 
 import styled from 'styled-components'
 import { GenericFormData } from 'axios'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 
 //Redux
 import { useAppDispatch, useAppSelector } from '../../store/store'
@@ -188,8 +188,9 @@ const Profile = () => {
     const [pageReview, setPageReview] = useState(1)
     const [selectedActionReview, setSelectedActionReview] = useState('')
 
-    //Theme
+    //Hooks
     const theme = useTheme()
+    const navigate = useNavigate()
 
     //Tab
     const [activeTab, setActiveTab] = useState(0)
@@ -355,6 +356,16 @@ const Profile = () => {
     //Fetch countries
     useEffect(() => {
         dispatch(getCountriesAsync())
+    }, [])
+
+    //Navigate to login if user not logged in
+    useEffect(() => {
+        //1) If user not logged in, redirect to login page
+        if (
+            !localStorage.getItem('user_id') ||
+            !localStorage.getItem('user_role')
+        )
+            return navigate('/login', { replace: true })
     }, [])
 
     //Set country code
@@ -856,7 +867,6 @@ const Profile = () => {
                 queryParams: [
                     ...queryParams,
                     { key: 'page', value: page.toString() },
-                    { key: 'limit', value: '1' },
                 ],
                 cb: (orders) => {
                     combineResults

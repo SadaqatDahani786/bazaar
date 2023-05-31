@@ -2,7 +2,6 @@ import { PhotoAlbumOutlined } from '@mui/icons-material'
 import { Link, Tooltip, Typography, useTheme } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
 import styled from 'styled-components'
-import Pill from '../Pill'
 
 /*
  ** **
@@ -24,10 +23,15 @@ const ProductCardImage = styled.div`
     overflow: hidden;
     position: relative;
     background: ${(props) => props.theme.palette.grey[300]};
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-size: 10rem;
+
+    & a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
 
     & img {
         width: 100%;

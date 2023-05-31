@@ -226,7 +226,7 @@ const ProductsInCategory = () => {
     //Set initial setup
     useEffect(() => {
         //1) Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        window.scrollTo({ top: 0, behavior: 'auto' })
 
         //2) Fetch prodcuts in category
         dispatch(getManyCategoryAsync([]))

@@ -9,7 +9,6 @@ import {
     ShoppingBasketOutlined,
     ImageOutlined,
     DashboardOutlined,
-    RedeemOutlined,
 } from '@mui/icons-material/'
 
 import styled from 'styled-components'
@@ -203,24 +202,24 @@ const Dashboard = () => {
             slug: 'product',
             icon: <Inventory2Outlined />,
         },
-        {
-            title: 'Deals',
-            sublinks: [
-                {
-                    title: 'All Deals',
-                    isActive: false,
-                    slug: 'all-deals',
-                },
-                {
-                    title: 'Add New Deal',
-                    isActive: false,
-                    slug: 'add-new-deal',
-                },
-            ],
-            isActive: false,
-            slug: 'deal',
-            icon: <RedeemOutlined />,
-        },
+        // {
+        //     title: 'Deals',
+        //     sublinks: [
+        //         {
+        //             title: 'All Deals',
+        //             isActive: false,
+        //             slug: 'all-deals',
+        //         },
+        //         {
+        //             title: 'Add New Deal',
+        //             isActive: false,
+        //             slug: 'add-new-deal',
+        //         },
+        //     ],
+        //     isActive: false,
+        //     slug: 'deal',
+        //     icon: <RedeemOutlined />,
+        // },
         {
             title: 'Customer',
             sublinks: [

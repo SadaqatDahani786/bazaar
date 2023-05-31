@@ -18,6 +18,8 @@ import {
     TableRow,
     Typography,
     MenuItem,
+    TableFooter,
+    TablePagination,
 } from '@mui/material'
 
 import styled from 'styled-components'
@@ -87,6 +89,7 @@ const AllOrders = () => {
         isLoading,
         errors,
         data: orders,
+        count,
     } = useAppSelector((state) => state.order)
     const dispatch = useAppDispatch()
 
@@ -94,7 +97,10 @@ const AllOrders = () => {
     const [showAlert, setShowAlert] = useState(false)
     const [selectedOrder, setSelectedOrder] = useState<IOrder>()
     const [selectedDeliveryStatus, setSelectedDeliveryStatus] = useState('all')
+    const [page, setPage] = useState(1)
+    const [rowsPerPage, setRowsPerPage] = useState(10)
 
+    //Nav
     const navigate = useNavigate()
 
     /*
@@ -114,11 +120,19 @@ const AllOrders = () => {
                                     ? ''
                                     : selectedDeliveryStatus,
                         },
+                        {
+                            name: 'page',
+                            value: page.toString(),
+                        },
+                        {
+                            name: 'limit',
+                            value: rowsPerPage.toString(),
+                        },
                     ],
                 },
             })
         )
-    }, [selectedDeliveryStatus])
+    }, [selectedDeliveryStatus, page, rowsPerPage])
 
     /*
      ** **
@@ -422,6 +436,27 @@ const AllOrders = () => {
                                 ))
                             )}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={7} align="right">
+                                    <TablePagination
+                                        component="div"
+                                        count={count}
+                                        page={page - 1}
+                                        onPageChange={(e, newPage) =>
+                                            setPage(newPage + 1)
+                                        }
+                                        onRowsPerPageChange={(e) => {
+                                            setRowsPerPage(
+                                                parseInt(e.target.value, 10)
+                                            )
+                                            setPage(1)
+                                        }}
+                                        rowsPerPage={rowsPerPage}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        </TableFooter>
                     </Table>
                 </Widget>
             </Stack>

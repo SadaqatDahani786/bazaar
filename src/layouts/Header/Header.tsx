@@ -59,7 +59,11 @@ import {
     getUserCartAsync,
     removeItemFromUserCartAsync,
 } from '../../store/cartReducer'
-import { IProduct } from '../../store/productReducer'
+import {
+    getManyProductAsync,
+    getTopSellingProductsAsync,
+    IProduct,
+} from '../../store/productReducer'
 import { openCartDrawer, closeCartDrawer } from '../../store/cartReducer'
 
 /**
@@ -237,13 +241,6 @@ const NavLink = styled(Link)`
     &:hover {
         color: ${(props) => props.theme.palette.primary.light};
     }
-`
-
-//Image
-const Image = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: 'cover';
 `
 
 //Card
@@ -508,6 +505,10 @@ const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
+    //Products
+    const [topProduct, setTopProduct] = useState<IProduct>()
+    const [newArrivalProduct, setNewArrivalProduct] = useState<IProduct>()
+
     //Navigation
     const navigate = useNavigate()
 
@@ -536,6 +537,28 @@ const Header = () => {
     //Fetch user cart
     useEffect(() => {
         dispatch(getUserCartAsync(() => ''))
+
+        //1)
+        dispatch(
+            getTopSellingProductsAsync((products) => {
+                if (products && products?.length > 0)
+                    setTopProduct({
+                        ...products[0].product,
+                        image: products[0].image,
+                    })
+            })
+        )
+
+        //2)
+        dispatch(
+            getManyProductAsync({
+                queryParams: [],
+                cb: (products) => {
+                    if (products && products?.length > 0)
+                        setNewArrivalProduct(products[0])
+                },
+            })
+        )
     }, [])
 
     //Set menu
@@ -675,9 +698,9 @@ const Header = () => {
                 </AppBarItem>
                 <AppBarItem>
                     <Pill>
-                        <Link color="secondary" variant="subtitle2">
-                            EXPLORE OUR BLACK FRIDAY SALE NOW
-                        </Link>
+                        <Typography color="secondary" variant="subtitle2">
+                            HURRY UP! SAVE BIG WITH ON GOING SALE UPTO 50% OFF
+                        </Typography>
                     </Pill>
                 </AppBarItem>
                 <AppBarItem>
@@ -857,9 +880,36 @@ const Header = () => {
                                     </ul>
                                 </NavCol>
                                 <NavCol>
-                                    <Link style={{ cursor: 'pointer' }}>
+                                    <Link
+                                        component={RouterLink}
+                                        to={`/product/${topProduct?._id}`}
+                                        style={{ cursor: 'pointer' }}
+                                    >
                                         <CardStyled variant="elevation">
-                                            <Image src="https://images.unsplash.com/photo-1576087503901-b2a3e3b66672?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NDF8fHByb2R1Y3RzfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60" />
+                                            <ImageWrapper
+                                                style={{
+                                                    width: '16rem',
+                                                    height: '100%',
+                                                }}
+                                            >
+                                                {topProduct?.image?.url ? (
+                                                    <img
+                                                        src={
+                                                            topProduct?.image
+                                                                ?.url
+                                                        }
+                                                        alt={
+                                                            topProduct?.image
+                                                                ?.title
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <PhotoAlbumOutlined
+                                                        color="secondary"
+                                                        fontSize="inherit"
+                                                    />
+                                                )}
+                                            </ImageWrapper>
                                             <CardDetails>
                                                 <Typography
                                                     variant="caption"
@@ -867,22 +917,50 @@ const Header = () => {
                                                     fontFamily="Playfair Display"
                                                     color="secondary"
                                                 >
-                                                    Top
+                                                    {topProduct?.title}
                                                 </Typography>
                                                 <Typography
                                                     variant="subtitle1"
                                                     color="secondary"
                                                 >
-                                                    Products
+                                                    Top Product
                                                 </Typography>
                                             </CardDetails>
                                         </CardStyled>
                                     </Link>
                                 </NavCol>
                                 <NavCol>
-                                    <Link style={{ cursor: 'pointer' }}>
+                                    <Link
+                                        component={RouterLink}
+                                        to={`/product/${newArrivalProduct?._id}`}
+                                        style={{ cursor: 'pointer' }}
+                                    >
                                         <CardStyled variant="elevation">
-                                            <Image src="https://images.unsplash.com/photo-1524805444758-089113d48a6d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTIwfHxwcm9kdWN0c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60" />
+                                            <ImageWrapper
+                                                style={{
+                                                    width: '16rem',
+                                                    height: '100%',
+                                                }}
+                                            >
+                                                {newArrivalProduct?.image
+                                                    ?.url ? (
+                                                    <img
+                                                        src={
+                                                            newArrivalProduct
+                                                                ?.image?.url
+                                                        }
+                                                        alt={
+                                                            newArrivalProduct
+                                                                ?.image?.title
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <PhotoAlbumOutlined
+                                                        color="secondary"
+                                                        fontSize="inherit"
+                                                    />
+                                                )}
+                                            </ImageWrapper>
                                             <CardDetails>
                                                 <Typography
                                                     variant="caption"
@@ -890,13 +968,13 @@ const Header = () => {
                                                     fontFamily="Playfair Display"
                                                     color="secondary"
                                                 >
-                                                    New
+                                                    {newArrivalProduct?.title}
                                                 </Typography>
                                                 <Typography
                                                     variant="subtitle1"
                                                     color="secondary"
                                                 >
-                                                    Arrivals
+                                                    New Arrival
                                                 </Typography>
                                             </CardDetails>
                                         </CardStyled>
@@ -905,16 +983,29 @@ const Header = () => {
                             </NavSubMenu>
                         </NavListItem>
                         <NavListItem>
-                            <NavLink underline="none">Deals</NavLink>
+                            <Link
+                                component={RouterLink}
+                                to="/about-us"
+                                underline="none"
+                                color="primary"
+                                sx={{ ':hover': { color: 'text.secondary' } }}
+                            >
+                                About Us
+                            </Link>
                         </NavListItem>
                         <NavListItem>
-                            <NavLink underline="none">About Us</NavLink>
-                        </NavListItem>
-                        <NavListItem>
-                            <NavLink underline="none">Contact Us</NavLink>
+                            <Link
+                                component={RouterLink}
+                                to="/contact"
+                                underline="none"
+                                color="primary"
+                                sx={{ ':hover': { color: 'text.secondary' } }}
+                            >
+                                Contact
+                            </Link>
                         </NavListItem>
                     </NavList>
-                    <MenuButton onClick={() => setIsDrawerOpen(true)}>
+                    <MenuButton onClick={() => setIsDrawerOpen(false)}>
                         <span></span>
                     </MenuButton>
                     <Drawer
@@ -1119,7 +1210,10 @@ const Header = () => {
                         }}
                     >
                         <NavListItem style={{ padding: '16px 0' }}>
-                            <IconButton style={{ cursor: 'pointer' }}>
+                            <IconButton
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate('/search')}
+                            >
                                 <SearchSharp fontSize="large" />
                             </IconButton>
                         </NavListItem>

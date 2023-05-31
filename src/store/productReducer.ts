@@ -108,14 +108,23 @@ export const getProductAsync = createAsyncThunk(
 export const getManyProductAsync = createAsyncThunk(
     'get/manyProduct',
     async (
-        queryParams: { key: string; value: string }[] = [],
+        {
+            queryParams = [],
+            cb = () => '',
+        }: {
+            queryParams: { key: string; value: string }[]
+            cb: (products: IProduct[]) => void
+        },
         { rejectWithValue }
     ) => {
         try {
             //1) Send http request
             const response = await axios(getManyProduct(queryParams))
 
-            //2) Return response
+            //2) Callback
+            cb(response.data.data)
+
+            //3) Return response
             return {
                 products: response.data.data,
                 count: response.data.count,

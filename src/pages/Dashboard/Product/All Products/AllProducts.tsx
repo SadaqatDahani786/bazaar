@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 
 import {
     SearchOutlined,
@@ -22,9 +22,12 @@ import {
     TableBody,
     ButtonGroup,
     Divider,
+    TableFooter,
+    TablePagination,
 } from '@mui/material'
 
 import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
 
 //Redux
 import { useAppDispatch, useAppSelector } from '../../../../store/store'
@@ -35,7 +38,6 @@ import {
     IProduct,
     searchProductAsync,
 } from '../../../../store/productReducer'
-import { useNavigate } from 'react-router-dom'
 
 /*
  ** **
@@ -102,12 +104,15 @@ const AllProducts = () => {
         data: products,
         isLoading,
         errors,
+        count,
     } = useAppSelector((state) => state.product)
     const dispatch = useAppDispatch()
 
     //State
     const [showAlert, setShowAlert] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<IProduct>()
+    const [page, setPage] = useState(1)
+    const [rowsPerPage, setRowsPerPage] = useState(10)
 
     //Nav
     const navigate = useNavigate()
@@ -124,8 +129,22 @@ const AllProducts = () => {
      */
     //Fetch products when component loads up first time
     useEffect(() => {
-        dispatch(getManyProductAsync([]))
-    }, [])
+        dispatch(
+            getManyProductAsync({
+                queryParams: [
+                    {
+                        key: 'page',
+                        value: page.toString(),
+                    },
+                    {
+                        key: 'limit',
+                        value: rowsPerPage.toString(),
+                    },
+                ],
+                cb: () => '',
+            })
+        )
+    }, [page, rowsPerPage])
 
     /*
      ** **
@@ -176,7 +195,21 @@ const AllProducts = () => {
 
         //3) Refetch products when query empty again
         if (!query || query.length <= 0) {
-            return dispatch(getManyProductAsync([]))
+            return dispatch(
+                getManyProductAsync({
+                    queryParams: [
+                        {
+                            key: 'page',
+                            value: page.toString(),
+                        },
+                        {
+                            key: 'limit',
+                            value: rowsPerPage.toString(),
+                        },
+                    ],
+                    cb: () => '',
+                })
+            )
         }
 
         //4) Set timeout to fetch products via search query
@@ -432,6 +465,27 @@ const AllProducts = () => {
                                 ))
                             )}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={7} align="right">
+                                    <TablePagination
+                                        component="div"
+                                        count={count}
+                                        page={page - 1}
+                                        onPageChange={(e, newPage) =>
+                                            setPage(newPage + 1)
+                                        }
+                                        onRowsPerPageChange={(e) => {
+                                            setRowsPerPage(
+                                                parseInt(e.target.value, 10)
+                                            )
+                                            setPage(1)
+                                        }}
+                                        rowsPerPage={rowsPerPage}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        </TableFooter>
                     </Table>
                 </Widget>
             </Stack>

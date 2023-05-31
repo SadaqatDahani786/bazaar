@@ -11,7 +11,9 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
+    TablePagination,
     TableRow,
     TextField,
     Typography,
@@ -116,8 +118,12 @@ const Library = () => {
      ** **
      */
     //Redux
-    const mediaFiles = useAppSelector((state) => state.media.data)
-    const isLoading = useAppSelector((state) => state.media.isLoading)
+    const {
+        data: mediaFiles,
+        isLoading,
+        errors,
+        count,
+    } = useAppSelector((state) => state.media)
     const dispatch = useAppDispatch()
 
     //State
@@ -125,6 +131,8 @@ const Library = () => {
     const [isGridviewActive, setIsGridviewActive] = useState(true)
     const [showModal, setShowModal] = useState(false)
     const [selectedMediaId, setSelectedMediaId] = useState<string>()
+    const [page, setPage] = useState(1)
+    const [rowsPerPage, setRowsPerPage] = useState(10)
 
     //Refs
     const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
@@ -141,6 +149,22 @@ const Library = () => {
         dispatch(clearSelection())
         setSelectedMediaId(undefined)
     }, [isGridviewActive])
+
+    //Fetch media
+    useEffect(() => {
+        dispatch(
+            getMediaAsync([
+                {
+                    key: 'page',
+                    value: page.toString(),
+                },
+                {
+                    key: 'limit',
+                    value: rowsPerPage.toString(),
+                },
+            ])
+        )
+    }, [page, rowsPerPage])
 
     /**
      ** **
@@ -186,7 +210,18 @@ const Library = () => {
 
         //3) Refetch media when query empty again
         if (!query || query.length <= 0) {
-            return dispatch(getMediaAsync())
+            return dispatch(
+                getMediaAsync([
+                    {
+                        key: 'page',
+                        value: page.toString(),
+                    },
+                    {
+                        key: 'limit',
+                        value: rowsPerPage.toString(),
+                    },
+                ])
+            )
         }
 
         //4) Set timeout to fetch media via search query
@@ -350,7 +385,9 @@ const Library = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {mediaFiles.length <= 0 ? (
+                                {isLoading.fetch ? (
+                                    <CircularProgress size="24" />
+                                ) : mediaFiles.length <= 0 ? (
                                     <TableCell colSpan={6}>
                                         <Typography variant="h6">
                                             Uh oh, no images found.
@@ -485,6 +522,27 @@ const Library = () => {
                                     ))
                                 )}
                             </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TableCell colSpan={7} align="right">
+                                        <TablePagination
+                                            component="div"
+                                            count={count}
+                                            page={page - 1}
+                                            onPageChange={(e, newPage) =>
+                                                setPage(newPage + 1)
+                                            }
+                                            onRowsPerPageChange={(e) => {
+                                                setRowsPerPage(
+                                                    parseInt(e.target.value, 10)
+                                                )
+                                                setPage(1)
+                                            }}
+                                            rowsPerPage={rowsPerPage}
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            </TableFooter>
                         </Table>
                     </Widget>
                     {selectedMediaId && (

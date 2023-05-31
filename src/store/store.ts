@@ -12,6 +12,7 @@ import productReducer from './productReducer'
 import orderReducer from './orderReducer'
 import cartReducer from './cartReducer'
 import checkoutReducer from './checkoutReducer'
+import mailReducer from './mailReducer'
 
 /**
  ** ======================================================
@@ -30,6 +31,7 @@ const store = configureStore({
         order: orderReducer,
         cart: cartReducer,
         checkout: checkoutReducer,
+        mail: mailReducer,
     }),
 })
 

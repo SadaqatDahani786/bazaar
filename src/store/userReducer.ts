@@ -55,13 +55,28 @@ export interface IUser extends IUserDatabase {
  ** Thunk [getManyUserAsync]
  ** ======================================================
  */
-export const getManyUserAsync = createAsyncThunk('get/manyUser', async () => {
-    //1) Send http request
-    const response = await axios(getManyUser())
+export const getManyUserAsync = createAsyncThunk(
+    'get/manyUser',
+    async (
+        queryParams: { key: string; value: string }[],
+        { rejectWithValue }
+    ) => {
+        try {
+            //1) Send http request
+            const response = await axios(getManyUser(queryParams))
 
-    //2) Return response
-    return response.data.data
-})
+            //2) Return response
+            return {
+                users: response.data.data,
+                count: response.data.count,
+            }
+        } catch (err) {
+            //Reject with error
+            if (err instanceof AxiosError)
+                return rejectWithValue(err.response?.data?.message)
+        }
+    }
+)
 
 /**
  ** ======================================================
@@ -378,6 +393,7 @@ const defaultState: {
         create: string
     }
     data: Array<IUser>
+    count: number
 } = {
     isLoading: {
         fetch: false,
@@ -392,6 +408,7 @@ const defaultState: {
         create: '',
     },
     data: [],
+    count: 0,
 }
 
 //Slice
@@ -425,6 +442,7 @@ const sliceUser = createSlice({
         builder
             .addCase(getUserAsync.fulfilled, (state) => {
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: { ...state.errors, fetch: '' },
                     data: state.data,
@@ -461,6 +479,7 @@ const sliceUser = createSlice({
             })
             .addCase(getCurrentUserAsync.fulfilled, (state) => {
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: { ...state.errors, fetch: '' },
                     data: state.data,
@@ -495,26 +514,26 @@ const sliceUser = createSlice({
                     },
                 }
             })
-            .addCase(
-                getManyUserAsync.fulfilled,
-                (state, action: { payload: Array<IUser> }) => {
-                    //1) Get fetched users
-                    const users = action.payload
+            .addCase(getManyUserAsync.fulfilled, (state, action) => {
+                //1) Get fetched users
+                const users = (action.payload?.users as IUser[]) || []
+                const count = (action.payload?.count as number) || 0
 
-                    //2) Transform
-                    const updatedData = users.map((user) => ({
-                        ...user,
-                        isSelected: false,
-                    }))
+                //2) Transform
+                const updatedData = users.map((user) => ({
+                    ...user,
+                    isSelected: false,
+                }))
 
-                    //3) Update state
-                    return {
-                        isLoading: { ...state.isLoading, fetch: false },
-                        errors: { ...state.errors, fetch: '' },
-                        data: updatedData,
-                    }
+                //3) Update state
+                return {
+                    ...state.data,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: updatedData,
+                    count: count,
                 }
-            )
+            })
             .addCase(getManyUserAsync.pending, (state) => {
                 return {
                     ...state,
@@ -523,17 +542,20 @@ const sliceUser = createSlice({
             })
             .addCase(getTotalUsersCountAsync.fulfilled, (state) => {
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: { ...state.errors, fetch: '' },
                     data: state.data,
                 }
             })
             .addCase(getTotalUsersCountAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(getTotalUsersCountAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
@@ -553,6 +575,7 @@ const sliceUser = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, update: false },
                         errors: { ...state.errors, update: '' },
                         data: updatedData,
@@ -636,6 +659,7 @@ const sliceUser = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, update: false },
                         errors: { ...state.errors, update: '' },
                         data: updatedData,
@@ -664,6 +688,7 @@ const sliceUser = createSlice({
 
                 //2) Update state
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, create: false },
                     errors: { ...state.errors, create: '' },
                     data: [...state.data, { ...user, isSelected: false }],
@@ -699,6 +724,7 @@ const sliceUser = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, fetch: false },
                         errors: { ...state.errors, fetch: '' },
                         data: updatedData,
@@ -724,6 +750,7 @@ const sliceUser = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, delete: false },
                         errors: { ...state.errors, delete: '' },
                         data: updatedData,

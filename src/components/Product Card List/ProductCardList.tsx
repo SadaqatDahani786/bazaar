@@ -130,20 +130,22 @@ const ProductCardList = ({
                     <Typography variant="h3">{title}</Typography>
                 </Wrapper>
                 <Wrapper>
-                    <Button
-                        style={{
-                            fontWeight: 'bold',
-                            borderRadius: '0px',
-                            height: '60px',
-                        }}
-                        size="large"
-                        variant={'contained'}
-                        color="primary"
-                        onClick={() => url && navigate(url)}
-                    >
-                        Shop Now
-                        <ArrowForwardOutlined />
-                    </Button>
+                    {url && (
+                        <Button
+                            style={{
+                                fontWeight: 'bold',
+                                borderRadius: '0px',
+                                height: '60px',
+                            }}
+                            size="large"
+                            variant={'contained'}
+                            color="primary"
+                            onClick={() => navigate(url)}
+                        >
+                            Shop Now
+                            <ArrowForwardOutlined />
+                        </Button>
+                    )}
                 </Wrapper>
             </Column>
             <Column style={{ textAlign: 'center' }}>

@@ -137,7 +137,7 @@ const MediaPicker = ({
 
     //Fetch media files
     useEffect(() => {
-        dispatch(getMediaAsync())
+        dispatch(getMediaAsync([]))
     }, [])
 
     //Set default values

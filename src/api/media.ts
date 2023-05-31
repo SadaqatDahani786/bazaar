@@ -8,10 +8,12 @@ const API_ENDPOINT = `${BASE_URL}/media`
  ** getMedia = Fetch media files
  ** ======================================================
  */
-export const getMedia = () => {
+export const getMedia = (queryParams: { key: string; value: string }[]) => {
     //1) Create a request with options
     const options: AxiosRequestConfig = {
-        url: API_ENDPOINT,
+        url: `${API_ENDPOINT}?${queryParams
+            .map(({ key, value }) => `${key}=${value}`)
+            .join('&')}`,
         method: 'GET',
         withCredentials: true,
     }

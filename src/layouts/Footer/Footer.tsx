@@ -7,16 +7,23 @@ import {
     Typography,
     useTheme,
 } from '@mui/material'
+import { useEffect } from 'react'
 
+import { Link as RouterLink } from 'react-router-dom'
 import styled from 'styled-components'
+
+//Redux
+import { useAppDispatch, useAppSelector } from '../../store/store'
+import { getManyCategoryAsync } from '../../store/categoryReducer'
 
 //Hooks
 import useWindowDimensions from '../../hooks/useWindowDimensions'
+import { getAllCategoryDescendants } from '../../utils/getAllCategoryDescendants'
 
 /**
  ** **
  ** ** ** Styled Components
- ** **
+ ** **s
  */
 //Footer
 const FooterStyled = styled.div`
@@ -132,6 +139,12 @@ const Footer = () => {
     //Hooks
     const { width } = useWindowDimensions()
     const theme = useTheme()
+    const categories = useAppSelector((state) => state.category.data)
+    const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        dispatch(getManyCategoryAsync([]))
+    }, [])
 
     return (
         <FooterStyled>
@@ -172,71 +185,106 @@ const Footer = () => {
                 <Nav>
                     <Typography variant="h4">Explore</Typography>
                     <NavList>
-                        <NavListItem>
-                            <Link underline="hover">All Products</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Categories</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Today's Deals</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Arts & Craft</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Smartphones</Link>
-                        </NavListItem>
+                        {categories
+                            .filter((cat) =>
+                                getAllCategoryDescendants(categories, [
+                                    'mens-fashion',
+                                    'womens-fashion',
+                                ]).every((catin) => catin._id !== cat._id)
+                            )
+                            .splice(0, 6)
+                            .map((cat) => (
+                                <NavListItem key={cat._id}>
+                                    <Link
+                                        component={RouterLink}
+                                        to={`/products/${cat.slug}/1`}
+                                        underline="hover"
+                                    >
+                                        {cat.name}
+                                    </Link>
+                                </NavListItem>
+                            ))}
                     </NavList>
                 </Nav>
                 <Nav>
                     <Typography variant="h4">Men</Typography>
                     <NavList>
-                        <NavListItem>
-                            <Link underline="hover">Men's Fashion</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Clothing</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Suits</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Watches</Link>
-                        </NavListItem>
+                        {(getAllCategoryDescendants(categories, [
+                            'mens-fashion',
+                        ]).length > 4
+                            ? getAllCategoryDescendants(categories, [
+                                  'mens-fashion',
+                              ]).splice(0, 4)
+                            : getAllCategoryDescendants(categories, [
+                                  'mens-fashion',
+                              ])
+                        ).map((cat) => (
+                            <NavListItem key={cat._id}>
+                                <Link
+                                    component={RouterLink}
+                                    to={`/products/${cat.slug}/1`}
+                                    underline="hover"
+                                >
+                                    {cat.name}
+                                </Link>
+                            </NavListItem>
+                        ))}
                     </NavList>
                 </Nav>
                 <Nav>
                     <Typography variant="h4">Women</Typography>
                     <NavList>
-                        <NavListItem>
-                            <Link underline="hover">Women's Fashion</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Clothing</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Dresses</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Jewelry & Accessories</Link>
-                        </NavListItem>
-                        <NavListItem>
-                            <Link underline="hover">Heels & Shoes</Link>
-                        </NavListItem>
+                        {(getAllCategoryDescendants(categories, [
+                            'womens-fashion',
+                        ]).length > 5
+                            ? getAllCategoryDescendants(categories, [
+                                  'womens-fashion',
+                              ]).splice(0, 5)
+                            : getAllCategoryDescendants(categories, [
+                                  'womens-fashion',
+                              ])
+                        ).map((cat) => (
+                            <NavListItem key={cat._id}>
+                                <Link
+                                    component={RouterLink}
+                                    to={`/products/${cat.slug}/1`}
+                                    underline="hover"
+                                >
+                                    {cat.name}
+                                </Link>
+                            </NavListItem>
+                        ))}
                     </NavList>
                 </Nav>
                 <Nav>
                     <Typography variant="h4">Support</Typography>
                     <NavList>
                         <NavListItem>
-                            <Link underline="hover">About Us</Link>
+                            <Link
+                                component={RouterLink}
+                                to="/about-us"
+                                underline="hover"
+                            >
+                                About Us
+                            </Link>
                         </NavListItem>
                         <NavListItem>
-                            <Link underline="hover">Contact</Link>
+                            <Link
+                                component={RouterLink}
+                                to="/contact"
+                                underline="hover"
+                            >
+                                Contact
+                            </Link>
                         </NavListItem>
                         <NavListItem>
-                            <Link underline="hover">FAQ</Link>
+                            <Link
+                                component={RouterLink}
+                                to="/faq"
+                                underline="hover"
+                            >
+                                FAQ
+                            </Link>
                         </NavListItem>
                     </NavList>
                 </Nav>
@@ -244,13 +292,31 @@ const Footer = () => {
                     <Typography variant="h4">Connect</Typography>
                     <NavList>
                         <NavListItem>
-                            <Link underline="hover">Instagram</Link>
+                            <Link
+                                target="_blank"
+                                href="https://instagram.com/"
+                                underline="hover"
+                            >
+                                Instagram
+                            </Link>
                         </NavListItem>
                         <NavListItem>
-                            <Link underline="hover">Facebook</Link>
+                            <Link
+                                target="_blank"
+                                href="https://facebook.com/"
+                                underline="hover"
+                            >
+                                Facebook
+                            </Link>
                         </NavListItem>
                         <NavListItem>
-                            <Link underline="hover">Twitter</Link>
+                            <Link
+                                target="_blank"
+                                href="https://twitter.com/"
+                                underline="hover"
+                            >
+                                Twitter
+                            </Link>
                         </NavListItem>
                     </NavList>
                 </Nav>
@@ -274,11 +340,13 @@ const Footer = () => {
                     variant="h5"
                     textTransform="uppercase"
                     padding="8px 0"
-                    textAlign="left"
+                    textAlign="center"
+                    alignSelf="center"
+                    width="100%"
                 >
                     &copy; Bazaar Inc 2023. All rights reserved.
                 </Typography>
-                <NavList
+                {/* <NavList
                     style={{
                         flexDirection:
                             width <= theme.breakpoints.values.sm
@@ -298,7 +366,7 @@ const Footer = () => {
                     <NavListItem>
                         <Link underline="hover">Terms of use</Link>
                     </NavListItem>
-                </NavList>
+                </NavList> */}
             </Row>
         </FooterStyled>
     )

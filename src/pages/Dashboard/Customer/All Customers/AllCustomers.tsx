@@ -12,7 +12,9 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
+    TablePagination,
     TableRow,
     TextField,
     Typography,
@@ -77,21 +79,48 @@ const AllCustomers = () => {
      ** ** ** State & Hooks
      ** **
      */
-    const users = useAppSelector((state) => state.user.data)
-    const isLoading = useAppSelector((state) => state.user.isLoading)
+    //Redux
+    const {
+        data: users,
+        isLoading,
+        errors,
+        count,
+    } = useAppSelector((state) => state.user)
     const dispatch = useAppDispatch()
 
+    //State
     const [toBeDeletedUser, setToBeDeletedUser] = useState<string | undefined>()
+    const [page, setPage] = useState(1)
+    const [rowsPerPage, setRowsPerPage] = useState(10)
+
+    //Refs
     const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
         id: null,
     })
 
+    //Nav
     const navigate = useNavigate()
 
+    /*
+     ** **
+     ** ** ** Side effects
+     ** **
+     */
     //Fetch users on load
     useEffect(() => {
-        dispatch(getManyUserAsync())
-    }, [])
+        dispatch(
+            getManyUserAsync([
+                {
+                    key: 'page',
+                    value: page.toString(),
+                },
+                {
+                    key: 'limit',
+                    value: rowsPerPage.toString(),
+                },
+            ])
+        )
+    }, [page, rowsPerPage])
 
     /*
      ** **
@@ -158,7 +187,18 @@ const AllCustomers = () => {
 
         //3) Refetch users when query empty again
         if (!query || query.length <= 0) {
-            return dispatch(getManyUserAsync())
+            return dispatch(
+                getManyUserAsync([
+                    {
+                        key: 'page',
+                        value: page.toString(),
+                    },
+                    {
+                        key: 'limit',
+                        value: rowsPerPage.toString(),
+                    },
+                ])
+            )
         }
 
         //4) Set timeout to fetch user via search query
@@ -365,6 +405,27 @@ const AllCustomers = () => {
                             ))
                         )}
                     </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TableCell colSpan={7} align="right">
+                                <TablePagination
+                                    component="div"
+                                    count={count}
+                                    page={page - 1}
+                                    onPageChange={(e, newPage) =>
+                                        setPage(newPage + 1)
+                                    }
+                                    onRowsPerPageChange={(e) => {
+                                        setRowsPerPage(
+                                            parseInt(e.target.value, 10)
+                                        )
+                                        setPage(1)
+                                    }}
+                                    rowsPerPage={rowsPerPage}
+                                />
+                            </TableCell>
+                        </TableRow>
+                    </TableFooter>
                 </Table>
             </Widget>
         </AllCustomersStyled>

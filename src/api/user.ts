@@ -8,10 +8,14 @@ const API_ENDPOINT = `${BASE_URL}/user`
  ** getManyUser = Fetch users
  ** ======================================================
  */
-export const getManyUser = () => {
+export const getManyUser = (
+    queryParams: { key: string; value: string }[] = []
+) => {
     //1) Create a request with options
     const options: AxiosRequestConfig = {
-        url: API_ENDPOINT,
+        url: `${API_ENDPOINT}?${queryParams
+            .map(({ key, value }) => `${key}=${value}`)
+            .join('&')}`,
         method: 'GET',
         withCredentials: true,
     }

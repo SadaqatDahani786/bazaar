@@ -245,7 +245,7 @@ const Product = () => {
                 behavior: 'smooth',
                 block: 'center',
             })
-        else window.scrollTo({ top: 0, behavior: 'smooth' })
+        else window.scrollTo({ top: 0, behavior: 'auto' })
 
         setAllReviews([])
 

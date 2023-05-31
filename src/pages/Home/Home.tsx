@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Button, Typography, useTheme } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 
 import styled from 'styled-components'
 
@@ -421,6 +421,7 @@ const Home = () => {
                                     )
                                     .map(({ product }) => ({
                                         image: product?.image?.url,
+                                        url: `product/${product._id}`,
                                     })) || []
                             }
                         />
@@ -428,7 +429,7 @@ const Home = () => {
                 </Wrapper>
             </Section>
             <Section>
-                <img src="https://images.unsplash.com/photo-1544377208-215a63786183?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1276&q=80" />
+                <img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" />
                 <Details>
                     <Typography
                         color="secondary"
@@ -436,13 +437,13 @@ const Home = () => {
                         fontWeight="bold"
                         variant="h2"
                     >
-                        Deals & Promotions
+                        Hurry up!
                     </Typography>
                     <Typography color="secondary" variant="h5">
-                        Hurry up and save huge with big discounts on variety of
-                        deals just for you.
+                        Save huge with big discount on ongoing sale on variety
+                        of products.
                     </Typography>
-                    <Wrapper>
+                    {/* <Wrapper>
                         <Button
                             variant="contained"
                             color="secondary"
@@ -454,7 +455,7 @@ const Home = () => {
                         >
                             <Typography variant="h5">See Deals</Typography>
                         </Button>
-                    </Wrapper>
+                    </Wrapper> */}
                 </Details>
             </Section>
             <Footer />

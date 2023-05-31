@@ -76,13 +76,19 @@ export interface IMediaDatabase extends IMediaSuper {
  */
 export const getMediaAsync = createAsyncThunk(
     'get/media',
-    async (_, { rejectWithValue }) => {
+    async (
+        queryParams: { key: string; value: string }[],
+        { rejectWithValue }
+    ) => {
         try {
             //1) Send http request
-            const response = await axios(getMedia())
+            const response = await axios(getMedia(queryParams))
 
             //2) Return response
-            return response.data.data
+            return {
+                medias: response.data.data,
+                count: response.data.count,
+            }
         } catch (err) {
             if (err instanceof AxiosError)
                 return rejectWithValue(err.response?.data.message)
@@ -194,6 +200,7 @@ const defaultState: {
         create: string
     }
     data: Array<IMedia>
+    count: number
 } = {
     isLoading: {
         fetch: false,
@@ -208,6 +215,7 @@ const defaultState: {
         create: '',
     },
     data: [],
+    count: 0,
 }
 
 //Slice media reducer
@@ -342,36 +350,39 @@ const slice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(
-                getMediaAsync.fulfilled,
-                (state, action: { payload: Array<IMediaDatabase> }) => {
-                    //1) Transform response
-                    const items = action.payload.map((media) => ({
-                        ...media,
-                        uploaded_at: media.created_at,
-                        title: {
-                            value: media.title,
-                            edit: false,
-                        },
-                        description: {
-                            value: media.description,
-                            edit: false,
-                        },
-                        caption: {
-                            value: media.caption,
-                            edit: false,
-                        },
-                        isSelected: false,
-                    }))
+            .addCase(getMediaAsync.fulfilled, (state, action) => {
+                const medias =
+                    (action.payload?.medias as Array<IMediaDatabase>) || []
+                const count = (action.payload?.count as number) || 0
 
-                    //2) Save it
-                    return {
-                        isLoading: { ...state.isLoading, fetch: false },
-                        errors: { ...state.errors, fetch: '' },
-                        data: items,
-                    }
+                //1) Transform response
+                const items = medias.map((media) => ({
+                    ...media,
+                    uploaded_at: media.created_at,
+                    title: {
+                        value: media.title,
+                        edit: false,
+                    },
+                    description: {
+                        value: media.description,
+                        edit: false,
+                    },
+                    caption: {
+                        value: media.caption,
+                        edit: false,
+                    },
+                    isSelected: false,
+                }))
+
+                //2) Save it
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: items,
+                    count: count,
                 }
-            )
+            })
             .addCase(getMediaAsync.pending, (state) => {
                 return {
                     ...state,
@@ -419,6 +430,7 @@ const slice = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, update: false },
                         errors: { ...state.errors, update: '' },
                         data: updatedData,
@@ -439,6 +451,7 @@ const slice = createSlice({
 
                     //2) Filter out deleted media files
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, delete: false },
                         errors: { ...state.errors, delete: '' },
                         data: state.data.filter(
@@ -477,6 +490,7 @@ const slice = createSlice({
 
                     //2) Save it
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, fetch: false },
                         errors: { ...state.errors, fetch: '' },
                         data: items,
@@ -513,6 +527,7 @@ const slice = createSlice({
 
                     //2) Save it
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, create: false },
                         errors: { ...state.errors, create: '' },
                         data: items,

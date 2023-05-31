@@ -7,6 +7,9 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './store/store'
 
+//Components
+import ErrorBoundary from './components/Error Boundary'
+
 //Pages
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
@@ -18,6 +21,11 @@ import Product from './pages/Product'
 import Cart from './pages/Cart'
 import OrderSuccess from './pages/Order Success/'
 import Profile from './pages/Profile'
+import Error404 from './pages/Error404'
+import FAQ from './pages/FAQ'
+import Contact from './pages/Contact'
+import AboutUs from './pages/About Us'
+import Search from './pages/Search'
 
 //CSS
 import './App.css'
@@ -79,58 +87,83 @@ function App() {
 
     return (
         <BrowserRouter>
-            <StyledEngineProvider injectFirst>
-                <ThemeProvider theme={theme}>
-                    <StyleThemeProvider theme={theme}>
-                        <Provider store={store}>
-                            <div className="App">
-                                <Routes>
-                                    <Route
-                                        path="/profile"
-                                        element={<Profile />}
-                                    />
-                                    <Route path="/login" element={<Login />} />
-                                    <Route
-                                        path="/signup"
-                                        element={<Signup />}
-                                    />
-                                    <Route
-                                        path="/reset-password/:token"
-                                        element={<ResetPassword />}
-                                    />
-                                    <Route
-                                        path="/order_success"
-                                        element={<OrderSuccess />}
-                                    />
-                                    <Route path="/cart" element={<Cart />} />
-                                    <Route
-                                        path="/products/:category/:page"
-                                        element={<ProductsInCategory />}
-                                    />
-                                    <Route
-                                        path="/product/:id"
-                                        element={<Product />}
-                                    />
-                                    <Route
-                                        path="/dashboard/"
-                                        element={
-                                            <Navigate
-                                                to="/dashboard/overview"
-                                                replace={true}
-                                            />
-                                        }
-                                    />
-                                    <Route
-                                        path="/dashboard/:path"
-                                        element={<Dashboard />}
-                                    />
-                                    <Route path="/" element={<Home />} />
-                                </Routes>
-                            </div>
-                        </Provider>
-                    </StyleThemeProvider>
-                </ThemeProvider>
-            </StyledEngineProvider>
+            <ErrorBoundary>
+                <StyledEngineProvider injectFirst>
+                    <ThemeProvider theme={theme}>
+                        <StyleThemeProvider theme={theme}>
+                            <Provider store={store}>
+                                <div className="App">
+                                    <Routes>
+                                        <Route path="faq" element={<FAQ />} />
+                                        <Route
+                                            path="search"
+                                            element={<Search />}
+                                        />
+                                        <Route
+                                            path="about-us"
+                                            element={<AboutUs />}
+                                        />
+                                        <Route
+                                            path="contact"
+                                            element={<Contact />}
+                                        />
+                                        <Route
+                                            path="/profile"
+                                            element={<Profile />}
+                                        />
+                                        <Route
+                                            path="/login"
+                                            element={<Login />}
+                                        />
+                                        <Route
+                                            path="/signup"
+                                            element={<Signup />}
+                                        />
+                                        <Route
+                                            path="/reset-password/:token"
+                                            element={<ResetPassword />}
+                                        />
+                                        <Route
+                                            path="/order_success"
+                                            element={<OrderSuccess />}
+                                        />
+                                        <Route
+                                            path="/cart"
+                                            element={<Cart />}
+                                        />
+                                        <Route
+                                            path="/products/:category/:page"
+                                            element={<ProductsInCategory />}
+                                        />
+                                        <Route
+                                            path="/product/:id"
+                                            element={<Product />}
+                                        />
+                                        <Route
+                                            path="/dashboard/"
+                                            element={
+                                                <Navigate
+                                                    to="/dashboard/overview"
+                                                    replace={true}
+                                                />
+                                            }
+                                        />
+                                        <Route
+                                            path="/dashboard/:path"
+                                            element={<Dashboard />}
+                                        />
+                                        <Route path="/" element={<Home />} />
+                                        <Route
+                                            path="*"
+                                            element={<Error404 />}
+                                        />
+                                    </Routes>
+                                </div>
+                            </Provider>
+                        </StyleThemeProvider>
+                    </ThemeProvider>
+                </StyledEngineProvider>
+            </ErrorBoundary>
         </BrowserRouter>
     )
 }
