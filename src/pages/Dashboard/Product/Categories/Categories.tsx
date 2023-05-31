@@ -285,7 +285,7 @@ const Categories = () => {
                                     />
                                 </TableCell>
                                 <TableCell>Category</TableCell>
-                                <TableCell align="right">Description</TableCell>
+                                <TableCell align="left">Description</TableCell>
                                 <TableCell align="right">Slug</TableCell>
                                 <TableCell align="right">Parent</TableCell>
                                 <TableCell align="right">Date</TableCell>
@@ -398,8 +398,13 @@ const Categories = () => {
                                                 </Stack>
                                             </Stack>
                                         </TableCell>
-                                        <TableCell align="right">
-                                            {cat.description}
+                                        <TableCell align="left">
+                                            {cat.description.length > 200
+                                                ? cat.description.slice(
+                                                      0,
+                                                      200
+                                                  ) + '...'
+                                                : cat.description}
                                         </TableCell>
                                         <TableCell align="right">
                                             {cat.slug}

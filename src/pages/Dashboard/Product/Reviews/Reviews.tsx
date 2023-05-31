@@ -284,7 +284,7 @@ const Reviews = () => {
                                 </TableCell>
                                 <TableCell>Images</TableCell>
                                 <TableCell align="left">Title</TableCell>
-                                <TableCell align="center">Review</TableCell>
+                                <TableCell align="left">Review</TableCell>
                                 <TableCell align="center">Rating</TableCell>
                                 <TableCell align="right">Author</TableCell>
                                 <TableCell align="right">Date</TableCell>
@@ -420,8 +420,11 @@ const Reviews = () => {
                                         <TableCell align="left">
                                             {review.title}
                                         </TableCell>
-                                        <TableCell align="center">
-                                            {review.review}
+                                        <TableCell align="left">
+                                            {review.review.length > 200
+                                                ? review.review.slice(0, 200) +
+                                                  '...'
+                                                : review.review}
                                         </TableCell>
                                         <TableCell align="center">
                                             {review.rating}
