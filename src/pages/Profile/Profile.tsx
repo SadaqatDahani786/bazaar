@@ -366,7 +366,7 @@ const Profile = () => {
             !localStorage.getItem('user_role')
         )
             return navigate('/login', { replace: true })
-    }, [])
+    }, [authUser])
 
     //Set country code
     useEffect(() => {

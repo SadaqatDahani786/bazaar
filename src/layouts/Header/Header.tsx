@@ -1343,11 +1343,13 @@ const Header = () => {
                             <DrawerCartHeader>
                                 <Typography variant="h5" fontWeight="bold">
                                     Cart (
-                                    {cart?.products.reduce(
-                                        (acc, currItem) =>
-                                            (acc += currItem.quantity),
-                                        0
-                                    ) || 0}
+                                    {!user
+                                        ? 0
+                                        : cart?.products.reduce(
+                                              (acc, currItem) =>
+                                                  (acc += currItem.quantity),
+                                              0
+                                          ) || 0}
                                     )
                                 </Typography>
                                 <div>
@@ -1566,17 +1568,18 @@ const Header = () => {
                                     </Typography>
                                     <Typography variant="h6" fontWeight="bold">
                                         &euro;
-                                        {(
-                                            cart?.products.reduce(
-                                                (acc, currItem) =>
-                                                    (acc +=
-                                                        (currItem.product
-                                                            .selling_price ||
-                                                            currItem.product
-                                                                .price) *
-                                                        currItem.quantity),
-                                                0
-                                            ) || 0
+                                        {(!user
+                                            ? 0
+                                            : cart?.products.reduce(
+                                                  (acc, currItem) =>
+                                                      (acc +=
+                                                          (currItem.product
+                                                              .selling_price ||
+                                                              currItem.product
+                                                                  .price) *
+                                                          currItem.quantity),
+                                                  0
+                                              ) || 0
                                         ).toFixed(2)}
                                     </Typography>
                                 </Box>
@@ -1587,7 +1590,8 @@ const Header = () => {
                                     size="large"
                                     endIcon={<ArrowForward />}
                                     disabled={
-                                        !(cart && cart.products.length > 0)
+                                        !(cart && cart.products.length > 0) ||
+                                        !user
                                     }
                                     onClick={() => {
                                         dispatch(closeCartDrawer())
