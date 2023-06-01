@@ -2,6 +2,7 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 
 import {
     DeleteOutline,
+    HandshakeRounded,
     PhotoAlbumOutlined,
     SearchOutlined,
 } from '@mui/icons-material'
@@ -19,7 +20,9 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
+    TablePagination,
     TableRow,
     TextField,
     Typography,
@@ -33,6 +36,7 @@ import {
     deleteCategoryAsync,
     editSelectedStatus,
     getManyCategoryAsync,
+    ICategory,
     searchCategoryAsync,
 } from '../../../../store/categoryReducer'
 
@@ -110,14 +114,23 @@ const Categories = () => {
      ** **
      */
     //Redux
-    const categories = useAppSelector((state) => state.category.data)
-    const isLoading = useAppSelector((state) => state.category.isLoading)
-    const errors = useAppSelector((state) => state.category.errors)
+    const {
+        data: categories,
+        isLoading,
+        errors,
+        count,
+    } = useAppSelector((state) => state.category)
     const dispatch = useAppDispatch()
 
+    //State
     const [selectedCat, setSelectedCat] = useState<string>()
     const [showModal, setShowModal] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
+    const [page, setPage] = useState(1)
+    const [rowsPerPage, setRowsPerPage] = useState(10)
+    // const [categories, setCategories] = useState<ICategory[]>([])
+
+    //Refs
     const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
         id: null,
     })
@@ -129,9 +142,20 @@ const Categories = () => {
      */
     //Get many categories async
     useEffect(() => {
-        dispatch(getManyCategoryAsync([]))
+        dispatch(
+            getManyCategoryAsync([
+                {
+                    key: 'page',
+                    value: page.toString(),
+                },
+                {
+                    key: 'limit',
+                    value: rowsPerPage.toString(),
+                },
+            ])
+        )
         setShowAlert(true)
-    }, [])
+    }, [page, rowsPerPage])
 
     /*
      ** **
@@ -182,7 +206,18 @@ const Categories = () => {
 
         //3) Refetch users when query empty again
         if (!query || query.length <= 0) {
-            return dispatch(getManyCategoryAsync([]))
+            return dispatch(
+                getManyCategoryAsync([
+                    {
+                        key: 'page',
+                        value: page.toString(),
+                    },
+                    {
+                        key: 'limit',
+                        value: rowsPerPage.toString(),
+                    },
+                ])
+            )
         }
 
         //4) Set timeout to fetch user via search query
@@ -421,6 +456,27 @@ const Categories = () => {
                                 ))
                             )}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={7} align="right">
+                                    <TablePagination
+                                        component="div"
+                                        count={count}
+                                        page={page - 1}
+                                        onPageChange={(e, newPage) => {
+                                            setPage(newPage + 1)
+                                        }}
+                                        onRowsPerPageChange={(e) => {
+                                            setRowsPerPage(
+                                                parseInt(e.target.value, 10)
+                                            )
+                                            setPage(1)
+                                        }}
+                                        rowsPerPage={rowsPerPage}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        </TableFooter>
                     </Table>
                 </Widget>
                 <Widget>
@@ -441,7 +497,10 @@ const Categories = () => {
             >
                 <ModalInnerContainer>
                     <Typography variant="h5">Edit Category</Typography>
-                    <CategoryView mode="EDIT" categoryId={selectedCat} />
+                    <CategoryView
+                        mode="EDIT"
+                        cat={categories.find((cat) => cat._id === selectedCat)}
+                    />
                 </ModalInnerContainer>
             </Modal>
         </CategoriesStyled>

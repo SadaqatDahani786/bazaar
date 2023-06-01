@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { SyntheticEvent, useRef, useState } from 'react'
 
 import {
     Alert,
     AlertTitle,
+    Autocomplete,
     Button,
     CircularProgress,
-    MenuItem,
     Stack,
     TextField,
+    TextFieldProps,
 } from '@mui/material'
 
 import styled from 'styled-components'
@@ -16,7 +17,7 @@ import styled from 'styled-components'
 import { useAppDispatch, useAppSelector } from '../../../../store/store'
 import {
     createCategoryAsync,
-    getManyCategoryAsync,
+    searchCategoryAsync,
     updateCategoryAsync,
 } from '../../../../store/categoryReducer'
 import { IMediaDatabase } from '../../../../store/mediaReducer'
@@ -53,10 +54,10 @@ const CategoryViewStyled = styled.div`
  */
 const CategoryView = ({
     mode = 'ADD_NEW',
-    categoryId,
+    cat,
 }: {
     mode?: 'EDIT' | 'ADD_NEW'
-    categoryId?: string
+    cat?: ICategory
 }) => {
     /*
      ** **
@@ -70,17 +71,23 @@ const CategoryView = ({
     const dispatch = useAppDispatch()
 
     //States
-    const [category, setCategory] = useState<ICategory>()
+    const [category, setCategory] = useState<ICategory | undefined>(cat)
     const [selectedFiles, setSelectedFiles] = useState<Array<IMediaDatabase>>(
         []
     )
-    const [selectedParentCat, setSelectedParentCat] = useState('none')
+    const [selectedParentCategory, setSelectedParentCategory] = useState({
+        label: 'none',
+        _id: '',
+    })
     const [showAlert, setShowAlert] = useState(false)
 
     //refs
     const refInputName = useRef<HTMLInputElement>(null)
     const refInputSlug = useRef<HTMLInputElement>(null)
     const refInputDescription = useRef<HTMLInputElement>(null)
+    const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
+        id: null,
+    })
 
     const clearFunc = useRef<() => void>()
 
@@ -154,33 +161,6 @@ const CategoryView = ({
 
     /*
      ** **
-     ** ** ** Side effects
-     ** **s
-     */
-    //Fetch categories
-    useEffect(() => {
-        //1) Don't request, if already fetched
-        if (categories.length > 0) return
-
-        //2) Dispatch action to fetch categories
-        dispatch(getManyCategoryAsync([]))
-    }, [])
-
-    //Set category which to be updated
-    useEffect(() => {
-        //1) Find category to be updated in mode "EDIT"
-        setCategory(categories.find((cat) => cat._id === categoryId))
-    }, [categories])
-
-    //Set selected parent category
-    useEffect(() => {
-        //2) Set partent
-        if (!category?.parent?._id) return
-        setSelectedParentCat(category.parent._id)
-    }, [category])
-
-    /*
-     ** **
      ** ** ** Methods
      ** **
      */
@@ -211,8 +191,8 @@ const CategoryView = ({
         formData.append('name', inputName.value)
         formData.append('slug', inputSlug.value)
         formData.append('description', inputDescription.value)
-        selectedParentCat !== 'none' &&
-            formData.append('parent', selectedParentCat)
+        selectedParentCategory.label !== 'none' &&
+            formData.append('parent', selectedParentCategory._id)
         selectedFiles.length > 0 &&
             formData.append('image', selectedFiles[0]._id)
 
@@ -231,7 +211,7 @@ const CategoryView = ({
         //6) Dispatch action to update category
         dispatch(
             updateCategoryAsync({
-                id: categoryId as string,
+                id: category?._id as string,
                 formData,
                 cb: () => {
                     clickResetHandler()
@@ -250,7 +230,7 @@ const CategoryView = ({
 
         //=> Reset data
         setCategory(undefined)
-        setSelectedParentCat('none')
+        setSelectedParentCategory({ _id: '', label: 'none' })
 
         //=> Clear func
         clearFunc.current && clearFunc.current()
@@ -259,6 +239,25 @@ const CategoryView = ({
     //Pass reset function to parent component
     const onClearSelection = (cb: () => void) => {
         clearFunc.current = cb
+    }
+
+    //Onchange select parent category handler
+    const onChangeSelectParentCategoryHandler = (
+        e: SyntheticEvent<Element, Event>,
+        query: string
+    ) => {
+        //1) Clear previously set timeout if there's any
+        if (timeOutID.current.id) clearTimeout(timeOutID.current.id)
+
+        //2) Refetch users when query empty again
+        if (!query || query.length <= 0) {
+            return
+        }
+
+        //3) Set timeout to fetch user via search query
+        timeOutID.current.id = setTimeout(() => {
+            dispatch(searchCategoryAsync(query))
+        }, 300)
     }
 
     return (
@@ -327,22 +326,27 @@ const CategoryView = ({
                 </Stack>
                 <Stack flexDirection="row" gap="8px">
                     <Stack flex={1}>
-                        <TextField
-                            label="Parent Category"
-                            value={selectedParentCat}
-                            fullWidth
-                            select
-                            onChange={(e) =>
-                                setSelectedParentCat(e.target.value)
+                        <Autocomplete
+                            disablePortal
+                            onInputChange={onChangeSelectParentCategoryHandler}
+                            onChange={(_, val) =>
+                                val && setSelectedParentCategory(val)
                             }
-                        >
-                            <MenuItem value="none">None</MenuItem>
-                            {categories.map((cat) => (
-                                <MenuItem key={cat._id} value={cat._id}>
-                                    {cat.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                            value={selectedParentCategory}
+                            options={[
+                                { label: 'none', _id: '' },
+                                ...categories.map((cat) => ({
+                                    label: cat.name,
+                                    _id: cat._id,
+                                })),
+                            ]}
+                            renderInput={(params: TextFieldProps) => (
+                                <TextField
+                                    {...params}
+                                    label="Select Parent Category"
+                                />
+                            )}
+                        />
                     </Stack>
                     <Stack flex={1}>
                         <MediaPicker

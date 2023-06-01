@@ -194,7 +194,7 @@ const Cart = () => {
         dispatch(
             createCheckoutNoPayAsync((err) => {
                 setShowAlert(true)
-                if (!err) navigate('/success')
+                if (!err) navigate('/order_success')
             })
         )
     }

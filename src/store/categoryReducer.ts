@@ -45,7 +45,10 @@ export const getManyCategoryAsync = createAsyncThunk(
             const response = await axios(getManyCateogory(queryParams))
 
             //2) Return response
-            return response.data.data
+            return {
+                categories: response.data.data,
+                count: response.data.count,
+            }
         } catch (err) {
             //Reject with error
             if (err instanceof AxiosError)
@@ -207,10 +210,12 @@ const defaultState: {
     }
     errors: { fetch: string; create: string; update: string; delete: string }
     data: Array<ICategory>
+    count: number
 } = {
     isLoading: { fetch: false, create: false, update: false, delete: false },
     errors: { fetch: '', create: '', update: '', delete: '' },
     data: [],
+    count: 0,
 }
 
 //Slice
@@ -241,49 +246,55 @@ const sliceCategory = createSlice({
     },
     extraReducers: (builder) =>
         builder
-            .addCase(
-                getManyCategoryAsync.fulfilled,
-                (state, action: { payload: Array<ICategory> }) => {
-                    //1) Get categories
-                    const categories = action.payload
+            .addCase(getManyCategoryAsync.fulfilled, (state, action) => {
+                //1) Get categories
+                const categories =
+                    (action.payload?.categories as ICategory[]) || []
+                const count = (action.payload?.count as number) || 0
 
-                    //2) Transform
-                    const updatedData = categories.map((category) => ({
-                        ...category,
-                        isSelected: false,
-                    }))
+                //2) Transform
+                const updatedData = categories.map((category) => ({
+                    ...category,
+                    isSelected: false,
+                }))
 
-                    //3) Update state
-                    return {
-                        isLoading: { ...state.isLoading, fetch: false },
-                        errors: { ...state.errors, fetch: '' },
-                        data: updatedData,
-                    }
+                //3) Update state
+                return {
+                    ...state,
+                    isLoading: { ...state.isLoading, fetch: false },
+                    errors: { ...state.errors, fetch: '' },
+                    data: updatedData,
+                    count: count,
                 }
-            )
+            })
             .addCase(getManyCategoryAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(getManyCategoryAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
             }))
             .addCase(getSalesInEachCategoryAsync.fulfilled, (state) => {
                 return {
+                    ...state,
                     isLoading: { ...state.isLoading, fetch: false },
                     errors: { ...state.errors, fetch: '' },
                     data: state.data,
                 }
             })
             .addCase(getSalesInEachCategoryAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(getSalesInEachCategoryAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
@@ -302,6 +313,7 @@ const sliceCategory = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, create: false },
                         errors: { ...state.errors, create: '' },
                         data: updatedData,
@@ -309,11 +321,13 @@ const sliceCategory = createSlice({
                 }
             )
             .addCase(createCategoryAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, create: true },
                 errors: { ...state.errors, create: '' },
                 data: state.data,
             }))
             .addCase(createCategoryAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, create: false },
                 errors: { ...state.errors, create: action.payload as string },
                 data: state.data,
@@ -332,6 +346,7 @@ const sliceCategory = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, update: false },
                         errors: { ...state.errors, update: '' },
                         data: updatedData,
@@ -339,11 +354,13 @@ const sliceCategory = createSlice({
                 }
             )
             .addCase(updateCategoryAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, update: true },
                 errors: { ...state.errors, update: '' },
                 data: state.data,
             }))
             .addCase(updateCategoryAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, update: false },
                 errors: { ...state.errors, update: action.payload as string },
                 data: state.data,
@@ -361,6 +378,7 @@ const sliceCategory = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, delete: false },
                         errors: { ...state.errors, delete: '' },
                         data: updatedData,
@@ -368,6 +386,7 @@ const sliceCategory = createSlice({
                 }
             )
             .addCase(deleteCategoryAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, delete: true },
                 errors: { ...state.errors, delete: '' },
                 data: state.data,
@@ -386,6 +405,7 @@ const sliceCategory = createSlice({
 
                     //3) Update state
                     return {
+                        ...state,
                         isLoading: { ...state.isLoading, fetch: false },
                         errors: { ...state.errors, fetch: '' },
                         data: updatedData,
@@ -393,11 +413,13 @@ const sliceCategory = createSlice({
                 }
             )
             .addCase(searchCategoryAsync.pending, (state) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: true },
                 errors: { ...state.errors, fetch: '' },
                 data: state.data,
             }))
             .addCase(searchCategoryAsync.rejected, (state, action) => ({
+                ...state,
                 isLoading: { ...state.isLoading, fetch: false },
                 errors: { ...state.errors, fetch: action.payload as string },
                 data: state.data,
