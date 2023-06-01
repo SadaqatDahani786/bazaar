@@ -4,6 +4,7 @@ import {
     AddOutlined,
     ApartmentOutlined,
     CreditCardOutlined,
+    DeleteOutline,
     EditOutlined,
     Help,
     HomeOutlined,
@@ -135,6 +136,7 @@ export interface IAddress {
 interface AddressViewProps {
     address?: IAddress
     onSave?: (address: IAddress, closeModal: () => void) => void
+    onDelete?: (address: IAddress) => void
     mode?: 'EDIT' | 'ADD_NEW'
     isLoading?: boolean
 }
@@ -147,6 +149,7 @@ interface AddressViewProps {
 const AddressView = ({
     mode = 'ADD_NEW',
     isLoading = false,
+    onDelete,
     address = {
         _id: '',
         address: '',
@@ -444,6 +447,9 @@ const AddressView = ({
                 setShowModal(false)
             }
         )
+
+        //4) Reset input
+        clickCancelHandler()
     }
 
     //Click cancel handler
@@ -486,21 +492,43 @@ const AddressView = ({
                         alignItems="flex-start"
                         spacing={1}
                     >
-                        <Typography
-                            color="text.secondary"
-                            fontWeight="bold"
-                            variant="h6"
-                        >
-                            {address.full_name}
-                        </Typography>
-                        <Tooltip title="Edit the address">
-                            <Button
-                                onClick={() => setShowModal(true)}
-                                endIcon={<EditOutlined />}
+                        <Stack flex={1}>
+                            <Typography
+                                textAlign="left"
+                                color="text.secondary"
+                                fontWeight="bold"
+                                variant="h6"
                             >
-                                Edit
-                            </Button>
-                        </Tooltip>
+                                {address.full_name}
+                            </Typography>
+                        </Stack>
+                        <Stack flexDirection="row" gap="8px">
+                            <Box>
+                                <Tooltip title="Edit">
+                                    <IconButton
+                                        onClick={() => setShowModal(true)}
+                                    >
+                                        <EditOutlined fontSize="inherit" />
+                                    </IconButton>
+                                </Tooltip>
+                            </Box>
+                            {!address.default_billing_address &&
+                            !address.default_shipping_address ? (
+                                <Box>
+                                    <Tooltip title="Delete">
+                                        <IconButton
+                                            onClick={() =>
+                                                onDelete && onDelete(address)
+                                            }
+                                        >
+                                            <DeleteOutline fontSize="inherit" />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
+                            ) : (
+                                ' '
+                            )}
+                        </Stack>
                     </Stack>
                     <Stack
                         direction="row"

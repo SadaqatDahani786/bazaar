@@ -666,32 +666,45 @@ const Profile = () => {
         }
     }
 
-    //Save
-    const saveAddress = (address: IAddress, closeModal: () => void) => {
+    //Edit or delete address action handler
+    const editOrDeleteAddressActionHandler = (
+        address: IAddress,
+        action: 'UPDATE' | 'DELETE',
+        closeModal?: () => void
+    ) => {
         //1) Validate
         if (!user) return
 
-        //2) If new address set to be default address, remove from default for all other addressess
-        const updatedAddresses = user.addresses.map((addr) => ({
-            ...addr,
-            default_shipping_address: address.default_shipping_address
-                ? false
-                : addr.default_shipping_address,
-            default_billing_address: address.default_billing_address
-                ? false
-                : addr.default_billing_address,
-        }))
-
-        //3) Find index of this address in user's addressess
-        const index = updatedAddresses.findIndex(
+        //2) Find index of this address in user's addressess
+        const index = user.addresses.findIndex(
             (addr) => addr._id === address._id
         )
 
-        //4) If exist, update, else add new
-        if (index !== -1) updatedAddresses[index] = address
-        else updatedAddresses.push(address)
+        //3) Define variable to hold the updated addresses
+        let updatedAddresses
 
-        //4) Prepare form data with updated addresses
+        //4) If action updated then update/addnew, else delete the address
+        if (action === 'UPDATE') {
+            //=> If new address set to be default address, remove from default for all other addressess
+            updatedAddresses = user.addresses.map((addr) => ({
+                ...addr,
+                default_shipping_address: address.default_shipping_address
+                    ? false
+                    : addr.default_shipping_address,
+                default_billing_address: address.default_billing_address
+                    ? false
+                    : addr.default_billing_address,
+            }))
+
+            //=> If exist, update, else add new
+            if (index !== -1) updatedAddresses[index] = address
+            else updatedAddresses.push({ ...address })
+        } else {
+            updatedAddresses = [...user.addresses]
+            updatedAddresses.splice(index, 1)
+        }
+
+        //5) Prepare form data with updated addresses
         const formData = new FormData()
         updatedAddresses.map((addr, i) => {
             formData.append(`addresses[${i}]['full_name']`, addr.full_name)
@@ -715,14 +728,14 @@ const Profile = () => {
             )
         })
 
-        //4) Dispatch action to update current user
+        //6) Dispatch action to update current user
         dispatch(
             updateCurrentUserAsync({
                 formData,
                 cb: (updateduser) => {
                     setShowAlertSuccess(true)
                     updateduser && dispatch(setAuthUser(updateduser))
-                    closeModal()
+                    closeModal && closeModal()
                 },
             })
         )
@@ -1709,7 +1722,13 @@ const Profile = () => {
                                 <Box alignSelf="flex-end">
                                     <AddressView
                                         isLoading={isLoading.update}
-                                        onSave={saveAddress}
+                                        onSave={(address, closeModal) =>
+                                            editOrDeleteAddressActionHandler(
+                                                address,
+                                                'UPDATE',
+                                                closeModal
+                                            )
+                                        }
                                         mode="ADD_NEW"
                                     />
                                 </Box>
@@ -1727,8 +1746,23 @@ const Profile = () => {
                                             key={addr._id}
                                             address={addrUpd}
                                             mode="EDIT"
-                                            isLoading={isLoading.update}
-                                            onSave={saveAddress}
+                                            isLoading={
+                                                isLoading.update ||
+                                                isLoading.delete
+                                            }
+                                            onSave={(address, closeModal) =>
+                                                editOrDeleteAddressActionHandler(
+                                                    address,
+                                                    'UPDATE',
+                                                    closeModal
+                                                )
+                                            }
+                                            onDelete={(address) =>
+                                                editOrDeleteAddressActionHandler(
+                                                    address,
+                                                    'DELETE'
+                                                )
+                                            }
                                         />
                                     )
                                 })}

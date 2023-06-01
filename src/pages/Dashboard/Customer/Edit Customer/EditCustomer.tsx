@@ -53,6 +53,7 @@ import {
     isPhoneNumber,
 } from '../../../../utils/validators'
 import { splitNumberByCode } from '../../../../utils/splitNumberByCode'
+import { IAddress } from '../../../../components/AddressView/AddressView'
 
 /*
  ** **
@@ -113,6 +114,7 @@ const EditCustomer = () => {
     const isLoadingUser = useAppSelector((state) => state.user.isLoading)
     const errorsUser = useAppSelector((state) => state.user.errors)
     const users = useAppSelector((state) => state.user.data)
+    const authUser = useAppSelector((state) => state.auth.data)
 
     const [user, setUser] = useState<IUserDatabase>()
     const [showAlert, setShowAlert] = useState(false)
@@ -465,7 +467,47 @@ const EditCustomer = () => {
         setSelectedCountryCode(
             splitNumberByCode(user?.phone_no).country_code.substring(1)
         )
+        if (user) setUser({ ...user, addresses: authUser?.addresses || [] })
         setIsAdmin(user?.role === 'admin')
+    }
+
+    //Edit or delete addresses action handler
+    const editOrDeleteActionHandler = (
+        address: IAddress,
+        action: 'DELETE' | 'UPDATE',
+        closeModal?: () => void
+    ) => {
+        //1) Validate
+        if (!user) return
+
+        //2) Define variable to store the updated addresses
+        let updatedAddresses
+
+        //3) If action updated, update, else delete address
+        if (action === 'UPDATE') {
+            updatedAddresses = user.addresses.map((currAddr) => {
+                if (currAddr._id === address._id) return address
+                return {
+                    ...currAddr,
+                    default_billing_address: address.default_billing_address
+                        ? false
+                        : currAddr.default_billing_address,
+                    default_shipping_address: address.default_shipping_address
+                        ? false
+                        : currAddr.default_shipping_address,
+                }
+            })
+        } else {
+            updatedAddresses = user.addresses.filter(
+                (currAddr) => currAddr._id !== address._id
+            )
+        }
+
+        //4) Update user addresses
+        setUser({ ...user, addresses: updatedAddresses })
+
+        //5) Close modal when it's open
+        closeModal && closeModal()
     }
 
     return (
@@ -732,7 +774,14 @@ const EditCustomer = () => {
                                                     ? false
                                                     : addr.default_billing_address,
                                         })),
-                                        newAddress,
+                                        {
+                                            ...newAddress,
+                                            _id:
+                                                newAddress._id ||
+                                                (
+                                                    Math.random() * Date.now()
+                                                ).toString(),
+                                        },
                                     ],
                                 }
 
@@ -753,42 +802,19 @@ const EditCustomer = () => {
                                     key={i}
                                     address={address}
                                     mode="EDIT"
-                                    onSave={(newAddress, closeModal) => {
-                                        //1) Validate
-                                        if (!user) return
-
-                                        //2) Update address and remove default address if new address has it
-                                        const updUser: IUserDatabase = {
-                                            ...user,
-                                            addresses: [
-                                                ...user.addresses.map(
-                                                    (addr, ind) => {
-                                                        if (i === ind)
-                                                            return {
-                                                                ...newAddress,
-                                                            }
-                                                        return {
-                                                            ...address,
-                                                            default_shipping_address:
-                                                                newAddress.default_shipping_address
-                                                                    ? false
-                                                                    : addr.default_shipping_address,
-                                                            default_billing_address:
-                                                                newAddress.default_billing_address
-                                                                    ? false
-                                                                    : addr.default_billing_address,
-                                                        }
-                                                    }
-                                                ),
-                                            ],
-                                        }
-
-                                        //3) Update state
-                                        setUser(updUser)
-
-                                        //4) Close modal
-                                        closeModal()
-                                    }}
+                                    onDelete={(address) =>
+                                        editOrDeleteActionHandler(
+                                            address,
+                                            'DELETE'
+                                        )
+                                    }
+                                    onSave={(address, closeModal) =>
+                                        editOrDeleteActionHandler(
+                                            address,
+                                            'UPDATE',
+                                            closeModal
+                                        )
+                                    }
                                 />
                             ))}
                         </Stack>
