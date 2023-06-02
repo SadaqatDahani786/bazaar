@@ -628,7 +628,10 @@ const Profile = () => {
                 })
             )
         } else if (type === 'phone_no') {
-            formData.append('phone_no', inputPhoneNumber.value)
+            formData.append(
+                'phone_no',
+                `+${selectedCountryCode}${inputPhoneNumber.value}`
+            )
             dispatch(
                 updateCurrentUserAsync({
                     formData,
