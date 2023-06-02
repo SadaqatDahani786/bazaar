@@ -207,6 +207,8 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
     const clearProductImage = useRef<() => void>()
     const clearProductGallery = useRef<() => void>()
 
+    const touched = useRef(false)
+
     /*
      ** **
      ** ** ** Form Fields
@@ -480,22 +482,19 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
 
     // Set default product categories
     useEffect(() => {
+        if (activeTab !== 0) touched.current = true
+
         //1) Validate
-        if (
-            !product ||
-            !product.categories ||
-            mode !== 'EDIT' ||
-            categories.length <= 0
-        )
-            return
+        if (mode !== 'EDIT') return
 
         //2) Dispatch action to edit
         dispatch(
             editSelectedStatus({
-                ids: product.categories.map((cat) => cat._id),
+                ids: product?.categories.map((cat) => cat._id) || [],
+                edit: true,
             })
         )
-    }, [product])
+    }, [activeTab])
 
     //Set default product variations and images
     useEffect(() => {
@@ -824,8 +823,6 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
             }))
         formData.append('variants', JSON.stringify(variants))
 
-        console.log(variants)
-
         //=> Shipping
         formData.append('shipping[weight]', inputWeight.value)
         formData.append('shipping[dimensions][width]', inputWidth.value)
@@ -836,7 +833,11 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
         formData.append(
             `categories`,
             JSON.stringify(
-                categories.filter((cat) => cat.isSelected).map((cat) => cat._id)
+                touched.current
+                    ? categories
+                          .filter((cat) => cat.isSelected)
+                          .map((cat) => cat._id)
+                    : (product?.categories.map((cat) => cat._id) as string[])
             )
         )
 

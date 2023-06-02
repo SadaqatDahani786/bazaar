@@ -25,6 +25,16 @@ import CardSlider from '../../components/Card Slider'
 //Hooks
 import useWindowDimensions from '../../hooks/useWindowDimensions'
 
+//Assets
+import SaleImage from '../../assets/images/sale.avif'
+import MensFashionImage from '../../assets/images/mens-fashion.avif'
+import GamingImage from '../../assets/images/gaming.avif'
+import BoysFashionImage from '../../assets/images/boys-fashion.avif'
+import GirlsFashionImage from '../../assets/images/girls-fashion.avif'
+import HealthAndBeautyImage from '../../assets/images/health-and-beauty.avif'
+import SkinCareImage from '../../assets/images/skincare.avif'
+import FragrancesImage from '../../assets/images/fragrances.avif'
+
 /**
  ** **
  ** ** ** Styled Components
@@ -222,7 +232,7 @@ const Home = () => {
                         {
                             title: '**Dress like** a gentlemen **with our apparels for men.**',
                             subtitle: "Men's Fashion",
-                            image: 'https://images.unsplash.com/photo-1507680434567-5739c80be1ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+                            image: MensFashionImage,
                             url: 'products/mens-fashion/1',
                         },
                     ],
@@ -230,7 +240,7 @@ const Home = () => {
                         {
                             title: '**Unleash** your gaming **and dominate.**',
                             subtitle: 'Gaming',
-                            image: 'https://images.unsplash.com/photo-1588590560438-5e27fe3f6b71?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1728&q=80',
+                            image: GamingImage,
                             url: 'products/gaming/1',
                         },
                     ],
@@ -238,13 +248,13 @@ const Home = () => {
                         {
                             title: '**Let boy** grow into a man **with our fine products.**',
                             subtitle: "Boys' Fashion",
-                            image: 'https://images.unsplash.com/photo-1497169345602-fbb1a307de16?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDF8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+                            image: BoysFashionImage,
                             url: 'products/boys-fashion/1',
                         },
                         {
                             title: '**Cute fashionable** clothes **for your princess.**',
                             subtitle: "Girls' Fashion",
-                            image: 'https://images.unsplash.com/photo-1603285756065-f56453dcaf0c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+                            image: GirlsFashionImage,
                             url: 'products/girls-fashion/1',
                         },
                     ],
@@ -252,17 +262,17 @@ const Home = () => {
                         {
                             title: '**Glitter like** moonshine and glow **with our organic beauty products.**',
                             subtitle: 'Health & Beauty',
-                            image: 'https://plus.unsplash.com/premium_photo-1676583283219-9cfb63303462?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1171&q=80',
+                            image: HealthAndBeautyImage,
                             url: 'products/health-and-beauty/1',
                         },
                         {
                             title: 'Skin Care',
-                            image: 'https://images.unsplash.com/photo-1559881230-1af605ca3f67?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8c2tpbiUyMGNhcmV8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
+                            image: SkinCareImage,
                             url: 'products/skin-care/1',
                         },
                         {
                             title: 'Fragrances',
-                            image: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8ZnJhZ3JhbmNlc3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60',
+                            image: FragrancesImage,
                             url: 'products/fragrances/1',
                         },
                     ],
@@ -429,7 +439,7 @@ const Home = () => {
                 </Wrapper>
             </Section>
             <Section>
-                <img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" />
+                <img src={SaleImage} />
                 <Details>
                     <Typography
                         color="secondary"

@@ -26,6 +26,8 @@ export const createStripeCheckoutSessionAsync = createAsyncThunk(
             //Callback
             cb()
 
+            console.log(err)
+
             //Reject with error
             if (err instanceof AxiosError)
                 return rejectWithValue(err.response?.data?.message)

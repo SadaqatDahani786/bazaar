@@ -194,7 +194,7 @@ const NavListItem = styled.li`
 
 //Nav Sub Menu
 const NavSubMenu = styled.div`
-    min-height: 300px;
+    min-height: 400px;
     background: ${(props) => props.theme.palette.primary.main};
     position: absolute;
     top: 63px;
@@ -880,105 +880,129 @@ const Header = () => {
                                     </ul>
                                 </NavCol>
                                 <NavCol>
-                                    <Link
-                                        component={RouterLink}
-                                        to={`/product/${topProduct?._id}`}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <CardStyled variant="elevation">
-                                            <ImageWrapper
-                                                style={{
-                                                    width: '16rem',
-                                                    height: '100%',
-                                                }}
-                                            >
-                                                {topProduct?.image?.url ? (
-                                                    <img
-                                                        src={
-                                                            topProduct?.image
-                                                                ?.url
-                                                        }
-                                                        alt={
-                                                            topProduct?.image
-                                                                ?.title
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <PhotoAlbumOutlined
+                                    {!topProduct ? (
+                                        <Typography
+                                            alignSelf="center"
+                                            color="secondary"
+                                        >
+                                            No top selling product found to show
+                                            here.
+                                        </Typography>
+                                    ) : (
+                                        <Link
+                                            component={RouterLink}
+                                            to={`/product/${topProduct?._id}`}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <CardStyled variant="elevation">
+                                                <ImageWrapper
+                                                    style={{
+                                                        width: '16rem',
+                                                        height: '100%',
+                                                    }}
+                                                >
+                                                    {topProduct?.image?.url ? (
+                                                        <img
+                                                            src={
+                                                                topProduct
+                                                                    ?.image?.url
+                                                            }
+                                                            alt={
+                                                                topProduct
+                                                                    ?.image
+                                                                    ?.title
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <PhotoAlbumOutlined
+                                                            color="secondary"
+                                                            fontSize="inherit"
+                                                        />
+                                                    )}
+                                                </ImageWrapper>
+                                                <CardDetails>
+                                                    <Typography
+                                                        variant="caption"
+                                                        fontWeight="bold"
+                                                        fontFamily="Playfair Display"
                                                         color="secondary"
-                                                        fontSize="inherit"
-                                                    />
-                                                )}
-                                            </ImageWrapper>
-                                            <CardDetails>
-                                                <Typography
-                                                    variant="caption"
-                                                    fontWeight="bold"
-                                                    fontFamily="Playfair Display"
-                                                    color="secondary"
-                                                >
-                                                    {topProduct?.title}
-                                                </Typography>
-                                                <Typography
-                                                    variant="subtitle1"
-                                                    color="secondary"
-                                                >
-                                                    Top Product
-                                                </Typography>
-                                            </CardDetails>
-                                        </CardStyled>
-                                    </Link>
+                                                    >
+                                                        {topProduct?.title}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="subtitle1"
+                                                        color="secondary"
+                                                    >
+                                                        Top Product
+                                                    </Typography>
+                                                </CardDetails>
+                                            </CardStyled>
+                                        </Link>
+                                    )}
                                 </NavCol>
                                 <NavCol>
-                                    <Link
-                                        component={RouterLink}
-                                        to={`/product/${newArrivalProduct?._id}`}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <CardStyled variant="elevation">
-                                            <ImageWrapper
-                                                style={{
-                                                    width: '16rem',
-                                                    height: '100%',
-                                                }}
-                                            >
-                                                {newArrivalProduct?.image
-                                                    ?.url ? (
-                                                    <img
-                                                        src={
-                                                            newArrivalProduct
-                                                                ?.image?.url
-                                                        }
-                                                        alt={
-                                                            newArrivalProduct
-                                                                ?.image?.title
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <PhotoAlbumOutlined
+                                    {!newArrivalProduct ? (
+                                        <Typography
+                                            alignSelf="center"
+                                            color="secondary"
+                                        >
+                                            No newly arrived product found to
+                                            show here.
+                                        </Typography>
+                                    ) : (
+                                        <Link
+                                            component={RouterLink}
+                                            to={`/product/${newArrivalProduct?._id}`}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <CardStyled variant="elevation">
+                                                <ImageWrapper
+                                                    style={{
+                                                        width: '16rem',
+                                                        height: '100%',
+                                                    }}
+                                                >
+                                                    {newArrivalProduct?.image
+                                                        ?.url ? (
+                                                        <img
+                                                            src={
+                                                                newArrivalProduct
+                                                                    ?.image?.url
+                                                            }
+                                                            alt={
+                                                                newArrivalProduct
+                                                                    ?.image
+                                                                    ?.title
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <PhotoAlbumOutlined
+                                                            color="secondary"
+                                                            fontSize="inherit"
+                                                        />
+                                                    )}
+                                                </ImageWrapper>
+                                                <CardDetails>
+                                                    <Typography
+                                                        variant="caption"
+                                                        fontWeight="bold"
+                                                        fontFamily="Playfair Display"
                                                         color="secondary"
-                                                        fontSize="inherit"
-                                                    />
-                                                )}
-                                            </ImageWrapper>
-                                            <CardDetails>
-                                                <Typography
-                                                    variant="caption"
-                                                    fontWeight="bold"
-                                                    fontFamily="Playfair Display"
-                                                    color="secondary"
-                                                >
-                                                    {newArrivalProduct?.title}
-                                                </Typography>
-                                                <Typography
-                                                    variant="subtitle1"
-                                                    color="secondary"
-                                                >
-                                                    New Arrival
-                                                </Typography>
-                                            </CardDetails>
-                                        </CardStyled>
-                                    </Link>
+                                                    >
+                                                        {
+                                                            newArrivalProduct?.title
+                                                        }
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="subtitle1"
+                                                        color="secondary"
+                                                    >
+                                                        New Arrival
+                                                    </Typography>
+                                                </CardDetails>
+                                            </CardStyled>
+                                        </Link>
+                                    )}
                                 </NavCol>
                             </NavSubMenu>
                         </NavListItem>

@@ -2,7 +2,6 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 
 import {
     DeleteOutline,
-    HandshakeRounded,
     PhotoAlbumOutlined,
     SearchOutlined,
 } from '@mui/icons-material'
@@ -36,7 +35,6 @@ import {
     deleteCategoryAsync,
     editSelectedStatus,
     getManyCategoryAsync,
-    ICategory,
     searchCategoryAsync,
 } from '../../../../store/categoryReducer'
 
@@ -128,7 +126,6 @@ const Categories = () => {
     const [showAlert, setShowAlert] = useState(false)
     const [page, setPage] = useState(1)
     const [rowsPerPage, setRowsPerPage] = useState(10)
-    // const [categories, setCategories] = useState<ICategory[]>([])
 
     //Refs
     const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({

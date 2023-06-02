@@ -17,7 +17,9 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
+    TablePagination,
     TableRow,
     TextField,
     Typography,
@@ -111,6 +113,7 @@ const Reviews = () => {
         data: reviews,
         isLoading,
         errors,
+        count,
     } = useAppSelector((state) => state.review)
     const dispatch = useAppDispatch()
 
@@ -118,6 +121,8 @@ const Reviews = () => {
     const [showAlert, setShowAlert] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [selectedReview, setSelectedReview] = useState<IReview>()
+    const [page, setPage] = useState(1)
+    const [rowsPerPage, setRowsPerPage] = useState(10)
 
     //Refs
     const timeOutID = useRef<{ id: ReturnType<typeof setTimeout> | null }>({
@@ -130,8 +135,19 @@ const Reviews = () => {
      ** **
      */
     useEffect(() => {
-        dispatch(getManyReviewAsync([]))
-    }, [])
+        dispatch(
+            getManyReviewAsync([
+                {
+                    key: 'page',
+                    value: page.toString(),
+                },
+                {
+                    key: 'limit',
+                    value: rowsPerPage.toString(),
+                },
+            ])
+        )
+    }, [page, rowsPerPage])
 
     /*
      ** **
@@ -182,7 +198,18 @@ const Reviews = () => {
 
         //3) Refetch reviews when query empty again
         if (!query || query.length <= 0) {
-            return dispatch(getManyReviewAsync([]))
+            return dispatch(
+                getManyReviewAsync([
+                    {
+                        key: 'page',
+                        value: page.toString(),
+                    },
+                    {
+                        key: 'limit',
+                        value: rowsPerPage.toString(),
+                    },
+                ])
+            )
         }
 
         //4) Set timeout to fetch reviews via search query
@@ -441,6 +468,27 @@ const Reviews = () => {
                                 ))
                             )}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={7} align="right">
+                                    <TablePagination
+                                        component="div"
+                                        count={count}
+                                        page={page - 1}
+                                        onPageChange={(e, newPage) =>
+                                            setPage(newPage + 1)
+                                        }
+                                        onRowsPerPageChange={(e) => {
+                                            setRowsPerPage(
+                                                parseInt(e.target.value, 10)
+                                            )
+                                            setPage(1)
+                                        }}
+                                        rowsPerPage={rowsPerPage}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        </TableFooter>
                     </Table>
                 </Widget>
                 <Widget>

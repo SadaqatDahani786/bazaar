@@ -39,6 +39,11 @@ const MediaLibraryViewStyled = styled.div`
     text-align: left;
     padding: 16px;
     padding-bottom: 40px;
+
+    & > div {
+        height: 80%;
+        overflow-y: auto;
+    }
 `
 
 //Image Wrapper

@@ -17,7 +17,7 @@ import styled from 'styled-components'
 import { useAppDispatch, useAppSelector } from '../../../../store/store'
 import {
     createCategoryAsync,
-    searchCategoryAsync,
+    searchCategoryWithoutFeedbackAsync,
     updateCategoryAsync,
 } from '../../../../store/categoryReducer'
 import { IMediaDatabase } from '../../../../store/mediaReducer'
@@ -65,7 +65,6 @@ const CategoryView = ({
      ** **
      */
     //Redux
-    const categories = useAppSelector((state) => state.category.data)
     const isLoading = useAppSelector((state) => state.category.isLoading)
     const errors = useAppSelector((state) => state.category.errors)
     const dispatch = useAppDispatch()
@@ -75,11 +74,19 @@ const CategoryView = ({
     const [selectedFiles, setSelectedFiles] = useState<Array<IMediaDatabase>>(
         []
     )
-    const [selectedParentCategory, setSelectedParentCategory] = useState({
-        label: 'none',
-        _id: '',
-    })
+    const [selectedParentCategory, setSelectedParentCategory] = useState(
+        category?.parent
+            ? {
+                  label: category.parent.name,
+                  _id: category.parent._id,
+              }
+            : {
+                  label: 'none',
+                  _id: '',
+              }
+    )
     const [showAlert, setShowAlert] = useState(false)
+    const [searchCategories, setSearchedCatogries] = useState<ICategory[]>([])
 
     //refs
     const refInputName = useRef<HTMLInputElement>(null)
@@ -256,7 +263,13 @@ const CategoryView = ({
 
         //3) Set timeout to fetch user via search query
         timeOutID.current.id = setTimeout(() => {
-            dispatch(searchCategoryAsync(query))
+            dispatch(
+                searchCategoryWithoutFeedbackAsync({
+                    query,
+                    cb: (categories) =>
+                        categories && setSearchedCatogries(categories),
+                })
+            )
         }, 300)
     }
 
@@ -335,10 +348,12 @@ const CategoryView = ({
                             value={selectedParentCategory}
                             options={[
                                 { label: 'none', _id: '' },
-                                ...categories.map((cat) => ({
-                                    label: cat.name,
-                                    _id: cat._id,
-                                })),
+                                ...searchCategories
+                                    .filter((cat) => cat._id !== category?._id)
+                                    .map((cat) => ({
+                                        label: cat.name,
+                                        _id: cat._id,
+                                    })),
                             ]}
                             renderInput={(params: TextFieldProps) => (
                                 <TextField

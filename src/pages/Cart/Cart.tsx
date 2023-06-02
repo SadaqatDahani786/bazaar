@@ -135,6 +135,8 @@ const Cart = () => {
         quantity: number,
         variants: { name: string; term: string }[]
     ) => {
+        setShowAlert(false)
+
         //1) Validate
         if (!product || !quantity) return
 
@@ -159,6 +161,8 @@ const Cart = () => {
         quantity: number,
         variants: { name: string; term: string }[]
     ) => {
+        setShowAlert(false)
+
         //1) Validate
         if (!product || !quantity) return
 
@@ -181,6 +185,8 @@ const Cart = () => {
 
     //Click checkout handler
     const clickCheckoutHandler = () => {
+        setShowAlert(false)
+
         //1) Cart method
         if (selectedPaymentMethod === 'card')
             return dispatch(

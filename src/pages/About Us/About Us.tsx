@@ -12,6 +12,7 @@ import Header from '../../layouts/Header'
 
 //Assets
 import ImageValues from '../../assets/images/image-values.webp'
+import AboutUsHeroImage from '../../assets/images/about-us.avif'
 
 //About Us Styled
 const AboutUsStyled = styled.div`
@@ -89,7 +90,7 @@ const AboutUs = () => {
             <Hero>
                 <Overlay />
                 <img
-                    src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80"
+                    src={AboutUsHeroImage}
                     alt="an image of 4 people looking at computer screens in an office environment"
                 />
                 <Heading>

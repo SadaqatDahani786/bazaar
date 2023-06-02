@@ -197,6 +197,31 @@ export const searchCategoryAsync = createAsyncThunk(
 
 /**
  ** ======================================================
+ ** Thunk [searchCategoryWithoutFeedbackAsync]
+ ** ======================================================
+ */
+export const searchCategoryWithoutFeedbackAsync = createAsyncThunk(
+    'search/categoryWithoutFeedback',
+    async ({
+        query,
+        cb = () => '',
+    }: {
+        query: string
+        cb: (response?: ICategory[]) => void
+    }) => {
+        try {
+            //1) Send http request
+            const response = await axios(searchCategory(query))
+
+            cb(response.data.data)
+        } catch (err) {
+            cb()
+        }
+    }
+)
+
+/**
+ ** ======================================================
  ** Reducer Slice [category]
  ** ======================================================
  */

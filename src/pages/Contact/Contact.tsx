@@ -46,6 +46,9 @@ import {
     isEmpty,
 } from '../../utils/validators'
 
+//Assets
+import ContactUsHeaderImage from '../../assets/images/contact-us.avif'
+
 /*
  ** **
  ** ** ** Styled Components
@@ -281,10 +284,7 @@ const Contact = () => {
             <Header />
             <Hero>
                 <Overlay />
-                <img
-                    src="https://images.unsplash.com/photo-1563906267088-b029e7101114?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-                    alt="an image of a guy"
-                />
+                <img src={ContactUsHeaderImage} alt="an image of a guy" />
                 <Heading>
                     <Typography variant="h2" color="secondary">
                         Contact Us
