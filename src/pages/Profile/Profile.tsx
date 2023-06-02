@@ -1,6 +1,12 @@
 import { SyntheticEvent, useEffect, useRef, useState } from 'react'
 
-import { EditOutlined, HomeOutlined, PhotoCamera } from '@mui/icons-material'
+import {
+    AccessTimeFilledOutlined,
+    EditOutlined,
+    HomeOutlined,
+    PhotoAlbumOutlined,
+    PhotoCamera,
+} from '@mui/icons-material'
 import {
     Alert,
     AlertTitle,
@@ -9,6 +15,7 @@ import {
     Breadcrumbs,
     Button,
     ButtonGroup,
+    Card,
     CircularProgress,
     Divider,
     IconButton,
@@ -33,7 +40,10 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom'
 //Redux
 import { useAppDispatch, useAppSelector } from '../../store/store'
 import { getCountriesAsync } from '../../store/locationReducer'
-import { updateCurrentUserAsync } from '../../store/userReducer'
+import {
+    clearUserHistoryAsync,
+    updateCurrentUserAsync,
+} from '../../store/userReducer'
 import {
     setUser as setAuthUser,
     updatePasswordAsync,
@@ -146,6 +156,22 @@ const Toolbar = styled.div`
     gap: 16px;
 `
 
+const ImageWrapper = styled.div`
+    width: 4rem;
+    height: 4rem;
+    background: ${(props) => props.theme.palette.grey[300]};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6rem;
+
+    & img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+`
+
 /**
  ** ======================================================
  ** Component [Profile]
@@ -195,7 +221,14 @@ const Profile = () => {
     //Tab
     const [activeTab, setActiveTab] = useState(0)
     const [activeTabOrder, setActiveTabOrder] = useState(0)
-    const tabs = ['Profile', 'My Account', 'Addresses', 'Orders', 'Reviews']
+    const tabs = [
+        'Profile',
+        'My Account',
+        'Addresses',
+        'Orders',
+        'Reviews',
+        'History',
+    ]
 
     //Refs
     const ranFetchReview = useRef(false)
@@ -1939,6 +1972,106 @@ const Profile = () => {
                                         </Button>
                                     </Box>
                                 )}
+                            </Stack>
+                        </TabPanel>
+                        <TabPanel value={activeTab} index={5}>
+                            <Stack gap="24px">
+                                <Stack
+                                    flexDirection="row"
+                                    justifyContent="space-between"
+                                    gap="16px"
+                                >
+                                    <Typography>
+                                        Showing {authUser?.history?.length || 0}{' '}
+                                        items in your watch history
+                                    </Typography>
+                                    <Button
+                                        disabled={isLoading.delete}
+                                        variant="outlined"
+                                        onClick={() => {
+                                            dispatch(
+                                                clearUserHistoryAsync((user) =>
+                                                    setAuthUser(user)
+                                                )
+                                            )
+                                        }}
+                                    >
+                                        {isLoading.delete ? (
+                                            <CircularProgress size={16} />
+                                        ) : (
+                                            'Clear History'
+                                        )}
+                                    </Button>
+                                </Stack>
+                                <Stack gap="16px">
+                                    {authUser?.history?.map((item) => (
+                                        <Link
+                                            underline="none"
+                                            component={RouterLink}
+                                            to={`/product/${item.product._id}`}
+                                        >
+                                            <Card
+                                                variant="outlined"
+                                                sx={{ paddingRight: '8px' }}
+                                            >
+                                                <Stack
+                                                    flexDirection="row"
+                                                    gap="8px"
+                                                    alignItems="center"
+                                                >
+                                                    <Stack>
+                                                        <ImageWrapper>
+                                                            {item.product.image
+                                                                ?.url ? (
+                                                                <img
+                                                                    src={
+                                                                        item
+                                                                            .product
+                                                                            .image
+                                                                            ?.url
+                                                                    }
+                                                                    alt={
+                                                                        item
+                                                                            .product
+                                                                            .image
+                                                                            ?.title
+                                                                    }
+                                                                />
+                                                            ) : (
+                                                                <PhotoAlbumOutlined
+                                                                    color="secondary"
+                                                                    fontSize="inherit"
+                                                                />
+                                                            )}
+                                                        </ImageWrapper>
+                                                    </Stack>
+                                                    <Stack
+                                                        flex={1}
+                                                        alignItems="flex-start"
+                                                    >
+                                                        <Typography>
+                                                            {item.product.title}
+                                                        </Typography>
+                                                    </Stack>
+                                                    <Stack
+                                                        flexDirection="row"
+                                                        gap="4px"
+                                                        sx={{
+                                                            fontSize: '1.3rem',
+                                                        }}
+                                                    >
+                                                        <AccessTimeFilledOutlined fontSize="inherit" />
+                                                        <Typography variant="caption">
+                                                            {new Date(
+                                                                item.touch_date
+                                                            ).toDateString()}
+                                                        </Typography>
+                                                    </Stack>
+                                                </Stack>
+                                            </Card>
+                                        </Link>
+                                    ))}
+                                </Stack>
                             </Stack>
                         </TabPanel>
                     </Stack>
