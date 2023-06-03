@@ -37,6 +37,7 @@ import { IMediaDatabase } from '../../../store/mediaReducer'
 import {
     editSelectedStatus,
     getManyCategoryAsync,
+    ICategory,
 } from '../../../store/categoryReducer'
 import {
     createProductAsync,
@@ -127,7 +128,6 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
      */
     //Redux
     const { isLoading, errors } = useAppSelector((state) => state.product)
-    const categories = useAppSelector((state) => state.category.data)
     const dispatch = useAppDispatch()
 
     //Data
@@ -152,6 +152,7 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
     const sizes = ['XS', 'S', 'M', 'L', 'XL']
 
     //State
+    const [categories, setCategories] = useState<ICategory[]>([])
     const [showAlert, setShowAlert] = useState(false)
     const [isStaffPiced, setIsStaffPicked] = useState(false)
     const [selectedOption, setSelectedOption] = useState('Custom')
@@ -206,8 +207,6 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
 
     const clearProductImage = useRef<() => void>()
     const clearProductGallery = useRef<() => void>()
-
-    const touched = useRef(false)
 
     /*
      ** **
@@ -276,7 +275,9 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
     //Selling Price
     const inputSellingPrice = useInput({
         default_value:
-            mode === 'EDIT' && product ? product?.selling_price.toString() : '',
+            mode === 'EDIT' && product
+                ? product?.selling_price?.toString()
+                : '',
         validation: combineValidators([
             {
                 validator: IsDecimal,
@@ -477,24 +478,23 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
      */
     //Fetch categories
     useEffect(() => {
-        dispatch(getManyCategoryAsync([]))
-    }, [])
-
-    // Set default product categories
-    useEffect(() => {
-        if (activeTab !== 0) touched.current = true
-
-        //1) Validate
-        if (mode !== 'EDIT') return
-
-        //2) Dispatch action to edit
         dispatch(
-            editSelectedStatus({
-                ids: product?.categories.map((cat) => cat._id) || [],
-                edit: true,
+            getManyCategoryAsync({
+                queryParams: [{ key: 'limit', value: '200' }],
+                cb: (categories) => {
+                    setCategories(
+                        categories.map((cat) => ({
+                            ...cat,
+                            isSelected:
+                                product?.categories?.some(
+                                    (catProd) => catProd._id === cat._id
+                                ) || false,
+                        }))
+                    )
+                },
             })
         )
-    }, [activeTab])
+    }, [product])
 
     //Set default product variations and images
     useEffect(() => {
@@ -833,11 +833,7 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
         formData.append(
             `categories`,
             JSON.stringify(
-                touched.current
-                    ? categories
-                          .filter((cat) => cat.isSelected)
-                          .map((cat) => cat._id)
-                    : (product?.categories.map((cat) => cat._id) as string[])
+                categories.filter((cat) => cat.isSelected).map((cat) => cat._id)
             )
         )
 
@@ -1626,10 +1622,17 @@ const ProductView = ({ mode = 'ADD_NEW', product }: ProductViewProps) => {
                                             <Checkbox
                                                 checked={cat.isSelected}
                                                 onChange={() =>
-                                                    dispatch(
-                                                        editSelectedStatus({
-                                                            ids: [cat._id],
-                                                        })
+                                                    setCategories(
+                                                        categories.map(
+                                                            (category) => ({
+                                                                ...category,
+                                                                isSelected:
+                                                                    category._id ===
+                                                                    cat._id
+                                                                        ? !category.isSelected
+                                                                        : category.isSelected,
+                                                            })
+                                                        )
                                                     )
                                                 }
                                             />

@@ -140,16 +140,18 @@ const Categories = () => {
     //Get many categories async
     useEffect(() => {
         dispatch(
-            getManyCategoryAsync([
-                {
-                    key: 'page',
-                    value: page.toString(),
-                },
-                {
-                    key: 'limit',
-                    value: rowsPerPage.toString(),
-                },
-            ])
+            getManyCategoryAsync({
+                queryParams: [
+                    {
+                        key: 'page',
+                        value: page.toString(),
+                    },
+                    {
+                        key: 'limit',
+                        value: rowsPerPage.toString(),
+                    },
+                ],
+            })
         )
         setShowAlert(true)
     }, [page, rowsPerPage])
@@ -204,16 +206,18 @@ const Categories = () => {
         //3) Refetch users when query empty again
         if (!query || query.length <= 0) {
             return dispatch(
-                getManyCategoryAsync([
-                    {
-                        key: 'page',
-                        value: page.toString(),
-                    },
-                    {
-                        key: 'limit',
-                        value: rowsPerPage.toString(),
-                    },
-                ])
+                getManyCategoryAsync({
+                    queryParams: [
+                        {
+                            key: 'page',
+                            value: page.toString(),
+                        },
+                        {
+                            key: 'limit',
+                            value: rowsPerPage.toString(),
+                        },
+                    ],
+                })
             )
         }
 

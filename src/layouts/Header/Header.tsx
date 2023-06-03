@@ -53,7 +53,7 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../store/store'
 import { getCurrentUserAsync } from '../../store/userReducer'
 import { setUser, logoutAsync } from '../../store/authReducer'
-import { getManyCategoryAsync } from '../../store/categoryReducer'
+import { getManyCategoryAsync, ICategory } from '../../store/categoryReducer'
 import {
     addItemInUserCartAsync,
     getUserCartAsync,
@@ -490,7 +490,6 @@ const Header = () => {
      */
     //Redux
     const user = useAppSelector((state) => state.auth.data)
-    const categories = useAppSelector((state) => state.category.data)
     const { data: cart, isLoading } = useAppSelector((state) => state.cart)
     const isCartDrawerOpen = useAppSelector(
         (state) => state.cart.cartDrawerStatus
@@ -504,6 +503,7 @@ const Header = () => {
     const [selectedMenu, setSelectedMenu] = useState<string[]>([])
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+    const [categories, setCategories] = useState<ICategory[]>([])
 
     //Products
     const [topProduct, setTopProduct] = useState<IProduct>()
@@ -520,7 +520,12 @@ const Header = () => {
     //Fetch categories & set user
     useEffect(() => {
         //1) Fetch categories
-        dispatch(getManyCategoryAsync([]))
+        dispatch(
+            getManyCategoryAsync({
+                queryParams: [{ key: 'limit', value: '100' }],
+                cb: (categories) => setCategories(categories),
+            })
+        )
 
         //2) Get user id and validate
         const id = localStorage.getItem('user_id')
@@ -924,16 +929,24 @@ const Header = () => {
                                                     <Typography
                                                         variant="caption"
                                                         fontWeight="bold"
+                                                        fontStyle="italic"
                                                         fontFamily="Playfair Display"
                                                         color="secondary"
                                                     >
-                                                        {topProduct?.title}
+                                                        TOP PRODUCT
                                                     </Typography>
+                                                    <Divider
+                                                        sx={{
+                                                            width: '100%',
+                                                            border: '1px solid white',
+                                                        }}
+                                                    />
                                                     <Typography
-                                                        variant="subtitle1"
+                                                        variant="caption"
                                                         color="secondary"
+                                                        textAlign="left"
                                                     >
-                                                        Top Product
+                                                        {topProduct?.title}
                                                     </Typography>
                                                 </CardDetails>
                                             </CardStyled>
@@ -986,18 +999,26 @@ const Header = () => {
                                                     <Typography
                                                         variant="caption"
                                                         fontWeight="bold"
+                                                        fontStyle="italic"
                                                         fontFamily="Playfair Display"
                                                         color="secondary"
+                                                    >
+                                                        NEW ARRIVAL
+                                                    </Typography>
+                                                    <Divider
+                                                        sx={{
+                                                            width: '100%',
+                                                            border: '1px solid white',
+                                                        }}
+                                                    />
+                                                    <Typography
+                                                        variant="caption"
+                                                        color="secondary"
+                                                        textAlign="left"
                                                     >
                                                         {
                                                             newArrivalProduct?.title
                                                         }
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="subtitle1"
-                                                        color="secondary"
-                                                    >
-                                                        New Arrival
                                                     </Typography>
                                                 </CardDetails>
                                             </CardStyled>

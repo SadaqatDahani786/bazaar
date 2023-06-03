@@ -22,7 +22,6 @@ import {
     Checkbox,
     TextField,
     Typography,
-    useTheme,
     Radio,
     Tooltip,
     InputAdornment,
@@ -44,6 +43,7 @@ import {
     getColorsAsync,
     getProductsInCategoryAsync,
     getSizesAsync,
+    IProduct,
 } from '../../store/productReducer'
 
 //Components
@@ -83,13 +83,13 @@ const Hero = styled.div`
 //Hero Heading
 const HeroHeading = styled.div`
     position: absolute;
-    max-width: 480px;
+    max-width: 580px;
     left: 64px;
     bottom: 10%;
     z-index: 10;
     height: 80%;
     padding: 0 24px;
-    border-left: 1px solid ${(props) => props.theme.palette.grey['600']};
+    border-left: 1px solid ${(props) => props.theme.palette.grey['300']};
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -158,13 +158,11 @@ const ProductsInCategory = () => {
      ** **
      */
     //Redux
-    const {
-        data: products,
-        count,
-        isLoading,
-    } = useAppSelector((state) => state.product)
-    const categories = useAppSelector((state) => state.category.data)
+    const { count, isLoading } = useAppSelector((state) => state.product)
     const dispatch = useAppDispatch()
+
+    const [products, setProducts] = useState<IProduct[]>([])
+    const [categories, setCategories] = useState<ICategory[]>([])
 
     //Filters
     const [category, setCategory] = useState<ICategory>()
@@ -182,7 +180,6 @@ const ProductsInCategory = () => {
     const params = useParams()
     const location = useLocation()
     const navigate = useNavigate()
-    const theme = useTheme()
 
     //State
     const [page, setPage] = useState<number>(params.page ? +params.page : 1)
@@ -229,7 +226,23 @@ const ProductsInCategory = () => {
         window.scrollTo({ top: 0, behavior: 'auto' })
 
         //2) Fetch prodcuts in category
-        dispatch(getManyCategoryAsync([]))
+        dispatch(
+            getManyCategoryAsync({
+                queryParams: [{ key: 'limit', value: '200' }],
+                cb: (categories) => {
+                    //=> Find category
+                    const cat = categories.find(
+                        (cat) => cat.slug === params.category
+                    )
+
+                    //=> Set category
+                    if (cat) setCategory(cat)
+
+                    //=> Set all categories
+                    setCategories(categories)
+                },
+            })
+        )
 
         //3) Fetch brands
         dispatch(getBrandsAsync((res) => setBrands(res)))
@@ -306,24 +319,31 @@ const ProductsInCategory = () => {
                           }
                         : { key: '', value: '' },
                 ],
+                cb: (products) => setProducts(products),
             })
         )
     }, [sortby, filters, priceMin, priceMax, location.pathname])
 
-    //Fetch category from the slug provided in url
+    // //Fetch category from the slug provided in url
     useEffect(() => {
         //1) Validate
-        if (!categories || categories.length <= 0) return
+        if (categories.length <= 0) return
 
-        //2) Find category
-        const cat = categories.find((cat) => cat.slug === params.category)
+        //2) Find category from its slug
+        const catIndex = categories.findIndex(
+            (cat) => cat.slug === params.category
+        )
 
-        //3) Set category
-        if (cat) setCategory(cat)
-    }, [categories, location.pathname])
+        //3) Not found, return
+        if (catIndex < 0) return
+
+        //4) Set category
+        setCategory(categories[catIndex])
+    }, [location.pathname])
 
     //Close filter side drawer when navigation happens
     useEffect(() => {
+        setFilers([])
         setIsFilteredDrawerOpen(false)
     }, [location.pathname])
 
@@ -466,16 +486,10 @@ const ProductsInCategory = () => {
                                 >
                                     {category.name}
                                 </Typography>
-                                <Divider
-                                    sx={{
-                                        backgroundColor:
-                                            theme.palette.grey['600'],
-                                    }}
-                                />
                                 <Typography
-                                    fontWeight="bold"
+                                    fontWeight="300"
                                     color="secondary"
-                                    variant="h5"
+                                    variant="h6"
                                 >
                                     {category.description}
                                 </Typography>
@@ -640,6 +654,10 @@ const ProductsInCategory = () => {
                                     }
                                     control={
                                         <Checkbox
+                                            checked={filters.some(
+                                                (filter) =>
+                                                    filter.value === brand.brand
+                                            )}
                                             sx={{ padding: '0 8px' }}
                                             size="small"
                                         />
@@ -663,7 +681,6 @@ const ProductsInCategory = () => {
                                     <Radio
                                         checked={filters.some(
                                             (filter) =>
-                                                filter.name === 'color' &&
                                                 filter.value === color.color
                                         )}
                                         size="small"
@@ -698,6 +715,10 @@ const ProductsInCategory = () => {
                                     label={size.size}
                                     control={
                                         <Checkbox
+                                            checked={filters.some(
+                                                (filter) =>
+                                                    filter.value === size.size
+                                            )}
                                             size="small"
                                             sx={{ padding: '0 8px' }}
                                             onChange={() =>

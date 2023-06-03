@@ -12,7 +12,7 @@ import {
     getUserInterestsItemsAsync,
     IProduct,
 } from '../../store/productReducer'
-import { getManyCategoryAsync } from '../../store/categoryReducer'
+import { getManyCategoryAsync, ICategory } from '../../store/categoryReducer'
 
 //Components
 import Header from '../../layouts/Header'
@@ -130,7 +130,6 @@ const Home = () => {
      */
     //Redux
     const user = useAppSelector((state) => state.auth.data)
-    const categories = useAppSelector((state) => state.category.data)
     const dispatch = useAppDispatch()
 
     //State
@@ -147,6 +146,9 @@ const Home = () => {
         useState<IProduct[]>()
 
     const [userInterestsItems, setUserInterestsItems] = useState<IProduct[]>([])
+
+    //Categories
+    const [categories, setCategories] = useState<ICategory[]>([])
 
     //Theme
     const theme = useTheme()
@@ -220,7 +222,12 @@ const Home = () => {
         )
 
         //4) Fetch categories
-        dispatch(getManyCategoryAsync([]))
+        dispatch(
+            getManyCategoryAsync({
+                queryParams: [{ key: 'limit', value: '200' }],
+                cb: (categories) => setCategories(categories),
+            })
+        )
     }, [])
 
     return (

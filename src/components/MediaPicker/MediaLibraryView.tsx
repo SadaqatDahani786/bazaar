@@ -202,7 +202,7 @@ const MediaLibraryView = ({ selectMultiple }: { selectMultiple: boolean }) => {
                     sx={{ margin: 'auto auto 0 auto' }}
                     shape="rounded"
                     variant="outlined"
-                    count={Math.floor(count / itemsPerPage)}
+                    count={Math.ceil(count / itemsPerPage)}
                     onChange={(e, page) => setPage(page)}
                 />
             </Stack>

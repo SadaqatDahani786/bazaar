@@ -7,14 +7,14 @@ import {
     Typography,
     useTheme,
 } from '@mui/material'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Link as RouterLink } from 'react-router-dom'
 import styled from 'styled-components'
 
 //Redux
 import { useAppDispatch, useAppSelector } from '../../store/store'
-import { getManyCategoryAsync } from '../../store/categoryReducer'
+import { getManyCategoryAsync, ICategory } from '../../store/categoryReducer'
 
 //Hooks
 import useWindowDimensions from '../../hooks/useWindowDimensions'
@@ -139,11 +139,17 @@ const Footer = () => {
     //Hooks
     const { width } = useWindowDimensions()
     const theme = useTheme()
-    const categories = useAppSelector((state) => state.category.data)
+    const [categories, setCategories] = useState<ICategory[]>([])
     const dispatch = useAppDispatch()
 
+    //Fetch categories
     useEffect(() => {
-        dispatch(getManyCategoryAsync([]))
+        dispatch(
+            getManyCategoryAsync({
+                queryParams: [{ key: 'limit', value: '200' }],
+                cb: (categories) => setCategories(categories),
+            })
+        )
     }, [])
 
     return (
