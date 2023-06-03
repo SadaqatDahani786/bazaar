@@ -444,8 +444,8 @@ const OrderView = ({
                 .reduce(
                     (acc, item) =>
                         (acc +=
-                            (item.product.selling_price || item.product.price) *
-                            item.quantity),
+                            (item.product?.selling_price ||
+                                item.product.price) * item.quantity),
                     0
                 )
                 .toString()
@@ -800,7 +800,7 @@ const OrderView = ({
                                             </TableCell>
                                             <TableCell align="right">
                                                 &euro;
-                                                {item.product.selling_price.toFixed(
+                                                {item.product.selling_price?.toFixed(
                                                     2
                                                 ) ||
                                                     item.product.price.toFixed(
