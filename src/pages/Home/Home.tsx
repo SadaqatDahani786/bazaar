@@ -103,7 +103,7 @@ const Heading = styled(Typography)`
 const Details = styled.div`
     position: absolute;
     top: 40%;
-    right: 48px;
+    left: 48px;
     max-width: 580px;
     text-align: left;
     display: flex;
@@ -460,19 +460,6 @@ const Home = () => {
                         Save huge with big discount on ongoing sale on variety
                         of products.
                     </Typography>
-                    {/* <Wrapper>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            size="large"
-                            style={{
-                                padding: '1.5rem 2rem',
-                                borderRadius: '0px',
-                            }}
-                        >
-                            <Typography variant="h5">See Deals</Typography>
-                        </Button>
-                    </Wrapper> */}
                 </Details>
             </Section>
             <Footer />

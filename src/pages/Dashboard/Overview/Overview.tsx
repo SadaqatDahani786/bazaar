@@ -481,7 +481,7 @@ const Overview = () => {
                             getGrowthIncrease<{ refunds: number }>({
                                 arr: refundsInMonthsOfYear,
                                 extracter: ({ refunds }) => refunds,
-                            }).growthPercentage < 0
+                            }).growthPercentage > 0
                                 ? 'DOWNWARD'
                                 : 'UPWARD',
                         value: getGrowthIncrease<{ refunds: number }>({
@@ -489,7 +489,16 @@ const Overview = () => {
                             extracter: ({ refunds }) => refunds,
                         }).growthPercentage,
                     }}
-                    changeAmount={`${
+                    changeAmount={`
+                    ${
+                        getGrowthIncrease<{ refunds: number }>({
+                            arr: refundsInMonthsOfYear,
+                            extracter: ({ refunds }) => refunds,
+                        }).growthPercentage > 0
+                            ? '-'
+                            : ''
+                    }
+                    ${
                         getGrowthIncrease<{ refunds: number }>({
                             arr: refundsInMonthsOfYear,
                             extracter: ({ refunds }) => refunds,

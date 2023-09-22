@@ -140,7 +140,7 @@ const Signup = () => {
      */
     //Fetch all countries when components loads first time
     useEffect(() => {
-        dispatch(getCountriesAsync())
+        dispatch(getCountriesAsync(() => ''))
     }, [])
 
     //Refetch states when country selection changes

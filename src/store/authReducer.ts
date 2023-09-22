@@ -21,10 +21,10 @@ export const signupAsync = createAsyncThunk(
     async (formData: GenericFormData, { rejectWithValue }) => {
         try {
             //1) Send http request
-            const response = await axios(signup(formData))
+            await axios(signup(formData))
 
             //2) Get complete user with it's id
-            const reponseUser = await axios(getUser(response.data.data.user))
+            const reponseUser = await axios(getCurrentUser())
 
             //3) Return response
             return reponseUser.data.data
